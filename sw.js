@@ -1,4 +1,4 @@
-const V = 'mmb-v1';
+const V = 'mmb-v2';
 const FILES = ['./', './index.html', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './models.html', './polya.html',
                './icon.svg', './manifest.webmanifest'];
 
