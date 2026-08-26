@@ -1,0 +1,2521 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>100 个思维模型 · 母图版</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#070a12">
+<style>
+  :root{
+    --bg:#04060e; --card:rgba(7,11,24,.66);
+    --ink:#e4eaf7; --dim:#8d98b6; --far:#66708c;
+    --cy:#5fc9e8; --gd:#e8b84a; --pu:#c78ef0; --gr:#7ee8a2; --rd:#f08e8e;
+    --line:rgba(140,160,210,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{scroll-behavior:smooth}
+  body{background:var(--bg);color:var(--ink);line-height:1.75;
+    font-family:-apple-system,"PingFang SC","Hiragino Sans GB",sans-serif;
+    -webkit-font-smoothing:antialiased}
+  #sky{position:fixed;inset:0;z-index:0}
+  .page{position:relative;z-index:1;max-width:1240px;margin:0 auto;padding:0 26px 90px}
+
+  /* ---------- hero ---------- */
+  .hero{min-height:62vh;display:flex;flex-direction:column;justify-content:center;padding:70px 0 30px}
+  .kicker{font-size:11px;letter-spacing:.42em;color:var(--far);text-transform:uppercase}
+  .hero h1{font-family:"Songti SC","STSong",Georgia,serif;font-size:clamp(38px,6.4vw,70px);
+    font-weight:600;letter-spacing:.1em;line-height:1.15;margin:18px 0 0;
+    background:linear-gradient(100deg,#fff 10%,var(--cy) 48%,var(--pu) 88%);
+    -webkit-background-clip:text;background-clip:text;color:transparent}
+  .hero .lede{margin-top:22px;max-width:680px;font-size:15px;color:var(--dim)}
+  .hero .lede b{color:var(--ink);font-weight:600}
+
+  /* ---------- 母图速查 ---------- */
+  .why{margin-top:34px;border:1px solid var(--line);border-radius:16px;background:var(--card);
+    backdrop-filter:blur(10px);padding:24px 26px}
+  .why h2{font-family:"Songti SC",Georgia,serif;font-size:19px;letter-spacing:.1em;font-weight:600}
+  .why p{font-size:13px;color:var(--dim);margin-top:10px}
+  .why p b{color:var(--ink)}
+  .mother{display:grid;grid-template-columns:repeat(auto-fill,minmax(196px,1fr));gap:12px;margin-top:20px}
+  .mo{border:1px solid var(--line);border-radius:12px;padding:12px 13px 10px;cursor:pointer;
+    transition:.22s;background:rgba(4,7,16,.4)}
+  .mo:hover{border-color:rgba(95,201,232,.42);box-shadow:0 20px 50px -40px var(--cy)}
+  .mo.on{border-color:var(--cy);background:rgba(95,201,232,.07)}
+  .mo svg{width:100%;height:70px;display:block}
+  .mo .mt{font-size:12.5px;color:var(--ink);margin-top:7px;letter-spacing:.04em}
+  .mo .md{font-size:10.5px;color:var(--far);line-height:1.6;margin-top:2px}
+  .mo .mc{font-size:10px;color:var(--cy);float:right;font-family:ui-monospace,monospace}
+
+  /* ---------- 母图实验室 ---------- */
+  .lab{margin-top:16px;border:1px solid rgba(95,201,232,.28);border-radius:14px;
+    background:rgba(4,8,18,.75);overflow:hidden;display:none}
+  .lab.on{display:block;animation:fade .35s ease}
+  @keyframes fade{from{opacity:0;transform:translateY(-6px)}to{opacity:1;transform:none}}
+  .lab .lhd{display:flex;align-items:baseline;gap:12px;padding:16px 22px 0;flex-wrap:wrap}
+  .lab .lhd h3{font-family:"Songti SC",Georgia,serif;font-size:20px;letter-spacing:.1em;font-weight:600}
+  .lab .lhd .enc{font-size:12.5px;color:var(--cy);flex:1;min-width:180px}
+  .lab .lhd .x{font-size:11px;color:var(--far);border:1px solid var(--line);border-radius:99px;
+    padding:2px 11px;cursor:pointer}
+  .lab .lhd .x:hover{color:var(--ink)}
+  .lgrid{display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:22px;padding:14px 22px 20px}
+  @media(max-width:860px){.lgrid{grid-template-columns:1fr}}
+  .stage{border:1px solid var(--line);border-radius:12px;background:rgba(3,5,12,.6);padding:6px}
+  .stage svg{width:100%;height:auto;display:block}
+  .replay{margin-top:8px;font-size:11px;color:var(--far);border:1px solid var(--line);
+    border-radius:99px;padding:3px 12px;cursor:pointer;background:none;font:inherit;display:inline-block}
+  .replay:hover{color:var(--cy);border-color:rgba(95,201,232,.4)}
+  .lrow{font-size:12.5px;color:var(--dim);margin-bottom:11px;padding-left:52px;position:relative;line-height:1.7}
+  .lrow em{position:absolute;left:0;top:1px;font-style:normal;font-size:9.5px;letter-spacing:.08em;
+    color:var(--far);border:1px solid var(--line);border-radius:5px;padding:1px 5px;min-width:44px;text-align:center}
+  .lrow b{color:var(--ink);font-weight:600}
+  .lrow.brain em{color:var(--pu);border-color:rgba(199,142,240,.35)}
+  .lrow.avoid em{color:var(--rd);border-color:rgba(240,142,142,.35)}
+  .lrow.slot em{color:var(--gd);border-color:rgba(232,184,74,.35)}
+  .vars{display:grid;grid-template-columns:repeat(auto-fill,minmax(118px,1fr));gap:9px;
+    padding:0 22px 20px}
+  .vr{border:1px solid var(--line);border-radius:10px;padding:7px 8px 6px;background:rgba(3,5,12,.5);
+    transition:.2s;cursor:default}
+  .vr:hover{border-color:rgba(95,201,232,.35)}
+  .vr svg{width:100%;height:62px;display:block;opacity:.85}
+  .vr .vt{font-size:10.5px;color:var(--ink);margin-top:5px}
+  .vr .vd{font-size:9.5px;color:var(--far);line-height:1.5}
+  .lmods{padding:0 22px 20px;display:flex;flex-wrap:wrap;gap:6px}
+  .lmods a{font-size:11px;color:var(--dim);text-decoration:none;border:1px solid var(--line);
+    border-radius:99px;padding:2px 10px;transition:.2s}
+  .lmods a:hover{color:var(--cy);border-color:rgba(95,201,232,.4)}
+  .labhint{padding:0 22px 18px;font-size:11.5px;color:var(--far)}
+
+  /* ---------- 脑科学原则 ---------- */
+  .brainbar{margin-top:16px;border:1px solid var(--line);border-radius:14px;background:rgba(4,8,18,.5);
+    padding:16px 20px}
+  .brainbar h4{font-size:12px;letter-spacing:.2em;color:var(--far);font-weight:400;margin-bottom:12px}
+  .bb{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:11px}
+  .bb div{font-size:11.5px;color:var(--dim);line-height:1.65;border-left:2px solid rgba(199,142,240,.35);
+    padding-left:11px}
+  .bb b{display:block;color:var(--ink);font-size:12.5px;font-weight:600;margin-bottom:2px}
+  .bb i{font-style:normal;color:var(--cy)}
+
+  /* ---------- 吸顶条 ---------- */
+  .bar{position:sticky;top:0;z-index:20;display:flex;gap:12px;align-items:center;flex-wrap:wrap;
+    margin:26px -26px 0;padding:11px 26px;font-size:12.5px;color:var(--dim);
+    background:rgba(4,6,14,.88);backdrop-filter:blur(14px);border-bottom:1px solid var(--line)}
+  .bar b{color:var(--ink);font-variant-numeric:tabular-nums}
+  .bar input{flex:1;min-width:130px;appearance:none;background:none;border:1px solid var(--line);
+    border-radius:99px;padding:5px 14px;color:var(--ink);font:inherit;font-size:12.5px;outline:none}
+  .bar input:focus{border-color:rgba(95,201,232,.5)}
+  .bar button{appearance:none;border:1px solid var(--line);background:none;color:var(--far);
+    font:inherit;font-size:11.5px;padding:4px 12px;border-radius:99px;cursor:pointer;white-space:nowrap}
+  .bar button:hover{color:var(--ink);border-color:rgba(140,160,210,.4)}
+  .bar button.on{color:var(--gd);border-color:rgba(232,184,74,.5);background:rgba(232,184,74,.08)}
+  @media(max-width:760px){.bar .hidemob{display:none}}
+
+  /* ---------- 来源切换 ---------- */
+  .srcs{display:flex;flex-wrap:wrap;gap:8px;margin:20px 0 0}
+  .srcs span{font-size:12px;color:var(--far);border:1px solid var(--line);border-radius:99px;
+    padding:5px 16px;cursor:pointer;transition:.2s}
+  .srcs span:hover{color:var(--ink)}
+  .srcs span.on{color:var(--cy);border-color:rgba(95,201,232,.5);background:rgba(95,201,232,.09)}
+
+  /* ---------- 书的导语 ---------- */
+  .book{display:none;margin-top:16px;border:1px solid rgba(232,184,74,.26);border-radius:14px;
+    background:rgba(10,8,4,.45);padding:18px 22px}
+  .book.on{display:block;animation:fade .35s ease}
+  .book h3{font-family:"Songti SC",Georgia,serif;font-size:18px;letter-spacing:.08em;font-weight:600}
+  .book h3 span{font-family:-apple-system,sans-serif;font-size:11px;color:var(--far);
+    letter-spacing:.04em;margin-left:10px;font-weight:400}
+  .book p{font-size:12.5px;color:var(--dim);margin-top:9px;max-width:820px}
+  .book p b{color:var(--ink)}
+  .bk{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:14px}
+  .bk div{font-size:11.5px;color:var(--dim);line-height:1.65;border-left:2px solid rgba(232,184,74,.35);
+    padding-left:11px}
+  .bk b{display:block;color:var(--gd);font-size:12.5px;font-weight:600;margin-bottom:2px}
+
+  .cats{display:flex;flex-wrap:wrap;gap:7px;margin:20px 0 4px}
+  .cats span{font-size:11.5px;color:var(--far);border:1px solid var(--line);border-radius:99px;
+    padding:3px 13px;cursor:pointer;transition:.2s}
+  .cats span:hover{color:var(--ink)}
+  .cats span.on{color:var(--pu);border-color:rgba(199,142,240,.5);background:rgba(199,142,240,.08)}
+
+  /* ---------- 卡片网格 ---------- */
+  .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(288px,1fr));gap:14px;margin-top:18px}
+  .card{border:1px solid var(--line);border-radius:15px;overflow:hidden;background:var(--card);
+    backdrop-filter:blur(10px);transition:border-color .25s,box-shadow .25s;display:flex;flex-direction:column}
+  .card:hover{border-color:rgba(95,201,232,.32)}
+  .card.done{border-color:rgba(126,232,162,.3)}
+  .card.flash{border-color:var(--gd);box-shadow:0 0 0 1px rgba(232,184,74,.35),0 24px 60px -40px var(--gd)}
+  .card .top{display:flex;gap:10px;align-items:flex-start;padding:13px 15px 0}
+  .num{font-family:ui-monospace,Menlo,monospace;font-size:10px;letter-spacing:.1em;color:var(--far);
+    border:1px solid var(--line);border-radius:6px;padding:2px 7px;flex:none}
+  .card.done .num{color:var(--gr);border-color:rgba(126,232,162,.35)}
+  .ttl{flex:1;min-width:0}
+  .ttl h3{font-family:"Songti SC",Georgia,serif;font-size:16px;font-weight:600;letter-spacing:.04em;line-height:1.4}
+  .ttl .en{font-size:10px;color:var(--far);margin-top:1px;letter-spacing:.02em}
+  .chk{flex:none;width:19px;height:19px;border:1px solid var(--line);border-radius:6px;
+    cursor:pointer;position:relative;transition:.2s}
+  .chk:hover{border-color:rgba(126,232,162,.55);background:rgba(126,232,162,.08)}
+  .card.done .chk{background:rgba(126,232,162,.16);border-color:rgba(126,232,162,.5)}
+  .card.done .chk::after{content:'';position:absolute;left:6px;top:2px;width:5px;height:9px;
+    border:solid var(--gr);border-width:0 2px 2px 0;transform:rotate(42deg)}
+
+  .fig{margin:11px 12px 0;border:1px solid var(--line);border-radius:11px;background:rgba(3,5,12,.55);
+    position:relative;cursor:zoom-in;transition:.2s}
+  .fig:hover{border-color:rgba(95,201,232,.35)}
+  .fig svg{width:100%;height:auto;display:block}
+  body.blind .fig svg{filter:blur(9px);opacity:.28}
+  body.blind .fig::after{content:'先在纸上画一遍';position:absolute;inset:0;display:flex;
+    align-items:center;justify-content:center;font-size:12px;color:var(--gd);letter-spacing:.1em}
+  body.blind .fig:hover svg{filter:none;opacity:1}
+  body.blind .fig:hover::after{content:''}
+
+  .body{padding:12px 15px 14px;flex:1;display:flex;flex-direction:column;gap:8px}
+  .kv{font-size:12.5px;color:var(--dim);padding-left:15px;position:relative}
+  .kv b{color:var(--ink);font-weight:600}
+  .kv.core::before{content:'核';position:absolute;left:0;top:0;font-size:9.5px;color:var(--cy);
+    border:1px solid rgba(95,201,232,.4);border-radius:4px;padding:0 2px;line-height:1.5}
+  .kv.when::before{content:'用';position:absolute;left:0;top:0;font-size:9.5px;color:var(--gd);
+    border:1px solid rgba(232,184,74,.4);border-radius:4px;padding:0 2px;line-height:1.5}
+  .kv.eg::before{content:'例';position:absolute;left:0;top:0;font-size:9.5px;color:var(--pu);
+    border:1px solid rgba(199,142,240,.4);border-radius:4px;padding:0 2px;line-height:1.5}
+  .kv.trap::before{content:'坑';position:absolute;left:0;top:0;font-size:9.5px;color:var(--rd);
+    border:1px solid rgba(240,142,142,.4);border-radius:4px;padding:0 2px;line-height:1.5}
+  .foot{display:flex;gap:6px;flex-wrap:wrap;margin-top:auto;padding-top:4px}
+  .tag{font-size:10px;color:var(--far);border:1px solid var(--line);border-radius:99px;padding:1px 9px}
+  .tag.m{color:var(--cy);border-color:rgba(95,201,232,.28)}
+  .tag.p{color:var(--gd);border-color:rgba(232,184,74,.3)}
+
+  /* ---------- 放大 ---------- */
+  #lb{position:fixed;inset:0;z-index:99;background:rgba(2,4,10,.95);backdrop-filter:blur(8px);
+    display:none;align-items:center;justify-content:center;cursor:zoom-out;padding:30px}
+  #lb.on{display:flex}
+  #lb .box{max-width:860px;width:100%}
+  #lb svg{width:100%;height:auto;border:1px solid var(--line);border-radius:14px;background:rgba(7,11,24,.9)}
+  #lb .cap{margin-top:14px;text-align:center;font-size:14px;color:var(--dim)}
+  #lb .cap b{color:var(--ink);font-family:"Songti SC",Georgia,serif;font-size:18px;letter-spacing:.08em}
+
+  .empty{padding:60px 0;text-align:center;color:var(--far);font-size:13px}
+  footer{margin-top:46px;font-size:11.5px;color:var(--far);line-height:2.1;border-top:1px solid var(--line);padding-top:20px}
+</style>
+
+<canvas id="sky"></canvas>
+<div id="lb"><div class="box" id="lbb"></div></div>
+<div class="page">
+
+<div class="hero">
+  <div class="kicker">Mental Models · Mother-Diagram Edition</div>
+  <h1>100 个思维模型<br>只有 10 张母图</h1>
+  <p class="lede">你记得住的不是图像，是<b>空间关系</b>。<br>
+    所以这一页不给你一百多张不同的画，只给你 <b>10 个空盒子</b>，再把所有模型挂进去。<br>
+    每遇到新东西，只问两句：<b>属于哪张母图？在图上的哪个位置？</b><br>
+    <span style="color:var(--far)">两套卡片：100 个实用思维模型 · 36 张来自斯科特·佩奇《模型思维》的形式模型。</span><br>
+    <a href="解题空间.html" style="color:var(--cy);text-decoration:none;font-size:13px">→ 解题空间 · 波利亚工作台（把条件摊开、排序、砍掉、挂模型）</a></p>
+</div>
+
+<div class="why">
+  <h2>10 张母图 · 点一下只看这一类</h2>
+  <p>不是分类学，是<b>存放规则</b>。任何信息进脑子之前先选盒子，选不出来 = 你还没懂。<span style="color:var(--far)">点一张母图 → 打开它的实验室并筛选下方卡片；再点一次收起。</span></p>
+  <div class="mother" id="mo"></div>
+  <div class="lab" id="lab"></div>
+  <div class="brainbar">
+    <h4>这一页为什么这么设计 · 脑科学依据</h4>
+    <div class="bb">
+      <div><b>位置比内容好记</b>海马体的位置细胞天然编码"在哪"。所以先固定<i>空间骨架</i>，再往槽位里塞内容。</div>
+      <div><b>双编码</b>图像与语言走两套通路，同时编码等于两条提取路径。所以每个模型都是<i>图 + 一句话</i>，缺一不可。</div>
+      <div><b>工作记忆 4±1</b>同时只能拿住约四块。所以每张母图的槽位<i>不超过 5 个</i>，超了就必须再拆一层。</div>
+      <div><b>生成效应</b>自己画出来的痕迹比看过的强得多，运动皮层也参与编码。所以有<i>盲画模式</i>——先画，再对。</div>
+      <div><b>预测编码</b>大脑先调 schema 再填细节，没有骨架的信息会被丢弃。母图就是<i>预先装好的 schema</i>。</div>
+      <div><b>瞬态运动抓注意</b>动画只用来演"结构怎么动"，演完即停；<i>不做装饰性动画</i>，否则消耗注意力。</div>
+    </div>
+  </div>
+</div>
+
+<div class="bar">
+  <span>已掌握 <b id="cnt">0</b><span style="color:var(--far)">/<span id="tot">0</span></span></span>
+  <input id="q" placeholder="搜模型名 / 关键词，如：漏斗、复利、四象限">
+  <button id="bd" onclick="blind()">盲画模式</button>
+  <button onclick="reset()">清空</button>
+  <span class="hidemob" style="color:var(--far)">点图放大 · 盲画模式下鼠标悬停才显形</span>
+</div>
+
+<div class="srcs" id="src"></div>
+<div class="book" id="book">
+  <h3>第二部分 · 《模型思维》<span>斯科特·佩奇 · Scott E. Page</span></h3>
+  <p>上面 100 个是<b>可以直接用的思维模型</b>；这 36 张是<b>可以推导的形式模型</b> —— 有明确假设、能算出结论、能被数据证伪。
+     两者不冲突：前者帮你快速定位，后者告诉你在什么条件下结论才成立。</p>
+  <div class="bk">
+    <div><b>多模型格栅</b>不是"一个问题配一个模型"，而是同时上几个模型，让它们互相对话。单个模型必然有盲点，重叠处才是稳的。</div>
+    <div><b>所有模型都是错的</b>模型必须简化才能推理，简化就一定漏东西。价值不在于对，在于能推出你想不到的结论。</div>
+    <div><b>一对多</b>你不需要一百个模型。一个模型换个名字就能装另一个领域 —— 这正是"10 张母图"能成立的原因。</div>
+  </div>
+</div>
+<div class="cats" id="cat"></div>
+<div class="grid" id="g"></div>
+<div class="empty" id="none" style="display:none">没有匹配的模型</div>
+
+<footer>
+  用法：每天挑 3 个，只做一件事 —— 合上页面，在纸上把图默画出来，再翻回来对。<br>
+  画得出 = 会了，勾掉；画不出 = 还没懂，别急着看下一个。<br>
+  模型内容为通用商管/认知框架的图解整理，母图归类为本页自定。
+</footer>
+</div>
+
+<!--BB-START-->
+<script>
+/* ══════════════════════════════════════════════════════════════
+   黑板 · 每个思维模型一块无限延展的板子
+   Pencil 写字画画 · 手指平移缩放 · 拖入图片/视频 · 拖角调大小
+   存在 IndexedDB（同一个域名下，两个页面共享同一块板）
+   ────────────────────────────────────────────────────────────── */
+(function(){
+if(window.BB)return;
+
+/* ---------- 存储 ---------- */
+const DBN='bb1';
+let dbp=null;
+function db(){
+  if(!dbp)dbp=new Promise((res,rej)=>{
+    const r=indexedDB.open(DBN,1);
+    r.onupgradeneeded=()=>{const d=r.result;
+      if(!d.objectStoreNames.contains('boards'))d.createObjectStore('boards',{keyPath:'id'});
+      if(!d.objectStoreNames.contains('blobs'))d.createObjectStore('blobs',{keyPath:'id'});};
+    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+  });
+  return dbp;
+}
+function req(store,mode,fn){
+  return db().then(d=>new Promise((res,rej)=>{
+    const t=d.transaction(store,mode), q=fn(t.objectStore(store));
+    q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error);
+  }));
+}
+const dbGet=(s,k)=>req(s,'readonly',o=>o.get(k));
+const dbPut=(s,v)=>req(s,'readwrite',o=>o.put(v));
+const dbDel=(s,k)=>req(s,'readwrite',o=>o.delete(k));
+const dbAll=(s)=>req(s,'readonly',o=>o.getAll());
+
+const slug=s=>String(s||'').trim().replace(/\s+/g,'').toLowerCase();
+const uid=()=>Math.random().toString(36).slice(2,10)+(seq++);
+let seq=0;
+
+/* ---------- 状态 ---------- */
+let B=null;                       /* 当前板 */
+let root=null, world=null, ink=null, stage=null;
+let cam={x:0,y:0,z:1};
+let tool='pen';
+let pen={c:'#e8edf9',w:2.2};
+let selId=null;
+const els=new Map();              /* itemId -> dom */
+const urls=new Map();             /* blobId -> objectURL */
+let undoStack=[], saveT=null;
+
+const PENS=[['#e8edf9','白'],['#5fc9e8','青'],['#e8b84a','金'],['#c78ef0','紫'],['#7ee8a2','绿'],['#f08e8e','红']];
+const WIDTHS=[1.4,2.2,4,8];
+
+/* ---------- 样式 ---------- */
+const CSS=`
+.bbroot{position:fixed;inset:0;z-index:9000;background:#070a12;color:#e8edf9;
+  font-family:-apple-system,"PingFang SC","Hiragino Sans GB",sans-serif;
+  overscroll-behavior:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.bbstage{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:crosshair}
+.bbroot[data-tool="move"] .bbstage{cursor:default}
+.bbworld{position:absolute;left:0;top:0;width:0;height:0;transform-origin:0 0}
+.bbink{position:absolute;left:0;top:0;width:1px;height:1px;
+  pointer-events:none;overflow:visible;z-index:5000}
+.bbroot[data-tool="pen"] .bbitem,.bbroot[data-tool="erase"] .bbitem{pointer-events:none}
+.bbgo{cursor:pointer;color:#5f6a86;letter-spacing:.04em}
+.bbgo:hover,.bbgo:active{color:#5fc9e8}
+.bbitem{position:absolute;border-radius:10px;outline:0;
+  box-shadow:0 0 0 0 rgba(95,201,232,0)}
+.bbitem>.c{width:100%;height:100%;pointer-events:none;border-radius:10px;overflow:hidden;display:block}
+.bbitem.sel{box-shadow:0 0 0 1.5px rgba(95,201,232,.85)}
+.bbitem.sel>.c{pointer-events:auto}
+.bbitem video,.bbitem img,.bbitem iframe{width:100%;height:100%;display:block;border:0;
+  border-radius:10px;background:#0b1020;object-fit:contain}
+.bbitem .txt{width:100%;height:100%;padding:8px 10px;font-size:17px;line-height:1.6;
+  color:#e8edf9;outline:0;overflow:hidden;white-space:pre-wrap;word-break:break-word;
+  -webkit-user-select:text;user-select:text}
+.bbitem .txt:empty:before{content:attr(data-ph);color:#5f6a86}
+.bbh{position:absolute;width:26px;height:26px;margin:-13px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;pointer-events:auto;touch-action:none;
+  transform-origin:50% 50%}
+.bbh:after{content:'';width:11px;height:11px;border-radius:50%;
+  background:#5fc9e8;box-shadow:0 0 12px rgba(95,201,232,.7)}
+.bbitem.sel .bbh{display:flex}
+.bbh.nw{left:0;top:0;cursor:nwse-resize}.bbh.ne{left:100%;top:0;cursor:nesw-resize}
+.bbh.sw{left:0;top:100%;cursor:nesw-resize}.bbh.se{left:100%;top:100%;cursor:nwse-resize}
+.bbgrip{position:absolute;left:50%;top:0;transform:translate(-50%,-135%);display:none;
+  gap:12px;align-items:center;pointer-events:auto;touch-action:none;white-space:nowrap;
+  font-size:12px;color:#93a0bd;cursor:grab;transform-origin:50% 100%}
+.bbitem.sel .bbgrip{display:flex}
+.bbgrip b{font-weight:400;cursor:pointer;padding:0 2px}
+.bbgrip b:active{color:#5fc9e8}
+
+.bbui{position:fixed;z-index:9010}
+.bbtop{left:0;right:0;top:0;padding:max(14px,env(safe-area-inset-top)) 20px 0;
+  display:flex;gap:16px;align-items:center;pointer-events:none}
+.bbtop *{pointer-events:auto}
+.bbtop h2{font-family:"Songti SC","STSong",Georgia,serif;font-size:17px;font-weight:600;
+  letter-spacing:.1em;color:rgba(232,237,249,.92);flex:none}
+.bbtop .sub{font-size:11px;color:#5f6a86;flex:1}
+.bbtop .x{font-size:12px;color:#93a0bd;cursor:pointer;flex:none}
+.bbtop .x:active{color:#5fc9e8}
+.bbbar{left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);
+  display:flex;gap:16px;align-items:flex-end}
+.bbbar b{display:flex;flex-direction:column;align-items:center;gap:3px;width:46px;
+  font-weight:400;color:#5f6a86;cursor:pointer;-webkit-user-select:none;user-select:none;
+  transition:color .16s,text-shadow .16s}
+.bbbar b i{font-style:normal;font-size:19px;line-height:1}
+.bbbar b u{text-decoration:none;font-size:8.5px;letter-spacing:.05em;white-space:nowrap}
+.bbbar b.on,.bbbar b:active{color:#5fc9e8;text-shadow:0 0 16px rgba(95,201,232,.75)}
+.bbpal{left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  display:none;gap:14px;align-items:center}
+.bbpal.on{display:flex}
+.bbpal s{width:22px;height:22px;border-radius:50%;cursor:pointer;text-decoration:none;
+  box-shadow:0 0 0 1px rgba(140,160,210,.25) inset;transition:transform .14s}
+.bbpal s.on{transform:scale(1.28);box-shadow:0 0 0 1.5px #fff inset,0 0 14px rgba(255,255,255,.35)}
+.bbpal em{width:1px;height:20px;background:rgba(140,160,210,.22)}
+.bbpal q{cursor:pointer;quotes:none;display:flex;align-items:center;justify-content:center;
+  width:26px;height:26px;opacity:.5;transition:opacity .14s}
+.bbpal q.on{opacity:1}
+.bbpal q:before{content:'';border-radius:50%;background:#e8edf9;
+  width:var(--d);height:var(--d)}
+.bbzoom{right:20px;bottom:max(18px,env(safe-area-inset-bottom));display:flex;gap:10px;
+  align-items:center;font-size:11px;color:#5f6a86}
+.bbzoom b{cursor:pointer;font-weight:400;padding:2px 5px}
+.bbzoom b:active{color:#5fc9e8}
+.bbask{position:fixed;inset:0;z-index:9020;display:none;align-items:center;justify-content:center;
+  background:rgba(3,5,12,.72);backdrop-filter:blur(8px)}
+.bbask.on{display:flex}
+.bbask .in{width:min(520px,86vw);display:flex;flex-direction:column;gap:14px}
+.bbask .q{font-size:13px;color:#93a0bd}
+.bbask input{background:none;border:0;border-bottom:1px solid rgba(140,160,210,.3);outline:0;
+  color:#fff;font:inherit;font-size:17px;padding:8px 2px}
+.bbask .row{display:flex;gap:20px;font-size:12px;color:#93a0bd}
+.bbask .row b{font-weight:400;cursor:pointer}
+.bbask .row b:active{color:#5fc9e8}
+.bbtip{position:fixed;left:50%;top:64px;transform:translateX(-50%);z-index:9015;
+  font-size:12px;color:#93a0bd;opacity:0;transition:opacity .3s;pointer-events:none;
+  text-shadow:0 0 14px rgba(3,5,12,.9)}
+.bbtip.on{opacity:1}
+.bbentry{cursor:pointer;font-size:11px;color:#5f6a86;letter-spacing:.04em}
+.bbentry:active,.bbentry:hover{color:#5fc9e8}
+`;
+
+function css(){
+  if(document.getElementById('bbcss'))return;
+  const s=document.createElement('style');s.id='bbcss';s.textContent=CSS;
+  document.head.appendChild(s);
+}
+
+/* ---------- 坐标 ---------- */
+const s2w=(sx,sy)=>({x:(sx-cam.x)/cam.z,y:(sy-cam.y)/cam.z});
+function applyCam(){
+  world.style.transform=`translate(${cam.x}px,${cam.y}px) scale(${cam.z})`;
+  root.style.setProperty('--iz',1/cam.z);
+  els.forEach(el=>{
+    el.querySelectorAll('.bbh,.bbgrip').forEach(h=>{h.style.transform=
+      h.classList.contains('bbgrip')?`translate(-50%,-135%) scale(${1/cam.z})`:`scale(${1/cam.z})`});
+  });
+  const z=document.getElementById('bbzl'); if(z)z.textContent=Math.round(cam.z*100)+'%';
+}
+function zoomAt(sx,sy,k){
+  const p=s2w(sx,sy);
+  cam.z=Math.max(.12,Math.min(6,cam.z*k));
+  cam.x=sx-p.x*cam.z; cam.y=sy-p.y*cam.z;
+  applyCam();queue();
+}
+
+/* ---------- 存 ---------- */
+function queue(){clearTimeout(saveT);saveT=setTimeout(flush,420)}
+function flush(){
+  if(!B)return;
+  if(!B.items.length&&!B.strokes.length&&!B.saved)return;   /* 空板子不留痕 */
+  B.saved=1;
+  B.cam={x:cam.x,y:cam.y,z:cam.z}; B.updated=Date.now();
+  dbPut('boards',B).catch(e=>tip('存档失败：'+e.message));
+}
+function snap(){
+  undoStack.push(JSON.stringify({items:B.items,strokes:B.strokes}));
+  if(undoStack.length>40)undoStack.shift();
+}
+function undo(){
+  const s=undoStack.pop(); if(!s)return tip('没有可撤销的了');
+  const o=JSON.parse(s); B.items=o.items; B.strokes=o.strokes;
+  redrawAll();queue();
+}
+
+/* ---------- 墨迹 ---------- */
+function d2path(pts){
+  if(pts.length<2)return `M${pts[0][0]} ${pts[0][1]} l0 0`;
+  let d=`M${pts[0][0]} ${pts[0][1]}`;
+  for(let i=1;i<pts.length-1;i++){
+    const a=pts[i],b=pts[i+1];
+    d+=` Q${a[0]} ${a[1]} ${(a[0]+b[0])/2} ${(a[1]+b[1])/2}`;
+  }
+  const l=pts[pts.length-1]; d+=` L${l[0]} ${l[1]}`;
+  return d;
+}
+function drawStroke(st){
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d',d2path(st.pts));p.setAttribute('fill','none');
+  p.setAttribute('stroke',st.c);p.setAttribute('stroke-width',st.w);
+  p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');
+  p.dataset.id=st.id;
+  ink.appendChild(p);return p;
+}
+function redrawAll(){
+  ink.innerHTML='';B.strokes.forEach(drawStroke);
+  els.forEach(el=>el.remove());els.clear();
+  B.items.forEach(makeItem);
+  selId=null;
+}
+
+/* ---------- 元素 ---------- */
+function makeItem(it){
+  const el=document.createElement('div');
+  el.className='bbitem';el.dataset.id=it.id;
+  const c=document.createElement('div');c.className='c';
+  el.appendChild(c);
+  ['nw','ne','sw','se'].forEach(k=>{
+    const h=document.createElement('div');h.className='bbh '+k;h.dataset.h=k;el.appendChild(h)});
+  const g=document.createElement('div');g.className='bbgrip';
+  g.innerHTML='<span>✥ 拖我</span><b data-a="front">置顶</b><b data-a="del">删掉</b>';
+  el.appendChild(g);
+  world.appendChild(el);els.set(it.id,el);
+  fillItem(it,el);posItem(it,el);
+  return el;
+}
+function fillItem(it,el){
+  const c=el.querySelector('.c');c.innerHTML='';
+  if(it.type==='text'){
+    const t=document.createElement('div');
+    t.className='txt';t.setAttribute('data-ph','写点什么…');
+    t.contentEditable='true';t.spellcheck=false;t.textContent=it.text||'';
+    t.addEventListener('input',()=>{it.text=t.textContent;autoH(it,el);queue()});
+    t.addEventListener('keydown',e=>{e.stopPropagation();
+      if(e.key==='Escape'){e.preventDefault();t.blur();select(null)}});
+    t.addEventListener('pointerdown',e=>e.stopPropagation());
+    c.appendChild(t);
+  }else if(it.type==='img'){
+    const im=document.createElement('img');im.decoding='async';
+    srcFor(it).then(u=>{im.src=u;
+      im.onload=()=>{ if(!it.h||it.autofit){ it.h=it.w*(im.naturalHeight/im.naturalWidth||.62);
+        it.autofit=false;posItem(it,el);queue() } }});
+    c.appendChild(im);
+  }else if(it.type==='video'){
+    const v=document.createElement('video');
+    v.controls=true;v.playsInline=true;v.preload='metadata';
+    srcFor(it).then(u=>{v.src=u;
+      v.onloadedmetadata=()=>{ if(it.autofit&&v.videoWidth){ it.h=it.w*(v.videoHeight/v.videoWidth);
+        it.autofit=false;posItem(it,el);queue() } }});
+    c.appendChild(v);
+  }else if(it.type==='embed'){
+    const f=document.createElement('iframe');
+    f.src=it.url;f.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';
+    f.setAttribute('allowfullscreen','');f.referrerPolicy='no-referrer';
+    c.appendChild(f);
+  }
+}
+function autoH(it,el){
+  if(it.type!=='text')return;
+  const t=el.querySelector('.txt'); if(!t)return;
+  el.style.height='auto'; const h=Math.max(44,t.scrollHeight+2);
+  it.h=h; el.style.height=h+'px';
+}
+function posItem(it,el){
+  el.style.left=it.x+'px';el.style.top=it.y+'px';
+  el.style.width=it.w+'px';
+  el.style.height=(it.type==='text'?'auto':it.h+'px');
+  el.style.zIndex=it.z||1;
+  if(it.type==='text')autoH(it,el);
+}
+function srcFor(it){
+  if(it.url)return Promise.resolve(it.url);
+  if(urls.has(it.blobId))return Promise.resolve(urls.get(it.blobId));
+  return dbGet('blobs',it.blobId).then(r=>{
+    if(!r)return '';
+    const u=URL.createObjectURL(r.blob);urls.set(it.blobId,u);return u;
+  });
+}
+function select(id){
+  if(selId&&els.get(selId))els.get(selId).classList.remove('sel');
+  selId=id;
+  if(id&&els.get(id)){els.get(id).classList.add('sel');applyCam()}
+}
+function addItem(o){
+  snap();
+  const it=Object.assign({id:uid(),x:0,y:0,w:320,h:200,z:(B.items.length+1)},o);
+  const k=B.items.length%7; it.x+=k*22; it.y+=k*22;      /* 别叠成一坨 */
+  B.items.push(it);makeItem(it);queue();return it;
+}
+function delItem(id){
+  const i=B.items.findIndex(x=>x.id===id); if(i<0)return;
+  snap();
+  const it=B.items[i];
+  if(it.blobId)dbDel('blobs',it.blobId).catch(()=>{});
+  B.items.splice(i,1);
+  const el=els.get(id); if(el)el.remove(); els.delete(id);
+  if(selId===id)selId=null;
+  queue();
+}
+function centerWorld(){
+  const s=s2w(innerWidth/2,innerHeight/2);return s;
+}
+
+/* ---------- 交互 ---------- */
+const FG=new Map(); let pinch=null,tpan=null;
+let drawing=null, dragging=null, resizing=null, lastTap=0,lastTX=0,lastTY=0;
+
+function onDown(e){
+  if(e.target.closest('.bbui,.bbask'))return;
+
+  /* 手指：只管平移缩放 */
+  if(e.pointerType==='touch'&&!e.target.closest('.bbh,.bbgrip')){
+    e.preventDefault();
+    FG.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    stage.setPointerCapture&&safeCapture(e);
+    if(FG.size===1){tpan={sx:e.clientX,sy:e.clientY,cx:cam.x,cy:cam.y};pinch=null}
+    else if(FG.size===2){
+      tpan=null;const f=[...FG.values()];
+      pinch={d:Math.hypot(f[0].x-f[1].x,f[0].y-f[1].y),
+             mx:(f[0].x+f[1].x)/2,my:(f[0].y+f[1].y)/2};
+    }
+    return;
+  }
+
+  const hEl=e.target.closest('.bbh');
+  if(hEl){                                     /* 拖角调大小 */
+    const it=itemOf(hEl); if(!it)return;
+    snap();
+    resizing={it,k:hEl.dataset.h,w:it.w,h:it.h,x:it.x,y:it.y,
+      start:s2w(e.clientX,e.clientY),ratio:(it.type==='text'?0:it.h/it.w)};
+    safeCapture(e);e.preventDefault();return;
+  }
+  const gEl=e.target.closest('.bbgrip');
+  if(gEl){
+    const it=itemOf(gEl); if(!it)return;
+    const a=e.target.dataset.a;
+    if(a==='del'){delItem(it.id);return}
+    if(a==='front'){snap();it.z=Math.max(...B.items.map(x=>x.z||1))+1;
+      els.get(it.id).style.zIndex=it.z;queue();return}
+    startDrag(it,e);e.preventDefault();return;
+  }
+
+  const iEl=e.target.closest('.bbitem');
+  if(iEl&&tool==='move'){
+    const it=itemOf(iEl);
+    if(it.id!==selId){select(it.id);startDrag(it,e);e.preventDefault()}
+    return;
+  }
+
+  /* 空白 */
+  if(tool==='pen'){
+    const w=s2w(e.clientX,e.clientY);
+    snap();
+    drawing={id:uid(),c:pen.c,w:pen.w,pts:[[w.x,w.y]]};
+    drawing.el=drawStroke(drawing);
+    safeCapture(e);e.preventDefault();return;
+  }
+  if(tool==='erase'){eraseAt(e.clientX,e.clientY);erasing=true;safeCapture(e);e.preventDefault();return}
+  /* move 工具：点空白 = 取消选中；双击 = 新建文字 */
+  select(null);
+  const t=e.timeStamp;
+  if(t-lastTap<360&&Math.hypot(e.clientX-lastTX,e.clientY-lastTY)<34){
+    lastTap=0;newText(e.clientX,e.clientY);
+  }else{lastTap=t;lastTX=e.clientX;lastTY=e.clientY}
+}
+let erasing=false;
+
+function safeCapture(e){try{stage.setPointerCapture(e.pointerId)}catch(err){}}
+function itemOf(el){const p=el.closest('.bbitem');return p?B.items.find(x=>x.id===p.dataset.id):null}
+
+function startDrag(it,e){
+  const w=s2w(e.clientX,e.clientY);
+  snap();
+  dragging={it,dx:it.x-w.x,dy:it.y-w.y};
+  safeCapture(e);
+}
+
+function onMove(e){
+  if(e.pointerType==='touch'&&FG.has(e.pointerId)){
+    e.preventDefault();
+    const p=FG.get(e.pointerId);p.x=e.clientX;p.y=e.clientY;
+    if(FG.size>=2&&pinch){
+      const f=[...FG.values()];
+      const d=Math.hypot(f[0].x-f[1].x,f[0].y-f[1].y);
+      const mx=(f[0].x+f[1].x)/2,my=(f[0].y+f[1].y)/2;
+      if(pinch.d>4&&d>4)zoomAt(mx,my,d/pinch.d);
+      cam.x+=mx-pinch.mx; cam.y+=my-pinch.my;
+      pinch.d=d;pinch.mx=mx;pinch.my=my;applyCam();queue();
+    }else if(tpan){
+      cam.x=tpan.cx+(e.clientX-tpan.sx); cam.y=tpan.cy+(e.clientY-tpan.sy);
+      applyCam();queue();
+    }
+    return;
+  }
+  if(drawing){
+    const w=s2w(e.clientX,e.clientY);
+    const l=drawing.pts[drawing.pts.length-1];
+    if(Math.hypot(w.x-l[0],w.y-l[1])*cam.z<1.1)return;
+    drawing.pts.push([w.x,w.y]);
+    drawing.el.setAttribute('d',d2path(drawing.pts));
+    return;
+  }
+  if(erasing){eraseAt(e.clientX,e.clientY);return}
+  if(resizing){
+    const w=s2w(e.clientX,e.clientY), r=resizing;
+    const dx=w.x-r.start.x, dy=w.y-r.start.y, k=r.k;
+    let nw=r.w+(k==='ne'||k==='se'?dx:-dx);
+    let nh=r.h+(k==='sw'||k==='se'?dy:-dy);
+    nw=Math.max(60,nw);
+    if(r.ratio){nh=nw*r.ratio}else{nh=Math.max(44,nh)}
+    r.it.w=nw;r.it.h=nh;
+    r.it.x=(k==='nw'||k==='sw')?r.x+r.w-nw:r.x;
+    r.it.y=(k==='nw'||k==='ne')?r.y+r.h-nh:r.y;
+    posItem(r.it,els.get(r.it.id));
+    return;
+  }
+  if(dragging){
+    const w=s2w(e.clientX,e.clientY);
+    dragging.it.x=w.x+dragging.dx; dragging.it.y=w.y+dragging.dy;
+    posItem(dragging.it,els.get(dragging.it.id));
+    return;
+  }
+}
+function onUp(e){
+  if(e.pointerType==='touch'&&FG.has(e.pointerId)){
+    FG.delete(e.pointerId);
+    if(FG.size<2)pinch=null;
+    if(FG.size===1){const f=[...FG.values()][0];tpan={sx:f.x,sy:f.y,cx:cam.x,cy:cam.y}}
+    if(FG.size===0)tpan=null;
+    return;
+  }
+  if(drawing){
+    if(drawing.pts.length>1){B.strokes.push({id:drawing.id,c:drawing.c,w:drawing.w,pts:drawing.pts})}
+    else drawing.el.remove();
+    drawing=null;queue();return;
+  }
+  if(erasing){erasing=false;queue();return}
+  if(resizing){resizing=null;queue();return}
+  if(dragging){dragging=null;queue();return}
+}
+function eraseAt(sx,sy){
+  const w=s2w(sx,sy), r=14/cam.z;
+  let hit=false;
+  for(let i=B.strokes.length-1;i>=0;i--){
+    const st=B.strokes[i];
+    if(st.pts.some(p=>Math.abs(p[0]-w.x)<r&&Math.abs(p[1]-w.y)<r)){
+      if(!hit)snap();
+      const p=ink.querySelector(`path[data-id="${st.id}"]`); if(p)p.remove();
+      B.strokes.splice(i,1);hit=true;
+    }
+  }
+}
+
+/* ---------- 新建 ---------- */
+function newText(sx,sy){
+  const w=s2w(sx===undefined?innerWidth/2:sx, sy===undefined?innerHeight/2:sy);
+  const it=addItem({type:'text',text:'',x:w.x-140,y:w.y-24,w:280,h:44});
+  const el=els.get(it.id);select(it.id);
+  const t=el.querySelector('.txt');
+  t.focus();
+  const r=document.createRange();r.selectNodeContents(t);r.collapse(false);
+  const s=getSelection();s.removeAllRanges();s.addRange(r);
+  return it;
+}
+function addFiles(files){
+  const c=centerWorld();
+  let n=0;
+  [...files].forEach(f=>{
+    const isV=/^video\//.test(f.type), isI=/^image\//.test(f.type);
+    if(!isV&&!isI)return;
+    const bid=uid();
+    dbPut('blobs',{id:bid,blob:f,name:f.name}).then(()=>{
+      const w=isV?420:320;
+      addItem({type:isV?'video':'img',blobId:bid,autofit:true,
+        x:c.x-w/2+n*26,y:c.y-120+n*26,w:w,h:isV?236:200});
+      n++;
+    }).catch(err=>tip('存不下：'+err.message));
+  });
+}
+function embedURL(u){
+  u=u.trim();let m;
+  if(m=u.match(/bilibili\.com\/video\/(BV[0-9A-Za-z]+)/i))
+    return 'https://player.bilibili.com/player.html?bvid='+m[1]+'&high_quality=1&danmaku=0&autoplay=0';
+  if(m=u.match(/(?:youtube\.com\/watch\?[^ ]*v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/i))
+    return 'https://www.youtube.com/embed/'+m[1];
+  if(!/^https?:/i.test(u))u='https://'+u;
+  return u;
+}
+function addEmbed(u){
+  const c=centerWorld();
+  addItem({type:'embed',url:embedURL(u),x:c.x-260,y:c.y-160,w:520,h:300});
+}
+
+/* ---------- 小提问框 ---------- */
+function ask(q,ph){
+  return new Promise(res=>{
+    const box=document.getElementById('bbask');
+    box.querySelector('.q').textContent=q;
+    const inp=box.querySelector('input');inp.value='';inp.placeholder=ph||'';
+    box.classList.add('on');setTimeout(()=>inp.focus(),40);
+    const done=v=>{box.classList.remove('on');inp.onkeydown=null;res(v)};
+    box.querySelector('[data-ok]').onclick=()=>done(inp.value.trim()||null);
+    box.querySelector('[data-no]').onclick=()=>done(null);
+    inp.onkeydown=e=>{e.stopPropagation();
+      if(e.key==='Enter')done(inp.value.trim()||null);
+      if(e.key==='Escape')done(null)};
+  });
+}
+let tipT=null;
+function tip(s){
+  const t=document.getElementById('bbtip');if(!t)return;
+  t.textContent=s;t.classList.add('on');
+  clearTimeout(tipT);tipT=setTimeout(()=>t.classList.remove('on'),2600);
+}
+
+/* ---------- 工具条 ---------- */
+function setTool(t){
+  tool=t;root.dataset.tool=t;
+  [...document.querySelectorAll('.bbbar b[data-t]')].forEach(b=>
+    b.classList.toggle('on',b.dataset.t===t));
+  document.getElementById('bbpal').classList.toggle('on',t==='pen');
+  if(t!=='move')select(null);
+}
+function buildUI(name){
+  root=document.createElement('div');root.className='bbroot';root.dataset.tool=tool;
+  root.innerHTML=`
+    <div class="bbstage"><div class="bbworld">
+      <svg class="bbink"></svg>
+    </div></div>
+    <div class="bbui bbtop">
+      <h2>${esc(name)}</h2>
+      <div class="sub">Pencil 写 · 手指两指缩放 · 双击空白打字</div>
+      <div class="x" id="bbclose">收起 ✕</div>
+    </div>
+    <div class="bbui bbpal" id="bbpal">
+      ${PENS.map((p,i)=>`<s data-c="${p[0]}" style="background:${p[0]}" class="${i===0?'on':''}"></s>`).join('')}
+      <em></em>
+      ${WIDTHS.map((w,i)=>`<q data-w="${w}" style="--d:${Math.min(16,4+w*1.4)}px" class="${i===1?'on':''}"></q>`).join('')}
+    </div>
+    <div class="bbui bbbar">
+      <b data-t="pen" class="on"><i>✎</i><u>写</u></b>
+      <b data-t="erase"><i>⌫</i><u>擦</u></b>
+      <b data-t="move"><i>✥</i><u>摆</u></b>
+      <b data-a="text"><i>T</i><u>文字</u></b>
+      <b data-a="file"><i>▣</i><u>图/片</u></b>
+      <b data-a="link"><i>⛓</i><u>链接</u></b>
+      <b data-a="undo"><i>↺</i><u>撤销</u></b>
+      <b data-a="home"><i>⊙</i><u>回原点</u></b>
+    </div>
+    <div class="bbui bbzoom"><b data-a="zo">－</b><span id="bbzl">100%</span><b data-a="zi">＋</b></div>
+    <div class="bbtip" id="bbtip"></div>
+    <div class="bbask" id="bbask"><div class="in">
+      <div class="q"></div><input spellcheck="false">
+      <div class="row"><b data-ok>好</b><b data-no>算了</b></div>
+    </div></div>
+    <input type="file" id="bbfile" accept="image/*,video/*" multiple style="display:none">`;
+  document.body.appendChild(root);
+  stage=root.querySelector('.bbstage');
+  world=root.querySelector('.bbworld');
+  ink=root.querySelector('.bbink');
+
+  stage.addEventListener('pointerdown',onDown);
+  stage.addEventListener('pointermove',onMove,{passive:false});
+  stage.addEventListener('pointerup',onUp);
+  stage.addEventListener('pointercancel',onUp);
+  stage.addEventListener('wheel',e=>{
+    e.preventDefault();
+    const unit=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1);
+    if(e.ctrlKey||e.metaKey)zoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*unit*0.0022));
+    else{cam.x-=(e.shiftKey?e.deltaY:e.deltaX)*unit;cam.y-=(e.shiftKey?0:e.deltaY)*unit;applyCam();queue()}
+  },{passive:false});
+
+  root.querySelectorAll('.bbbar b[data-t]').forEach(b=>b.onclick=()=>setTool(b.dataset.t));
+  root.querySelectorAll('.bbbar b[data-a]').forEach(b=>b.onclick=async()=>{
+    const a=b.dataset.a;
+    if(a==='text'){setTool('move');newText()}
+    if(a==='file')document.getElementById('bbfile').click();
+    if(a==='link'){const u=await ask('贴一个视频链接（B站 / YouTube 都行）','https://www.bilibili.com/video/BV...');
+      if(u){setTool('move');addEmbed(u)}}
+    if(a==='undo')undo();
+    if(a==='home'){cam={x:innerWidth/2,y:innerHeight/2,z:1};applyCam();queue()}
+  });
+  root.querySelectorAll('.bbzoom b').forEach(b=>b.onclick=()=>
+    zoomAt(innerWidth/2,innerHeight/2,b.dataset.a==='zi'?1.3:1/1.3));
+  root.querySelectorAll('.bbpal s').forEach(s=>s.onclick=()=>{
+    pen.c=s.dataset.c;root.querySelectorAll('.bbpal s').forEach(o=>o.classList.remove('on'));
+    s.classList.add('on')});
+  root.querySelectorAll('.bbpal q').forEach(q=>q.onclick=()=>{
+    pen.w=+q.dataset.w;root.querySelectorAll('.bbpal q').forEach(o=>o.classList.remove('on'));
+    q.classList.add('on')});
+  document.getElementById('bbclose').onclick=close;
+  document.getElementById('bbfile').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+
+  root.addEventListener('paste',e=>{
+    const f=[...(e.clipboardData&&e.clipboardData.files||[])];
+    if(f.length){e.preventDefault();addFiles(f)}
+  });
+  ['dragover','drop'].forEach(t=>root.addEventListener(t,e=>{
+    e.preventDefault();
+    if(t==='drop'&&e.dataTransfer&&e.dataTransfer.files.length)addFiles(e.dataTransfer.files);
+  }));
+  root.addEventListener('keydown',e=>{
+    if(document.activeElement&&document.activeElement.classList.contains('txt'))return;
+    e.stopPropagation();
+    if(e.key==='Escape'){selId?select(null):close();return}
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo();return}
+    if(e.key==='Backspace'||e.key==='Delete'){if(selId){e.preventDefault();delItem(selId)}return}
+    if(e.key==='p')setTool('pen'); if(e.key==='e')setTool('erase'); if(e.key==='v')setTool('move');
+    if(e.key==='t'){setTool('move');newText()}
+  });
+  root.tabIndex=-1;
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- 开 / 关 ---------- */
+async function open(name,subtitle){
+  if(root)close();
+  css();
+  const id=slug(name);
+  let b=null;
+  try{b=await dbGet('boards',id)}catch(e){tip('读不出存档：'+e.message)}
+  B=b||{id,name,items:[],strokes:[],cam:{x:innerWidth/2,y:innerHeight/2,z:1},updated:Date.now()};
+  B.name=name;
+  B.items=B.items||[];B.strokes=B.strokes||[];
+  undoStack=[];selId=null;els.clear();
+  tool='pen';
+  buildUI(subtitle?name+' · '+subtitle:name);
+  setTool('pen');
+  cam=Object.assign({x:innerWidth/2,y:innerHeight/2,z:1},B.cam||{});
+  applyCam();
+  B.strokes.forEach(drawStroke);
+  B.items.forEach(makeItem);
+  void root.offsetWidth;root.classList.add('on');root.focus();
+  if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+  if(!B.items.length&&!B.strokes.length)
+    tip('Pencil 直接写 · 双指缩放 · 底下「图/片」拖视频进来');
+  return B;
+}
+function close(){
+  flush();
+  urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();
+  if(root)root.remove();
+  root=null;world=null;ink=null;stage=null;B=null;els.clear();
+  FG.clear();pinch=null;tpan=null;drawing=null;dragging=null;resizing=null;erasing=false;
+}
+
+/* ---------- 入口小按钮 ---------- */
+function entry(name,label){
+  const s=document.createElement('span');
+  s.className='bbentry';s.textContent=label||'▦ 黑板';
+  s.onclick=e=>{e.stopPropagation();open(name)};
+  return s;
+}
+
+window.BB={open,close,entry,list:()=>dbAll('boards'),slug};
+})();
+
+</script>
+<!--BB-END-->
+<script>
+/* ================= 星空 ================= */
+(function(){
+  const cv=document.getElementById('sky'),c=cv.getContext('2d');
+  const reduce=matchMedia('(prefers-reduced-motion:reduce)').matches;
+  let W,H,S=[],D=Math.min(2,devicePixelRatio||1),sc=0;
+  function fit(){
+    W=cv.width=innerWidth*D;H=cv.height=innerHeight*D;
+    cv.style.width=innerWidth+'px';cv.style.height=innerHeight+'px';
+    S=[];const n=Math.round(innerWidth*innerHeight/4600);
+    for(let i=0;i<n;i++){const d=Math.random();
+      S.push({x:Math.random()*W,y:Math.random()*H,d,r:(d*1.2+.22)*D,a:d*.48+.12,
+        tw:Math.random()*.0018+.0003,ph:Math.random()*6.28,
+        vx:(Math.random()-.5)*.02*D*d,vy:(Math.random()-.5)*.02*D*d,
+        h:Math.random()<.16?(Math.random()<.5?198:278):null});}
+  }
+  addEventListener('scroll',()=>sc=scrollY,{passive:true});
+  const neb=(x,y,r,col)=>{const g=c.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,col);g.addColorStop(1,'rgba(4,6,14,0)');c.fillStyle=g;c.fillRect(0,0,W,H)};
+  function draw(t){
+    c.clearRect(0,0,W,H);const dr=Math.max(W,H);
+    neb(W*.74,H*.20-sc*.05*D,dr*.62,'rgba(95,201,232,.05)');
+    neb(W*.16,H*.80-sc*.09*D,dr*.52,'rgba(199,142,240,.045)');
+    for(const s of S){
+      if(!reduce){s.x+=s.vx;s.y+=s.vy;
+        if(s.x<0)s.x=W;if(s.x>W)s.x=0;if(s.y<0)s.y=H;if(s.y>H)s.y=0}
+      const y=((s.y-sc*D*(.06+s.d*.22))%H+H)%H;
+      const a=s.a*(reduce?1:.6+.4*Math.sin(t*s.tw+s.ph));
+      c.fillStyle=s.h?`hsla(${s.h} 82% 80% / ${a})`:`rgba(228,234,247,${a})`;
+      c.beginPath();c.arc(s.x,y,s.r,0,6.284);c.fill();
+    }
+    requestAnimationFrame(draw);
+  }
+  addEventListener('resize',fit);fit();requestAnimationFrame(draw);
+})();
+
+/* ================= 母图定义 ================= */
+const MOM={
+  matrix :{t:'四象限',      d:'两个维度切一刀，落到四个格子'},
+  axis   :{t:'坐标曲线',    d:'一个量随另一个量怎么走'},
+  tree   :{t:'层级树',      d:'一个大问题往下拆成小块'},
+  chain  :{t:'流程链',      d:'一步接一步，有先后'},
+  loop   :{t:'循环回路',    d:'终点接回起点，会自我加强'},
+  layers :{t:'分层堆栈',    d:'上层建在下层之上，底层更根本'},
+  venn   :{t:'集合交叠',    d:'谁和谁重合，重合处才是答案'},
+  scale  :{t:'天平权衡',    d:'左右各放一边，看哪边沉'},
+  network:{t:'节点网络',    d:'中间一个，四周都在拉扯它'},
+  timeline:{t:'时间轴',     d:'按时间排开，看阶段和节奏'}
+};
+
+/* ================= SVG 引擎 ================= */
+const NS='http://www.w3.org/2000/svg';
+const C={cy:'#5fc9e8',gd:'#e8b84a',pu:'#c78ef0',gr:'#7ee8a2',rd:'#f08e8e',
+         ink:'#e4eaf7',dim:'#8d98b6',far:'#66708c',line:'rgba(140,160,210,.3)'};
+const PAL=[C.cy,C.gd,C.pu,C.gr,C.rd];
+
+function el(n,a,txt){const e=document.createElementNS(NS,n);
+  for(const k in a)e.setAttribute(k,a[k]); if(txt!=null)e.textContent=txt; return e}
+function svg(w,h){const s=el('svg',{viewBox:`0 0 ${w} ${h}`,preserveAspectRatio:'xMidYMid meet'});
+  const d=el('defs');
+  const m=el('marker',{id:'ah',viewBox:'0 0 10 10',refX:9,refY:5,markerWidth:6,markerHeight:6,orient:'auto-start-reverse'});
+  m.appendChild(el('path',{d:'M0,0 L10,5 L0,10 z',fill:C.far}));d.appendChild(m);s.appendChild(d);return s}
+function txt(s,x,y,t,o){o=o||{};const e=el('text',{x,y,'font-size':o.fs||10.5,fill:o.fill||C.dim,
+  'text-anchor':o.a||'middle','dominant-baseline':o.b||'middle',
+  'font-family':'-apple-system,"PingFang SC",sans-serif'},t);
+  if(o.w)e.setAttribute('font-weight',o.w);s.appendChild(e);return e}
+/* 自动折行：按字符数切 */
+function wrap(s,x,y,t,max,o){o=o||{};const lines=[];let cur='';
+  for(const ch of String(t)){cur+=ch;if(cur.length>=max){lines.push(cur);cur=''}}
+  if(cur)lines.push(cur);
+  const lh=(o.fs||10.5)*1.35, y0=y-(lines.length-1)*lh/2;
+  lines.forEach((l,i)=>txt(s,x,y0+i*lh,l,o));return lines.length}
+function box(s,x,y,w,h,o){o=o||{};
+  s.appendChild(el('rect',{x,y,width:w,height:h,rx:o.r==null?7:o.r,
+    fill:o.fill||'rgba(95,201,232,.07)',stroke:o.stroke||C.line,'stroke-width':o.sw||1,
+    'stroke-dasharray':o.dash||''}));}
+function line(s,x1,y1,x2,y2,o){o=o||{};const e=el('line',{x1,y1,x2,y2,
+  stroke:o.stroke||C.line,'stroke-width':o.sw||1,'stroke-dasharray':o.dash||''});
+  if(o.arrow)e.setAttribute('marker-end','url(#ah)');s.appendChild(e)}
+
+const DRAW={
+/* ---- 四象限 ---- */
+matrix(d){const s=svg(400,250),L=44,R=386,T=26,B=214,mx=(L+R)/2,my=(T+B)/2;
+  const fills=['rgba(199,142,240,.08)','rgba(95,201,232,.10)','rgba(140,160,210,.05)','rgba(232,184,74,.08)'];
+  const pos=[[L,T],[mx,T],[L,my],[mx,my]];
+  pos.forEach((p,i)=>{box(s,p[0],p[1],(R-L)/2,(B-T)/2,{fill:fills[i],r:5});});
+  line(s,mx,T,mx,B,{stroke:'rgba(140,160,210,.45)'});
+  line(s,L,my,R,my,{stroke:'rgba(140,160,210,.45)'});
+  (d.q||[]).forEach((q,i)=>{if(!q)return;
+    wrap(s,pos[i][0]+(R-L)/4,pos[i][1]+(B-T)/4,q,9,{fs:11,fill:C.ink,w:600});});
+  if(d.y){txt(s,L-8,T+14,d.y[1]||'',{a:'end',fs:9.5,fill:C.far});
+          txt(s,L-8,B-14,d.y[0]||'',{a:'end',fs:9.5,fill:C.far});}
+  if(d.x){txt(s,L+6,B+16,d.x[0]||'',{a:'start',fs:9.5,fill:C.far});
+          txt(s,R-6,B+16,d.x[1]||'',{a:'end',fs:9.5,fill:C.far});}
+  if(d.ax){txt(s,(L+R)/2,B+32,d.ax,{fs:9.5,fill:C.cy});}
+  if(d.ay){const t=txt(s,16,(T+B)/2,d.ay,{fs:9.5,fill:C.cy});
+           t.setAttribute('transform',`rotate(-90 16 ${(T+B)/2})`);}
+  return s},
+
+/* ---- 坐标曲线：c 为 0~1 采样点数组 ---- */
+axis(d){const s=svg(400,250),L=48,R=378,T=28,B=200;
+  line(s,L,T,L,B,{stroke:'rgba(140,160,210,.45)'});
+  line(s,L,B,R,B,{stroke:'rgba(140,160,210,.45)'});
+  const px=t=>L+t*(R-L), py=v=>B-v*(B-T);
+  const plot=(arr,col,dash)=>{if(!arr||!arr.length)return;
+    const p=arr.map((v,i)=>`${i?'L':'M'}${px(i/(arr.length-1)).toFixed(1)},${py(v).toFixed(1)}`).join(' ');
+    s.appendChild(el('path',{d:p,fill:'none',stroke:col,'stroke-width':2,
+      'stroke-linecap':'round','stroke-linejoin':'round','stroke-dasharray':dash||''}));};
+  plot(d.c,C.cy); plot(d.c2,d.col2||C.gd,d.dash2||'5 4');
+  if(d.mark!=null&&d.c){const i=d.mark,v=d.c[i];
+    s.appendChild(el('circle',{cx:px(i/(d.c.length-1)),cy:py(v),r:4,fill:C.rd}));
+    if(d.markt)txt(s,px(i/(d.c.length-1)),py(v)-14,d.markt,{fs:10,fill:C.rd});}
+  txt(s,L-6,T+4,d.y||'',{a:'end',fs:9.5,fill:C.far});
+  txt(s,R,B+16,d.x||'',{a:'end',fs:9.5,fill:C.far});
+  if(d.l1)txt(s,R-4,py(d.c[d.c.length-1])-12,d.l1,{a:'end',fs:10,fill:C.cy});
+  if(d.l2)txt(s,R-4,py(d.c2[d.c2.length-1])+14,d.l2,{a:'end',fs:10,fill:d.col2||C.gd});
+  if(d.note)wrap(s,(L+R)/2,B+34,d.note,30,{fs:10,fill:C.dim});
+  return s},
+
+/* ---- 层级树 ---- */
+tree(d){const s=svg(400,250);
+  const rw=Math.max(96,Math.min(200,String(d.r).length*13+24));
+  box(s,200-rw/2,18,rw,30,{fill:'rgba(95,201,232,.13)',stroke:'rgba(95,201,232,.4)'});
+  wrap(s,200,33,d.r,12,{fs:11.5,fill:C.ink,w:600});
+  const k=d.k||[],n=k.length,gap=376/n;
+  k.forEach((it,i)=>{const cx=12+gap*i+gap/2, w=Math.min(gap-10,118);
+    line(s,200,48,cx,84,{stroke:'rgba(140,160,210,.35)'});
+    box(s,cx-w/2,84,w,30,{fill:'rgba(199,142,240,.08)',stroke:'rgba(199,142,240,.3)'});
+    wrap(s,cx,99,it.t,Math.floor(w/12),{fs:10.5,fill:C.ink});
+    (it.c||[]).forEach((c2,j)=>{const y=126+j*30;
+      line(s,cx,114+j*30,cx,y+4,{stroke:'rgba(140,160,210,.22)'});
+      box(s,cx-w/2,y,w,24,{fill:'rgba(140,160,210,.05)',r:5});
+      wrap(s,cx,y+12,c2,Math.floor(w/10),{fs:9.5,fill:C.dim});});});
+  return s},
+
+/* ---- 流程链 ---- */
+chain(d){const st=d.s||[],n=st.length,s=svg(400,n>4?250:126);
+  if(n<=4){const w=(376-(n-1)*22)/n;
+    st.forEach((t,i)=>{const x=12+i*(w+22);
+      box(s,x,20,w,86,{fill:i===n-1?'rgba(126,232,162,.10)':'rgba(95,201,232,.08)',
+        stroke:i===n-1?'rgba(126,232,162,.35)':C.line});
+      wrap(s,x+w/2,63,t,Math.max(4,Math.floor(w/12)),{fs:11,fill:C.ink});
+      if(i<n-1)line(s,x+w+3,63,x+w+18,63,{arrow:1});});
+  }else{const h=(228-(n-1)*10)/n;
+    st.forEach((t,i)=>{const y=12+i*(h+10);
+      box(s,60,y,280,h,{fill:i===n-1?'rgba(126,232,162,.10)':'rgba(95,201,232,.07)',
+        stroke:i===n-1?'rgba(126,232,162,.35)':C.line});
+      wrap(s,200,y+h/2,t,24,{fs:11,fill:C.ink});
+      if(i<n-1)line(s,200,y+h+1,200,y+h+8,{arrow:1});});}
+  return s},
+
+/* ---- 循环回路 ---- */
+loop(d){const n=(d.n||[]).length,s=svg(400,250),cx=200,cy=118,R=76;
+  const pts=(d.n||[]).map((t,i)=>{const a=-Math.PI/2+i*2*Math.PI/n;
+    return[cx+R*Math.cos(a),cy+R*Math.sin(a)]});
+  for(let i=0;i<n;i++){const a=pts[i],b=pts[(i+1)%n];
+    const ang=Math.atan2(b[1]-a[1],b[0]-a[0]),pad=30;
+    line(s,a[0]+Math.cos(ang)*pad,a[1]+Math.sin(ang)*pad,
+           b[0]-Math.cos(ang)*pad,b[1]-Math.sin(ang)*pad,{arrow:1,stroke:'rgba(95,201,232,.5)'});}
+  (d.n||[]).forEach((t,i)=>{const p=pts[i];
+    s.appendChild(el('circle',{cx:p[0],cy:p[1],r:29,fill:'rgba(95,201,232,.10)',stroke:'rgba(95,201,232,.4)'}));
+    wrap(s,p[0],p[1],t,5,{fs:10,fill:C.ink});});
+  if(d.note)wrap(s,200,232,d.note,32,{fs:10,fill:C.dim});
+  return s},
+
+/* ---- 分层堆栈 / 金字塔 / 同心圆 ---- */
+layers(d){const L=d.l||[],n=L.length,s=svg(400,250);
+  if(d.ring){const R0=104;
+    L.forEach((t,i)=>{const r=R0-i*(R0-26)/n;
+      s.appendChild(el('circle',{cx:200,cy:120,r,fill:i===n-1?'rgba(126,232,162,.10)':'rgba(95,201,232,.05)',
+        stroke:PAL[i%PAL.length],'stroke-opacity':.55}));});
+    L.forEach((t,i)=>{const r=R0-i*(R0-26)/n, y=i===n-1?120:120-r+14;
+      txt(s,200,y,t,{fs:10.5,fill:i===n-1?C.gr:C.ink});});
+    return s}
+  const h=(214-(n-1)*7)/n;
+  L.forEach((t,i)=>{const y=14+i*(h+7);
+    let x=12,w=376;
+    if(d.pyr){const k=(i+1)/n;w=60+316*k;x=200-w/2}
+    box(s,x,y,w,h,{fill:`rgba(${[ '95,201,232','232,184,74','199,142,240','126,232,162','240,142,142'][i%5]},.10)`,
+      stroke:PAL[i%PAL.length],sw:1,r:6});
+    wrap(s,200,y+h/2,t,Math.floor(w/12),{fs:11,fill:C.ink});});
+  if(d.up)txt(s,392,20,d.up,{a:'end',fs:9.5,fill:C.far});
+  if(d.down)txt(s,392,236,d.down,{a:'end',fs:9.5,fill:C.far});
+  return s},
+
+/* ---- 集合交叠 ---- */
+venn(d){const s=svg(400,250);
+  s.appendChild(el('circle',{cx:158,cy:118,r:78,fill:'rgba(95,201,232,.10)',stroke:'rgba(95,201,232,.45)'}));
+  s.appendChild(el('circle',{cx:242,cy:118,r:78,fill:'rgba(199,142,240,.10)',stroke:'rgba(199,142,240,.45)'}));
+  wrap(s,112,118,d.a,6,{fs:10.5,fill:C.cy});
+  wrap(s,288,118,d.b,6,{fs:10.5,fill:C.pu});
+  wrap(s,200,118,d.ab,5,{fs:11,fill:C.ink,w:600});
+  if(d.out)wrap(s,200,228,d.out,30,{fs:10,fill:C.dim});
+  return s},
+
+/* ---- 天平 ---- */
+scale(d){const s=svg(400,250),tilt=d.tilt||0;
+  line(s,200,64,200,196,{stroke:'rgba(140,160,210,.4)'});
+  s.appendChild(el('path',{d:'M170,196 L230,196 L215,210 L185,210 Z',fill:'rgba(140,160,210,.16)',stroke:C.line}));
+  const dy=tilt*16;
+  line(s,64,64+dy,336,64-dy,{stroke:'rgba(140,160,210,.55)',sw:2});
+  s.appendChild(el('circle',{cx:200,cy:64,r:5,fill:C.far}));
+  const pan=(x,y,t,col)=>{line(s,x,y,x,y+26,{stroke:'rgba(140,160,210,.3)'});
+    box(s,x-72,y+26,144,52,{fill:col+'.09)',stroke:col+'.4)'});
+    wrap(s,x,y+52,t,11,{fs:11,fill:C.ink});};
+  pan(64,64+dy,d.l,'rgba(95,201,232,'); pan(336,64-dy,d.r,'rgba(232,184,74,');
+  if(d.note)wrap(s,200,232,d.note,32,{fs:10,fill:C.dim});
+  return s},
+
+/* ---- 节点网络 ---- */
+network(d){const a=d.a||[],n=a.length,s=svg(400,250),cx=200,cy=120,R=88;
+  const pts=a.map((t,i)=>{const ang=-Math.PI/2+i*2*Math.PI/n;
+    return[cx+R*1.45*Math.cos(ang),cy+R*Math.sin(ang)]});
+  pts.forEach(p=>{const ang=Math.atan2(cy-p[1],cx-p[0]);
+    line(s,p[0]+Math.cos(ang)*34,p[1]+Math.sin(ang)*22,
+           cx-Math.cos(ang)*40,cy-Math.sin(ang)*26,{arrow:1,stroke:'rgba(199,142,240,.45)'});});
+  a.forEach((t,i)=>{const p=pts[i];
+    box(s,p[0]-58,p[1]-17,116,34,{fill:'rgba(199,142,240,.08)',stroke:'rgba(199,142,240,.32)'});
+    wrap(s,p[0],p[1],t,9,{fs:10,fill:C.ink});});
+  s.appendChild(el('ellipse',{cx,cy,rx:52,ry:30,fill:'rgba(95,201,232,.14)',stroke:'rgba(95,201,232,.5)'}));
+  wrap(s,cx,cy,d.c,6,{fs:11,fill:C.ink,w:600});
+  return s},
+
+/* ---- 时间轴 ---- */
+timeline(d){const p=d.p||[],n=p.length,s=svg(400,250);
+  line(s,26,120,374,120,{stroke:'rgba(140,160,210,.45)',arrow:1});
+  const gap=340/n;
+  p.forEach((it,i)=>{const x=26+gap*i+gap/2,up=i%2===0;
+    s.appendChild(el('circle',{cx:x,cy:120,r:5,fill:PAL[i%PAL.length]}));
+    line(s,x,120,x,up?96:144,{stroke:'rgba(140,160,210,.28)'});
+    const y=up?54:150,w=Math.min(gap-6,104);
+    box(s,x-w/2,y,w,42,{fill:'rgba(95,201,232,.07)',stroke:C.line,r:6});
+    wrap(s,x,y+14,it.t,Math.floor(w/11),{fs:10.5,fill:C.ink});
+    wrap(s,x,y+31,it.d,Math.floor(w/9),{fs:9,fill:C.far});});
+  if(d.note)wrap(s,200,222,d.note,32,{fs:10,fill:C.dim});
+  return s}
+};
+
+/* ================= 100 个模型 ================= */
+/* m=母图 c=场景 */
+const M=[
+/* ——— 表达 ——— */
+{n:'001',zh:'PREP 法则',en:'Point-Reason-Example-Point',m:'chain',c:'表达',
+ s:{s:['结论','理由','案例','再说结论']},
+ core:'先给结论，再补支撑，最后把结论钉一遍。',
+ when:'汇报、答问、任何对方时间有限的场合。',
+ eg:'"这个方案要砍——因为成本超 30%——上季度同类项目就亏了——所以建议砍。"',
+ trap:'铺垫太长，说到第三句领导已经走神。'},
+{n:'002',zh:'FABE 法则',en:'Feature-Advantage-Benefit-Evidence',m:'chain',c:'表达',
+ s:{s:['特征 是什么','优点 比别人强在哪','利益 对你有什么用','证据 凭什么信']},
+ core:'卖东西的四段式，落点必须在"对你有什么用"。',
+ when:'销售、产品介绍、说服别人用你的方案。',
+ eg:'"这款电池 5000mAh（F），比同价位大 30%（A），出差两天不用充（B），实测数据在这（E）。"',
+ trap:'只讲 F 和 A，客户听不懂关我什么事。'},
+{n:'003',zh:'SDS 法',en:'Summary-Detail-Summary',m:'chain',c:'表达',
+ s:{s:['概要','细节','再概要']},
+ core:'重要的话说三遍，中间那遍才展开。',
+ when:'培训、演讲、需要对方记住的内容。',
+ eg:'开场"今天讲三件事"，中间展开，结尾"再回顾这三件事"。',
+ trap:'首尾说的不是同一句话，等于没重复。'},
+{n:'004',zh:'DESC 法',en:'Describe-Express-Specify-Consequence',m:'chain',c:'表达',
+ s:{s:['描述事实','表达感受','提出方案','说明后果']},
+ core:'提意见的安全通道：先说事，再说人的感受，然后给出路。',
+ when:'批评同事、跟上级提异议、处理冲突。',
+ eg:'"这周报告晚了两天（D），我很被动（E），下次提前一天给我（S），这样我能按时交（C）。"',
+ trap:'第一步就带评价（"你总是拖"），后面全废。'},
+{n:'005',zh:'金字塔原理',en:'Pyramid Principle',m:'tree',c:'表达',
+ s:{r:'中心结论',k:[{t:'论点一',c:['论据','论据']},{t:'论点二',c:['论据','论据']},{t:'论点三',c:['论据','论据']}]},
+ core:'结论在顶，往下每层都在回答上一层的"为什么/怎么做"。',
+ when:'写方案、做 PPT、组织任何超过三句话的表达。',
+ eg:'"应该进入华东市场"→ 需求大 / 对手弱 / 我们有渠道，每条各配两个数据。',
+ trap:'同层不互斥、下层撑不起上层，就是伪金字塔。'},
+{n:'006',zh:'MECE 原则',en:'Mutually Exclusive, Collectively Exhaustive',m:'tree',c:'表达',
+ s:{r:'一个整体',k:[{t:'A',c:['不重叠']},{t:'B',c:['不重叠']},{t:'C',c:['不遗漏']}]},
+ core:'分类要做到：彼此不重叠，合起来不遗漏。',
+ when:'拆问题、列清单、设计任何分类。',
+ eg:'用户按"新/老"分是 MECE，按"年轻人/上班族"分不是。',
+ trap:'用感觉分类，结果两个桶里装着同一批人。'},
+{n:'007',zh:'SCQA 结构',en:'Situation-Complication-Question-Answer',m:'chain',c:'表达',
+ s:{s:['情境 大家都认可的背景','冲突 但出问题了','疑问 那怎么办','答案 我的方案']},
+ core:'先建共识，再制造张力，对方自己问出问题，你再答。',
+ when:'开场白、提案、写文章的第一段。',
+ eg:'"我们一直靠老客户（S），但今年复购掉了 20%（C），怎么补（Q）？做私域（A）。"',
+ trap:'跳过 C 直接给 A，对方觉得你在推销。'},
+{n:'008',zh:'STAR 法则',en:'Situation-Task-Action-Result',m:'chain',c:'表达',
+ s:{s:['情境','任务','行动','结果']},
+ core:'讲经历必须落到可量化的结果，否则只是流水账。',
+ when:'面试、述职、写简历。',
+ eg:'"团队缺人（S），要三个月上线（T），我重排了优先级并外包了前端（A），提前两周交付（R）。"',
+ trap:'A 讲了一堆"我们"，看不出你干了什么。'},
+{n:'009',zh:'5W2H',en:'Five Ws and Two Hs',m:'tree',c:'表达',
+ s:{r:'一件事',k:[{t:'What / Why',c:['做什么','为什么']},{t:'Who / When / Where',c:['谁 何时','在哪']},{t:'How / How much',c:['怎么做','花多少']}]},
+ core:'七个问题填满，一件事就不会漏。',
+ when:'派活、写需求、复盘、做计划。',
+ eg:'交代任务时逐项确认，对方复述一遍再开工。',
+ trap:'漏掉 How much，做到一半发现没预算。'},
+{n:'010',zh:'黄金圈法则',en:'Golden Circle',m:'layers',c:'表达',
+ s:{l:['What 做什么','How 怎么做','Why 为什么'],ring:1},
+ core:'从内圈的 Why 往外说，而不是从外圈的 What 往里说。',
+ when:'讲品牌故事、招人、说服别人跟你干。',
+ eg:'苹果："我们相信打破常规（Why）→ 设计极简（How）→ 顺便做了电脑（What）"。',
+ trap:'Why 编得太大太虚，别人一听就假。'},
+{n:'011',zh:'乔哈里窗',en:'Johari Window',m:'matrix',c:'人际',
+ s:{x:['自己不知','自己知道'],y:['他人不知','他人知道'],
+    q:['盲区 别人看得到你看不到','开放区 双方都知道','未知区 都不知道','隐藏区 你知道但没说'],
+    ax:'← 自己是否知道 →',ay:'← 他人是否知道 →'},
+ core:'沟通的本质是扩大开放区：多自我暴露，多主动求反馈。',
+ when:'带团队、建立信任、想搞清别人为什么误解你。',
+ eg:'主动问"我有什么让你不舒服的地方"，就是在把盲区变成开放区。',
+ trap:'只顾自我暴露不求反馈，盲区永远不动。'},
+{n:'012',zh:'非暴力沟通',en:'Nonviolent Communication',m:'chain',c:'人际',
+ s:{s:['观察 不带评价','感受 我的情绪','需要 我在意什么','请求 具体可执行']},
+ core:'把指责翻译成"我的需要 + 一个具体请求"。',
+ when:'亲密关系、跨部门扯皮、任何一开口就要吵的场合。',
+ eg:'不说"你不负责任"，说"这周有三次没同步进度（观察），我很焦虑（感受）"。',
+ trap:'把"我觉得你很自私"当成感受——那还是评价。'},
+{n:'013',zh:'3F 倾听',en:'Fact-Feeling-Focus',m:'layers',c:'人际',
+ s:{l:['Focus 他真正想要什么','Feeling 他的情绪','Fact 他说的事实'],up:'越往上越是真相',down:'表层'},
+ core:'别人说的是事实，藏的是情绪，要的是意图——听到第三层才算听懂。',
+ when:'一对一、客户访谈、劝人。',
+ eg:'"这功能太难用"（事实）→ 烦躁（情绪）→ 其实想要更快完成任务（意图）。',
+ trap:'停在第一层就急着解释功能，越解释对方越火。'},
+{n:'014',zh:'峰终定律',en:'Peak-End Rule',m:'axis',c:'人际',
+ s:{x:'体验过程',y:'愉悦度',c:[.4,.45,.92,.5,.42,.4,.8],mark:2,markt:'峰',
+    note:'人只记住最高峰 + 结尾，中间全被平均掉'},
+ core:'体验的记忆 = 最强烈那一刻 + 最后一刻，不是平均值。',
+ when:'设计服务、办活动、安排约会、做产品流程。',
+ eg:'宜家的迷宫很累（中间差），但出口一支一元冰淇淋（终好），你记住的是划算。',
+ trap:'把资源均摊到全流程，处处不出彩。'},
+{n:'015',zh:'电梯演讲',en:'Elevator Pitch',m:'chain',c:'表达',
+ s:{s:['我们帮谁','解决什么痛','独特在哪','所以我要什么']},
+ core:'30 秒内让对方知道你是谁、凭什么、要什么。',
+ when:'找投资、找合作、自我介绍。',
+ eg:'"我们帮跨境卖家把选品从两周压到两天，靠自建数据管道，想要一次 30 分钟深聊。"',
+ trap:'讲了两分钟技术，没说要对方做什么。'},
+
+/* ——— 决策 ——— */
+{n:'016',zh:'艾森豪威尔矩阵',en:'Eisenhower Matrix',m:'matrix',c:'时间',
+ s:{x:['不紧急','紧急'],y:['不重要','重要'],
+    q:['II 专注 计划 学习 建系统','I 立刻做 危机 死线','IV 删掉 刷手机 闲聊','III 委托 打断 多数会议'],
+    ax:'← 紧急程度 →',ay:'← 重要程度 →'},
+ core:'重要不紧急（第二象限）才是决定人生走向的格子。',
+ when:'每天开工前排任务、感觉一直在救火时。',
+ eg:'把"学新技能""体检""写复盘"强行塞进日历，否则永远排不上。',
+ trap:'把"紧急"误当"重要"，一辈子在第一、三象限打转。'},
+{n:'017',zh:'SWOT 分析',en:'SWOT',m:'matrix',c:'商业',
+ s:{x:['内部','外部'],y:['劣势/威胁','优势/机会'],
+    q:['S 优势 我有什么','O 机会 外面什么在变好','W 劣势 我缺什么','T 威胁 外面什么在变坏'],
+    ax:'← 内部 / 外部 →',ay:'← 不利 / 有利 →'},
+ core:'内外各看好坏两面，再配对出策略（用优势抓机会、补劣势防威胁）。',
+ when:'年度规划、进入新市场、个人职业选择。',
+ eg:'湿实验背景是 S，缺计算训练是 W，AI+生物在爆发是 O，纯干实验对手更多是 T。',
+ trap:'列成四张清单就完了，不做配对，等于没分析。'},
+{n:'018',zh:'波士顿矩阵',en:'BCG Matrix',m:'matrix',c:'商业',
+ s:{x:['低份额','高份额'],y:['低增长','高增长'],
+    q:['问题 要么加注要么砍','明星 加大投入','瘦狗 尽快退出','现金牛 挤奶养别人'],
+    ax:'← 相对市场份额 →',ay:'← 市场增长率 →'},
+ core:'用现金牛的钱去养明星，问题业务限时观察，瘦狗尽快退。',
+ when:'管多条产品线、决定资源往哪投。',
+ eg:'老品稳定出货（牛）→ 拿利润砸新品（星）；三年不起量的（狗）关掉。',
+ trap:'舍不得杀瘦狗，被慢慢放干血。'},
+{n:'019',zh:'加权决策矩阵',en:'Weighted Decision Matrix',m:'matrix',c:'决策',
+ s:{x:['低分','高分'],y:['权重低','权重高'],
+    q:['权重高但表现差 = 硬伤','权重高且表现好 = 决胜项','都不重要 忽略','加分项 别被它带偏'],
+    ax:'← 该项得分 →',ay:'← 该项权重 →'},
+ core:'先定权重再打分，避免被某个无关紧要的亮点带偏。',
+ when:'选 offer、选供应商、选房子。',
+ eg:'选校时"导师匹配度"权重 0.4、"城市"权重 0.1，别让城市翻盘。',
+ trap:'先有答案，再倒着调权重骗自己。'},
+{n:'020',zh:'第一性原理',en:'First Principles',m:'tree',c:'思考',
+ s:{r:'表面结论',k:[{t:'拆到不可再拆的事实',c:['物理限制','成本构成']},{t:'扔掉所有类比',c:['别人都这么做','一直如此']},{t:'重新往上推',c:['新方案']}]},
+ core:'不看别人怎么做，拆到无法再拆的事实，再从那里重新造。',
+ when:'成本卡死、行业共识让你难受、想做真正不一样的东西。',
+ eg:'马斯克算电池原材料的市价，发现只占售价一小部分，于是自己造。',
+ trap:'把"我不信"当第一性原理，跳过了真实约束。'},
+{n:'021',zh:'奥卡姆剃刀',en:"Occam's Razor",m:'scale',c:'思考',
+ s:{l:'解释 A 需要 5 个假设',r:'解释 B 只需 1 个假设',tilt:-1,
+    note:'同样能解释现象时，先信假设少的那个'},
+ core:'如无必要，勿增实体。',
+ when:'排查故障、判断动机、看到复杂阴谋论时。',
+ eg:'服务挂了：先怀疑刚才那次部署，而不是黑客攻击。',
+ trap:'把"简单"当"正确"，对真复杂的系统硬套。'},
+{n:'022',zh:'汉隆剃刀',en:"Hanlon's Razor",m:'scale',c:'人际',
+ s:{l:'他在害我',r:'他只是蠢/忙/忘了',tilt:1,
+    note:'能用无能解释的，就别归因于恶意'},
+ core:'大部分伤害来自疏忽，不是敌意。',
+ when:'邮件被无视、同事拆台、别人语气很冲时。',
+ eg:'对方没回消息，先假设他忙忘了，而不是在排挤你。',
+ trap:'对方连续三次"忘了"，你还在用这把刀——该换成模式识别。'},
+{n:'023',zh:'机会成本',en:'Opportunity Cost',m:'scale',c:'决策',
+ s:{l:'选 A 的收益',r:'放弃的 B 中最好的那个',
+    note:'真实成本 = 你放弃的最好选项，不是花掉的钱'},
+ core:'做任何选择的代价，是你没选的那个最好的。',
+ when:'时间怎么花、要不要接这个项目、读研还是工作。',
+ eg:'"免费"的三小时会议，成本是你本可以推进的核心项目。',
+ trap:'只算花出去的钱，不算被占掉的时间和注意力。'},
+{n:'024',zh:'沉没成本谬误',en:'Sunk Cost Fallacy',m:'axis',c:'决策',
+ s:{x:'继续投入',y:'累计损失',c:[.15,.3,.45,.6,.78,.95],mark:2,markt:'该止损点',
+    note:'已花掉的钱和时间，跟"要不要继续"无关'},
+ core:'只看往前的收益，不看已经投进去的。',
+ when:'烂项目、烂关系、看了一半的烂电影。',
+ eg:'"都读三年了不能放弃"——三年是已发生的，问题是后面两年值不值。',
+ trap:'用"再坚持一下"包装不敢承认判断错了。'},
+{n:'025',zh:'边际效用递减',en:'Diminishing Marginal Utility',m:'axis',c:'决策',
+ s:{x:'数量',y:'每一份带来的爽感',c:[.95,.7,.5,.35,.24,.16,.1],
+    note:'第一口最爽，第五口几乎没感觉'},
+ core:'同一件事重复投入，每一份的回报越来越小。',
+ when:'加班时长、加功能、加广告预算、囤东西。',
+ eg:'工作到第 10 小时的产出，远不如第 2 小时。',
+ trap:'继续加码，因为过去加码有效过。'},
+{n:'026',zh:'二八法则',en:'Pareto Principle',m:'axis',c:'决策',
+ s:{x:'投入排序（从高效到低效）',y:'累计产出',c:[0,.5,.68,.8,.88,.94,1],
+    note:'前 20% 的投入贡献了约 80% 的结果'},
+ core:'找出那 20%，其余的敢于不做。',
+ when:'时间不够、资源有限、想提效但不知道砍哪里。',
+ eg:'20% 的客户贡献 80% 利润，就把服务资源压到那批人身上。',
+ trap:'知道二八，但不敢砍掉那 80%，等于没用。'},
+{n:'027',zh:'二阶思维',en:'Second-Order Thinking',m:'chain',c:'思考',
+ s:{s:['我要做的事','一阶结果 显而易见','二阶结果 别人的反应','三阶结果 系统重新平衡']},
+ core:'总要多问一句"然后呢"。',
+ when:'定政策、涨价、改考核指标、任何会影响别人行为的决定。',
+ eg:'按代码行数考核 → 一阶多写代码 → 二阶写垃圾代码 → 三阶系统烂掉。',
+ trap:'只算第一层，把可预见的反噬当"意外"。'},
+{n:'028',zh:'决策树',en:'Decision Tree',m:'tree',c:'决策',
+ s:{r:'决策点',k:[{t:'选项 A',c:['好结果 p×收益','坏结果 p×损失']},{t:'选项 B',c:['好结果','坏结果']},{t:'不做',c:['维持现状']}]},
+ core:'把选项、概率、后果画成树，比在脑子里绕清楚十倍。',
+ when:'分支多、后果差异大、脑子转不过来的时候。',
+ eg:'投不投这条产品线：卖爆 / 平庸 / 扑街 各自概率与钱数写出来。',
+ trap:'概率随口编，看着精确其实是编的。'},
+{n:'029',zh:'后悔最小化框架',en:'Regret Minimization',m:'timeline',c:'决策',
+ s:{p:[{t:'现在',d:'纠结、恐惧'},{t:'80 岁回望',d:'哪个更后悔'},{t:'反推今天',d:'选不后悔那个'}],
+    note:'把时间尺度拉到最长，短期恐惧会自动缩小'},
+ core:'站在人生终点回看，哪个选择更让你后悔，就别选它。',
+ when:'重大人生岔路：辞职、创业、出国、表白。',
+ eg:'贝索斯离职创亚马逊：不试才会后悔，年终奖不会。',
+ trap:'用它来合理化冲动——它只适合不可逆的大决定。'},
+{n:'030',zh:'10/10/10 法则',en:'10-10-10 Rule',m:'timeline',c:'决策',
+ s:{p:[{t:'10 分钟后',d:'情绪还在吗'},{t:'10 个月后',d:'还重要吗'},{t:'10 年后',d:'还记得吗'}],
+    note:'把一件事放到三个时间尺度上称重'},
+ core:'情绪上头时，用三个时间尺度给这件事重新称重。',
+ when:'想发火、想立刻回怼、想冲动下单。',
+ eg:'"这条差评"10 分钟很气，10 个月无所谓，10 年完全不记得。',
+ trap:'用它逃避所有短期问题——有些事 10 分钟内就得处理。'},
+{n:'031',zh:'可逆 / 不可逆决策',en:'Two-Way vs One-Way Door',m:'matrix',c:'决策',
+ s:{x:['影响小','影响大'],y:['可逆','不可逆'],
+    q:['可逆+小 立刻试','可逆+大 快试快回滚','不可逆+小 别纠结','不可逆+大 慢想 多查'],
+    ax:'← 影响大小 →',ay:'← 是否可逆 →'},
+ core:'可逆的门快进快出，不可逆的门慢下来。',
+ when:'团队决策卡住、自己反复纠结小事时。',
+ eg:'改个文案是双向门，签三年租约是单向门。',
+ trap:'把所有事都当单向门，决策速度归零。'},
+{n:'032',zh:'OODA 循环',en:'Observe-Orient-Decide-Act',m:'loop',c:'决策',
+ s:{n:['观察','判断','决策','行动'],note:'谁的循环转得快，谁就掌控节奏'},
+ core:'比对手更快跑完一圈，他就永远在应付你上一步。',
+ when:'竞争、谈判、快速变化的环境。',
+ eg:'对手每季度调价，你每周调，你就在他的循环里。',
+ trap:'卡在"判断"环节反复分析，圈转不动。'},
+{n:'033',zh:'PDCA 循环',en:'Plan-Do-Check-Act',m:'loop',c:'执行',
+ s:{n:['计划','执行','检查','改进'],note:'每转一圈标准上一个台阶'},
+ core:'做完必须检查，检查完必须把结论固化成新标准。',
+ when:'流程改进、习惯养成、任何要重复做的事。',
+ eg:'周复盘不是写感想，是把这周踩的坑写成下周的检查项。',
+ trap:'只有 P 和 D，永远不 C 不 A，同一个坑踩三年。'},
+{n:'034',zh:'反脆弱',en:'Antifragile',m:'axis',c:'思考',
+ s:{x:'冲击强度',y:'最终状态',c:[.4,.45,.55,.7,.88,1],c2:[.6,.55,.42,.28,.14,.03],
+    l1:'反脆弱 越震越强',l2:'脆弱 一震就碎',note:'目标不是抗打，是从波动里获益'},
+ core:'脆弱怕波动，坚固扛波动，反脆弱靠波动变强。',
+ when:'设计收入结构、职业路径、投资组合。',
+ eg:'单一雇主是脆弱；技能 + 副业 + 人脉，被裁反而可能更好。',
+ trap:'把"能扛"当反脆弱——那只是坚固。'},
+{n:'035',zh:'期望值思维',en:'Expected Value',m:'scale',c:'决策',
+ s:{l:'概率 × 收益',r:'概率 × 损失',
+    note:'看长期均值，别被单次结果骗'},
+ core:'决策看期望值，结果好坏不代表决策对错。',
+ when:'投资、投标、任何有不确定性的重复决策。',
+ eg:'70% 赚 100、30% 亏 100 → 期望 +40，就该做，哪怕这次亏了。',
+ trap:'一次失败就否定正确的策略（结果论）。'},
+{n:'036',zh:'贝叶斯更新',en:'Bayesian Updating',m:'chain',c:'思考',
+ s:{s:['先验 我原来信几成','证据 新看到什么','后验 更新到几成']},
+ core:'观点不是真假开关，是一个随证据滑动的百分比。',
+ when:'判断人、判断趋势、任何信息不断到来的场合。',
+ eg:'"他靠谱"从 60% 起，守时一次 +5%，放鸽子一次 −20%。',
+ trap:'先验太硬，任何证据都改不动 = 固执。'},
+{n:'037',zh:'逆向思维',en:'Inversion',m:'chain',c:'思考',
+ s:{s:['我想要成功','列出所有必然失败的做法','逐条避开','剩下的就是路']},
+ core:'不知道怎么赢的时候，先确保不输。',
+ when:'目标模糊、方案太多、风险大。',
+ eg:'"怎么把项目搞砸？"——不定期同步、需求不写、不测——反过来做。',
+ trap:'只避坑不进攻，变成保守。'},
+{n:'038',zh:'Cynefin 框架',en:'Cynefin Framework',m:'matrix',c:'决策',
+ s:{x:['因果不清','因果清楚'],y:['无序','有序'],
+    q:['复杂 先试探再看反应','繁杂 请专家分析','混乱 先止血再说','简单 照最佳实践做'],
+    ax:'← 因果关系是否可见 →',ay:'← 系统是否有序 →'},
+ core:'先判断你在哪种问题里，再决定用哪套方法。',
+ when:'团队争论方法论、新领域不知从何下手。',
+ eg:'做新市场是"复杂"域——别写三年规划，先小成本试。',
+ trap:'把复杂问题当简单问题，直接抄别人的最佳实践。'},
+
+/* ——— 商业 ——— */
+{n:'039',zh:'商业模式画布',en:'Business Model Canvas',m:'layers',c:'商业',
+ s:{l:['价值主张 你解决什么','客户 & 渠道 & 关系','关键活动 & 资源 & 伙伴','收入来源','成本结构']},
+ core:'一家公司能不能成，九个格子填完就看得见漏洞。',
+ when:'创业初期、评估一个生意、看懂对手。',
+ eg:'填到"收入来源"卡壳 = 你只有产品没有生意。',
+ trap:'填得漂亮但没验证，画布只是假设清单。'},
+{n:'040',zh:'波特五力',en:"Porter's Five Forces",m:'network',c:'商业',
+ s:{c:'行业利润',a:['新进入者','替代品','买方议价力','卖方议价力','同业竞争']},
+ core:'你的利润被五个方向同时拉扯，最弱的那一环决定你赚不赚钱。',
+ when:'选行业、判断赛道是不是苦生意。',
+ eg:'餐饮：进入门槛低 + 客户零转换成本 = 天然低毛利。',
+ trap:'只盯同行竞争，忽略上游供应商正在吃掉你的利润。'},
+{n:'041',zh:'价值链',en:'Value Chain',m:'chain',c:'商业',
+ s:{s:['研发','采购','生产','物流','营销','售后']},
+ core:'把公司拆成一串环节，看每一环各自加了多少价值、花了多少钱。',
+ when:'找降本点、找差异化点、决定哪段外包。',
+ eg:'代工厂利润薄，因为价值全在研发和品牌两端。',
+ trap:'在没有价值的环节上做优化，省了钱没竞争力。'},
+{n:'042',zh:'飞轮效应',en:'Flywheel',m:'loop',c:'商业',
+ s:{n:['低价','更多用户','更大规模','更低成本'],note:'亚马逊飞轮：每一环都在推下一环'},
+ core:'找到能自我加强的闭环，前期很沉，转起来就停不下。',
+ when:'设计增长模型、判断一个生意有没有复利。',
+ eg:'内容多 → 用户多 → 创作者多 → 内容更多。',
+ trap:'环上有一节其实不成立，飞轮永远推不动。'},
+{n:'043',zh:'网络效应',en:'Network Effect',m:'network',c:'商业',
+ s:{c:'平台价值',a:['用户 A','用户 B','用户 C','用户 D']},
+ core:'用户越多，产品对每个用户越有价值——价值来自用户之间，不是产品本身。',
+ when:'判断平台生意、社交产品、市场类产品。',
+ eg:'微信的价值 = 你想找的人都在上面。',
+ trap:'把"用户多"当网络效应——外卖平台换一家几乎无损失。'},
+{n:'044',zh:'规模效应',en:'Economies of Scale',m:'axis',c:'商业',
+ s:{x:'产量',y:'单位成本',c:[.95,.62,.42,.3,.24,.21,.2],
+    note:'固定成本被摊薄，但摊到底就摊不动了'},
+ core:'量上去，单位成本下来——但有极限，过了会反升。',
+ when:'定价、决定要不要冲量、判断对手成本。',
+ eg:'开模费两万，做 100 件每件 200，做 10000 件每件 2。',
+ trap:'为了规模盲目扩张，管理成本反而把优势吃掉。'},
+{n:'045',zh:'护城河',en:'Moat',m:'layers',c:'商业',
+ s:{l:['品牌心智','网络效应','转换成本','成本优势 / 规模','特许与专利'],up:'最难复制',down:'最易复制'},
+ core:'问题不是"你现在赚钱吗"，是"别人抄你要多久"。',
+ when:'评估一门生意能不能长期赚、写商业计划。',
+ eg:'你的独特优势如果三个月能被抄走，那不是护城河。',
+ trap:'把"我们团队更努力"写成护城河。'},
+{n:'046',zh:'微笑曲线',en:'Smile Curve',m:'axis',c:'商业',
+ s:{x:'研发 → 制造 → 品牌',y:'附加值',c:[.9,.55,.28,.2,.3,.6,.92],
+    note:'两端赚钱，中间的制造最不赚'},
+ core:'价值集中在链条两端：研发和品牌；中间的组装最苦。',
+ when:'选定位、决定往上游还是下游走。',
+ eg:'代工厂想赚钱，要么往研发爬，要么做自有品牌。',
+ trap:'看到两端赚钱就贸然跳，忘了两端也最烧钱。'},
+{n:'047',zh:'长尾理论',en:'Long Tail',m:'axis',c:'商业',
+ s:{x:'商品按销量排序',y:'销量',c:[1,.5,.3,.2,.15,.12,.1,.09,.08],
+    note:'尾巴很长，加起来可能超过头部'},
+ core:'货架无限时，冷门商品的总和能媲美爆款。',
+ when:'做电商 SKU 策略、内容平台、小众市场。',
+ eg:'亚马逊大量收入来自单本销量极低的书。',
+ trap:'线下有货架成本时硬做长尾，库存压死自己。'},
+{n:'048',zh:'创新扩散曲线',en:'Diffusion of Innovations',m:'axis',c:'商业',
+ s:{x:'时间',y:'新增采用人数',c:[.05,.2,.55,.9,.95,.6,.25,.08],
+    note:'创新者 → 早期采用者 → 早期大众 → 晚期大众 → 落后者'},
+ core:'新东西按五类人依次扩散，每类人要的说辞完全不同。',
+ when:'新品推广、定目标人群、判断现在该说什么话。',
+ eg:'对早期采用者讲"新"，对早期大众必须讲"别人都在用、很稳"。',
+ trap:'用打动极客的话去打动大众。'},
+{n:'049',zh:'S 型曲线',en:'S-Curve',m:'axis',c:'商业',
+ s:{x:'投入时间',y:'成果',c:[.05,.08,.15,.35,.65,.85,.92,.94],
+    note:'前期看不到动静，中期陡增，后期封顶'},
+ core:'任何增长都是先平、后陡、再平——沉默期不是失败。',
+ when:'学新技能、新业务爬坡、判断要不要放弃。',
+ eg:'学编程前两个月毫无手感，第三个月突然通了。',
+ trap:'在平台期误判为"到顶了"，其实是还没起飞。'},
+{n:'050',zh:'跨越鸿沟',en:'Crossing the Chasm',m:'axis',c:'商业',
+ s:{x:'市场阶段',y:'采用量',c:[.1,.35,.4,.12,.5,.85,.95],mark:3,markt:'鸿沟',
+    note:'早期采用者和早期大众之间有一道断层'},
+ core:'尝鲜的人喜欢你，不代表大众会买——中间隔着一道鸿沟。',
+ when:'产品有一批死忠但增长停了。',
+ eg:'过鸿沟的方法：死磕一个细分场景做到无可替代，再往外扩。',
+ trap:'把早期热度当 PMF，盲目扩张后摔进沟里。'},
+{n:'051',zh:'第二曲线',en:'Second Curve',m:'axis',c:'商业',
+ s:{x:'时间',y:'业绩',c:[.15,.4,.7,.85,.88,.8,.6],c2:[.02,.03,.06,.15,.4,.75,.95],
+    l1:'第一曲线',l2:'第二曲线',note:'必须在第一曲线还没掉头时就起跳'},
+ core:'新曲线要在旧曲线最风光的时候开始，不是等它衰退。',
+ when:'主业还在赚钱、但你隐约觉得天花板到了。',
+ eg:'苹果在 iPod 最好卖时做了会杀死 iPod 的 iPhone。',
+ trap:'等主业下滑才找第二曲线——那时已经没钱没人了。'},
+{n:'052',zh:'破坏性创新',en:'Disruptive Innovation',m:'axis',c:'商业',
+ s:{x:'时间',y:'性能',c:[.5,.62,.75,.88,.98],c2:[.05,.2,.42,.7,.95],
+    l1:'在位者 性能过剩',l2:'破坏者 从低端起',note:'低端起家，性能追上时在位者已来不及'},
+ core:'颠覆从"更差但更便宜/更方便"开始，不是从更强开始。',
+ when:'看到低端玩家出现却不屑一顾时。',
+ eg:'数码相机初期画质很差，柯达没当回事。',
+ trap:'用现有客户的反馈判断新物种——他们当然说不好。'},
+{n:'053',zh:'定位理论',en:'Positioning',m:'matrix',c:'商业',
+ s:{x:['同质','独特'],y:['低认知','高认知'],
+    q:['有名但没差异 靠砸钱','占据心智 = 品类第一','无人知晓 从这起步','小众独特 待放大'],
+    ax:'← 差异化程度 →',ay:'← 心智知名度 →'},
+ core:'不是在产品上做文章，是在潜在客户的脑子里占一个词。',
+ when:'品牌起名、写一句话介绍、想清楚"我们是干嘛的"。',
+ eg:'"怕上火喝王老吉"——占住"怕上火"这个词。',
+ trap:'什么都想占，结果一个词都不属于你。'},
+{n:'054',zh:'蓝海战略',en:'Blue Ocean',m:'matrix',c:'商业',
+ s:{x:['低成本','高成本'],y:['同质竞争','价值创新'],
+    q:['差异化但很贵 高端小众','蓝海 又便宜又不同','红海 血拼价格','高成本同质 最惨'],
+    ax:'← 成本 →',ay:'← 是否创新 →'},
+ core:'靠"剔除-减少-增加-创造"四步跳出现有竞争维度。',
+ when:'行业内卷、只能拼价格时。',
+ eg:'太阳马戏团剔除动物和明星，增加剧情，卖给成人。',
+ trap:'为了不同而不同，做出没人要的差异。'},
+{n:'055',zh:'AARRR 海盗指标',en:'AARRR',m:'chain',c:'商业',
+ s:{s:['获客 Acquisition','激活 Activation','留存 Retention','变现 Revenue','推荐 Referral']},
+ core:'增长按五步拆开，哪一步漏得最凶就先补哪一步。',
+ when:'做用户增长、诊断产品数据。',
+ eg:'留存烂的时候拼命拉新 = 往漏桶里倒水。',
+ trap:'只盯获客，因为它最好看也最好花钱。'},
+{n:'056',zh:'转化漏斗',en:'Conversion Funnel',m:'chain',c:'商业',
+ s:{s:['曝光 10000','点击 800','加购 200','下单 60','复购 15']},
+ core:'每一层的转化率乘起来才是最终结果，改善最低那层收益最大。',
+ when:'电商、投放、任何多步骤流程。',
+ eg:'点击率 8% 但加购只有 25%，问题在详情页不在广告。',
+ trap:'优化已经很高的那一环，因为它更容易。'},
+{n:'057',zh:'LTV / CAC',en:'Lifetime Value vs Acquisition Cost',m:'scale',c:'商业',
+ s:{l:'LTV 一个客户一辈子给你的钱',r:'CAC 拉来他花的钱',tilt:-1,
+    note:'健康线：LTV > 3×CAC，且回本周期够短'},
+ core:'一个客户赚回来的钱必须显著大于买他花的钱。',
+ when:'投广告前、判断生意能不能规模化。',
+ eg:'LTV 300、CAC 250 → 看着赚，其实没利润还压现金流。',
+ trap:'算 LTV 用毛收入而不是毛利，自欺欺人。'},
+{n:'058',zh:'单位经济模型',en:'Unit Economics',m:'chain',c:'商业',
+ s:{s:['售价','− 产品成本','− 履约与运费','− 获客成本','= 单件利润']},
+ core:'一单赚不赚钱，规模化只会把结论放大。',
+ when:'定价、上新品、决定要不要放量。',
+ eg:'单件亏 3 块，卖一万件就是亏三万，规模救不了你。',
+ trap:'用"以后量大了成本会降"掩盖当下的负毛利。'},
+{n:'059',zh:'需求三角',en:'Demand Triangle',m:'tree',c:'商业',
+ s:{r:'真实需求',k:[{t:'缺乏感',c:['理想与现实的差']},{t:'目标物',c:['能填补的方案']},{t:'购买力',c:['钱 / 时间 / 决策权']}]},
+ core:'三者缺一，需求就不成立。',
+ when:'判断一个产品有没有人买、诊断卖不动的原因。',
+ eg:'健身卡：缺乏感强、目标物有，但"时间购买力"不够 → 不续费。',
+ trap:'只做产品（目标物），不制造缺乏感。'},
+{n:'060',zh:'供需曲线',en:'Supply and Demand',m:'axis',c:'商业',
+ s:{x:'数量',y:'价格',c:[.95,.75,.58,.42,.28,.15],c2:[.12,.28,.42,.58,.75,.92],
+    l1:'需求',l2:'供给',note:'交点定价格；任何一条移动，价格就动'},
+ core:'价格是供需两条线的交点，不是谁定的。',
+ when:'定价、判断涨跌、看懂任何"为什么这么贵"。',
+ eg:'供给突然减少（限产），价格必然上移。',
+ trap:'只看自己的成本定价，不看需求那条线。'},
+{n:'061',zh:'冰山模型',en:'Iceberg Model (Competency)',m:'layers',c:'人际',
+ s:{l:['知识 / 技能（水面上，可见可训）','角色定位 / 价值观','自我认知','动机与特质（水面下，最难改）'],
+    up:'易观察易培养',down:'难改但决定上限'},
+ core:'能看见的只有一小块，决定长期表现的全在水下。',
+ when:'招人、看人、选合作伙伴、自我评估。',
+ eg:'技能可以三个月补，动机不匹配三年都别想改。',
+ trap:'只面试技能，入职三个月才发现动机不对。'},
+{n:'062',zh:'KANO 模型',en:'Kano Model',m:'matrix',c:'商业',
+ s:{x:['做得差','做得好'],y:['不满意','满意'],
+    q:['期望型 做多好就多满意','兴奋型 有惊喜没有也不怨','无差异型 做不做都一样','基本型 没有就骂 有也不夸'],
+    ax:'← 功能完成度 →',ay:'← 用户满意度 →'},
+ core:'功能分四类：基本型必须有，期望型越多越好，兴奋型制造口碑。',
+ when:'排产品需求优先级、资源不够时砍什么。',
+ eg:'酒店热水是基本型，免费升房是兴奋型，别把钱花在无差异型上。',
+ trap:'把兴奋型做成标配，用户很快视为基本型。'},
+{n:'063',zh:'心智阶梯',en:'Mind Ladder',m:'layers',c:'商业',
+ s:{l:['第一名 被直接想起','第二名 被比较','第三名 勉强被记得','其余 不存在'],pyr:1,
+    up:'心智份额',down:''},
+ core:'消费者每个品类只记得住 2~3 个名字，排不进去等于不存在。',
+ when:'选品类、判断要不要开辟新品类。',
+ eg:'进不了大品类前三，就切一个你能当第一的小品类。',
+ trap:'在别人已经占住的词上硬拼预算。'},
+
+/* ——— 时间与执行 ——— */
+{n:'064',zh:'GTD 工作法',en:'Getting Things Done',m:'chain',c:'时间',
+ s:{s:['收集 全倒出来','厘清 是什么/要做吗','organize 分类归位','回顾 每周过一遍','执行 按情境做']},
+ core:'脑子是用来思考的，不是用来记事的——全部外置。',
+ when:'事情多到焦虑、总担心漏掉什么。',
+ eg:'所有念头先进收件箱，每天清空一次。',
+ trap:'只收集不回顾，收件箱变垃圾场。'},
+{n:'065',zh:'番茄工作法',en:'Pomodoro',m:'timeline',c:'时间',
+ s:{p:[{t:'25 分钟',d:'只做一件事'},{t:'5 分钟',d:'必须离开'},{t:'× 4 轮',d:'长休 20 分'}],
+    note:'用固定节奏对抗拖延和分心'},
+ core:'把时间切成不可打断的小块，一块只服务一件事。',
+ when:'拖延、任务太大不想开始、容易被消息打断。',
+ eg:'开始前只承诺一个番茄——启动成本降到最低。',
+ trap:'状态正好时被闹钟打断，硬守规则反而毁了心流。'},
+{n:'066',zh:'时间块',en:'Time Blocking',m:'timeline',c:'时间',
+ s:{p:[{t:'深度块',d:'上午 3h 不接消息'},{t:'协作块',d:'下午 会议与回复'},{t:'缓冲块',d:'留白应对意外'}],
+    note:'先给重要的事占位，剩下的才开放'},
+ core:'不写待办清单，直接在日历上给每件事划一块时间。',
+ when:'总在忙但没推进核心工作。',
+ eg:'把"写论文"当会议一样锁进日历，别人约不进来。',
+ trap:'排满不留缓冲，一个意外就全线崩。'},
+{n:'067',zh:'两分钟法则',en:'Two-Minute Rule',m:'chain',c:'时间',
+ s:{s:['一件事冒出来','两分钟内能做完吗','能 → 立刻做掉','不能 → 进清单']},
+ core:'小事立刻做掉，比记下来再做便宜得多。',
+ when:'清收件箱、处理琐事、启动大任务。',
+ eg:'大任务版本："只做两分钟"——开始了就很难停。',
+ trap:'一直做两分钟小事，一天没碰大任务。'},
+{n:'068',zh:'帕金森定律',en:"Parkinson's Law",m:'axis',c:'时间',
+ s:{x:'给定的时限',y:'实际耗时',c:[.15,.32,.5,.68,.85,1],
+    note:'给一周就用一周，给一天也能做完'},
+ core:'工作会自动膨胀到填满你给它的时间。',
+ when:'任务总是拖到最后一刻、会议永远超时。',
+ eg:'把"这周做完"改成"今天下午三点前给我初稿"。',
+ trap:'把死线压到不合理，质量崩掉。'},
+{n:'069',zh:'复利效应',en:'Compounding',m:'axis',c:'思考',
+ s:{x:'时间',y:'积累',c:[.03,.05,.09,.16,.3,.55,1],c2:[.03,.17,.31,.45,.6,.75,.9],
+    l1:'复利',l2:'线性',note:'前期比线性还慢，拐点之后甩开一切'},
+ core:'小优势 × 长时间 = 不可逾越的差距，关键是活到拐点。',
+ when:'学习、健康、存钱、写作、任何长期投入。',
+ eg:'每天 1% 的改进，一年是 37 倍。',
+ trap:'在拐点前退出，等于把最贵的沉默期白熬了。'},
+{n:'070',zh:'心流通道',en:'Flow Channel',m:'matrix',c:'思考',
+ s:{x:['技能低','技能高'],y:['挑战低','挑战高'],
+    q:['焦虑 太难了','心流 难度略高于能力','冷漠 又菜又无聊','无聊 太简单'],
+    ax:'← 你的技能水平 →',ay:'← 任务挑战难度 →'},
+ core:'难度略高于能力（约 +4%）时进入心流；两边失衡就是焦虑或无聊。',
+ when:'安排练习强度、给下属派活、自己状态不好时诊断。',
+ eg:'无聊 → 加难度或加约束；焦虑 → 拆小或补技能。',
+ trap:'一直待在舒适区，说自己"很稳定"。'},
+{n:'071',zh:'精力管理',en:'Energy Management',m:'axis',c:'时间',
+ s:{x:'一天的时间',y:'精力',c:[.5,.85,.95,.6,.35,.62,.75,.4],
+    note:'管理精力比管理时间更重要'},
+ core:'时间是常量，精力是变量——把最难的事放在精力峰值。',
+ when:'总觉得时间不够、下午效率崩塌。',
+ eg:'找出你的峰值时段，那两小时只做最烧脑的事。',
+ trap:'用峰值时段回邮件开会。'},
+{n:'072',zh:'最小可行产品',en:'Minimum Viable Product',m:'chain',c:'商业',
+ s:{s:['最小可用版本','投给真实用户','拿反馈','改或掉头']},
+ core:'用最小成本验证最大的那个假设，而不是把东西做完美。',
+ when:'新产品、新业务、任何"我以为用户想要"的时候。',
+ eg:'先做一个落地页收邮箱，看有没有人留资，再决定要不要开发。',
+ trap:'MVP 做成残次品——minimum 是范围小，不是质量差。'},
+{n:'073',zh:'OKR',en:'Objectives and Key Results',m:'tree',c:'执行',
+ s:{r:'O 目标（定性、鼓舞人）',k:[{t:'KR1 可量化',c:['指标 + 数字']},{t:'KR2 可量化',c:['指标 + 数字']},{t:'KR3 可量化',c:['指标 + 数字']}]},
+ core:'目标要激动人心，关键结果必须能用数字判定真假。',
+ when:'季度规划、团队对齐、个人年度目标。',
+ eg:'O："让新用户第一天就爽到"；KR："次日留存 28% → 40%"。',
+ trap:'把 KR 写成任务清单（做了就算完成），而不是结果。'},
+{n:'074',zh:'SMART 原则',en:'SMART Goals',m:'layers',c:'执行',
+ s:{l:['Specific 具体','Measurable 可衡量','Achievable 可实现','Relevant 相关','Time-bound 有期限']},
+ core:'一个目标要能被验收，五个条件缺一不可。',
+ when:'定任何目标、给别人派任务。',
+ eg:'"多运动"→"每周三次、每次 30 分钟慢跑，持续到 9 月"。',
+ trap:'只满足 M 和 T，目标跟真正重要的事无关（缺 R）。'},
+{n:'075',zh:'关键路径',en:'Critical Path',m:'timeline',c:'执行',
+ s:{p:[{t:'A 3天',d:'必经'},{t:'B 5天',d:'最长链'},{t:'C 2天',d:'必经'}],
+    note:'总工期 = 最长那条链；缩它才有用'},
+ core:'只有关键路径上的任务能决定完工时间，其它都有余量。',
+ when:'排项目、发现进度总是拖。',
+ eg:'找到最长链，把人力堆到那条链上，其它任务加人无效。',
+ trap:'优化非关键任务，看着很忙工期一天没变。'},
+{n:'076',zh:'木桶原理',en:'Barrel Theory',m:'layers',c:'执行',
+ s:{l:['最长板 决定你的上限（个人）','中间板','最短板 决定容量（系统）'],
+    up:'个人靠长板',down:'系统靠补短板'},
+ core:'系统的产出由最短板决定；但个人的价值由最长板决定。',
+ when:'诊断流程瓶颈 vs 规划个人发展。',
+ eg:'团队缺一个测试，整条线的交付质量就卡在那；但你个人要拼特长。',
+ trap:'个人拼命补短板，最后样样平庸。'},
+{n:'077',zh:'杠杆思维',en:'Leverage',m:'scale',c:'思考',
+ s:{l:'同样的投入',r:'被放大 N 倍的产出',tilt:1,
+    note:'四种杠杆：人力、资本、代码、媒体'},
+ core:'别问"我能多干多少"，问"我这一份力能被放大几倍"。',
+ when:'觉得自己很努力但没起色。',
+ eg:'写一次代码 / 录一次视频，可以被无数次复用——零边际成本杠杆。',
+ trap:'一直用时间换钱，天花板是 24 小时。'},
+{n:'078',zh:'断舍离',en:'Declutter',m:'chain',c:'时间',
+ s:{s:['断 不再增加','舍 清掉现有','离 脱离执念']},
+ core:'决策疲劳的根源是选项太多，先减少选项本身。',
+ when:'桌面/清单/软件/关系一团乱。',
+ eg:'待办清单超过 7 条就删到 3 条，剩下的进"以后再说"。',
+ trap:'只做"舍"不做"断"，扔完又填满。'},
+{n:'079',zh:'清单革命',en:'The Checklist Manifesto',m:'chain',c:'执行',
+ s:{s:['列出必做项','设定检查点','按项打勾','事后更新清单']},
+ core:'高手也会漏，清单把"记忆"变成"核对"。',
+ when:'重复性高、后果严重的流程。',
+ eg:'飞行员起飞前必须念清单，不管飞了多少年。',
+ trap:'清单太长变成形式主义，只勾不看。'},
+{n:'080',zh:'反馈闭环',en:'Feedback Loop',m:'loop',c:'执行',
+ s:{n:['行动','结果','度量','调整'],note:'闭环越短，进步越快'},
+ core:'没有反馈的努力等于蒙眼练习。',
+ when:'学任何技能、做任何长期项目。',
+ eg:'练口语必须有人纠错或录音回听，否则错误会被固化。',
+ trap:'反馈周期太长（一年一次考核），错误早已成型。'},
+
+/* ——— 思考与学习 ——— */
+{n:'081',zh:'费曼学习法',en:'Feynman Technique',m:'loop',c:'思考',
+ s:{n:['学一个概念','讲给外行听','卡住的地方','回去补'],note:'讲不清 = 没懂'},
+ core:'用最简单的话讲给外行，卡壳处就是你的漏洞。',
+ when:'学新知识、准备考试、判断自己是不是真懂。',
+ eg:'把线性代数讲成"网格纸被拉斜"，讲不出来就回去看。',
+ trap:'用术语糊弄过去，误以为自己懂了。'},
+{n:'082',zh:'遗忘曲线',en:'Forgetting Curve',m:'axis',c:'思考',
+ s:{x:'时间',y:'记住的比例',c:[1,.55,.36,.28,.24,.21,.2],c2:[1,.62,.85,.6,.9,.75,.95],
+    l1:'不复习',l2:'间隔复习',note:'在快忘掉的边缘复习，效率最高'},
+ core:'记忆按指数衰减，在临界点复习一次，曲线就被抬起来。',
+ when:'背单词、记概念、任何需要长期记住的东西。',
+ eg:'1 天 / 3 天 / 7 天 / 15 天 复习一次。',
+ trap:'刚学完就重复（太早），或者忘光了才回看（太晚）。'},
+{n:'083',zh:'刻意练习',en:'Deliberate Practice',m:'loop',c:'思考',
+ s:{n:['明确的小目标','跳出舒适区','立刻反馈','纠正后重来'],note:'重复 ≠ 练习'},
+ core:'一万小时不管用，管用的是有反馈、有难度、有针对性的那部分。',
+ when:'技能长期停在某个水平不动。',
+ eg:'不是"多写代码"，是专门练你最不会的那一类问题。',
+ trap:'一直练已经会的（因为舒服），假装在努力。'},
+{n:'084',zh:'学习金字塔',en:'Learning Pyramid',m:'layers',c:'思考',
+ s:{l:['听讲','阅读','演示','讨论','实践 / 教别人'],pyr:1,
+    up:'被动 留存低',down:'主动 留存高'},
+ core:'越是"输出型"的学习方式，留存率越高。',
+ when:'安排学习计划、判断自己是不是在假学习。',
+ eg:'看十小时视频不如自己动手做一个小项目。',
+ trap:'把"收藏"和"看完"当成学会了。'},
+{n:'085',zh:'三区理论',en:'Comfort-Learning-Panic Zone',m:'layers',c:'思考',
+ s:{l:['恐慌区 太难 会崩','学习区 略难 成长最快','舒适区 太熟 无成长'],ring:1},
+ core:'成长只发生在学习区——舒适区外一点点，恐慌区里面一点点。',
+ when:'挑任务难度、给自己定挑战。',
+ eg:'目标定在"跳一跳够得着"，不是"想想都害怕"。',
+ trap:'长期待在恐慌区，把焦虑当努力。'},
+{n:'086',zh:'双环学习',en:'Double-Loop Learning',m:'loop',c:'思考',
+ s:{n:['行动','结果不对','改做法（单环）','改前提（双环）'],note:'单环改方法，双环改假设'},
+ core:'第一环问"我做错了什么"，第二环问"我的前提是不是就是错的"。',
+ when:'反复优化却总不见效。',
+ eg:'投放没效果：单环是换素材，双环是问"这批人根本不是我的客户吗"。',
+ trap:'只在单环打转，越努力越偏。'},
+{n:'087',zh:'确认偏误',en:'Confirmation Bias',m:'venn',c:'思考',
+ s:{a:'全部证据',b:'你去搜的证据',ab:'支持你结论的',
+    out:'你以为在求真，其实只在自己那半边找'},
+ core:'人天生只搜集支持自己的证据。',
+ when:'研究、判断人、看新闻、做投资。',
+ eg:'解法：主动写下"什么证据会让我改变主意"，然后去找它。',
+ trap:'把"我查了很多资料"当客观——你只是查了同一侧。'},
+{n:'088',zh:'幸存者偏差',en:'Survivorship Bias',m:'venn',c:'思考',
+ s:{a:'你看到的 幸存者',b:'看不到的 失败者',ab:'真实全集',
+    out:'成功学只统计了活下来的那批'},
+ core:'数据只来自幸存者时，结论必然是错的。',
+ when:'看成功案例、看用户评价、看任何"他们都是这样做的"。',
+ eg:'"辍学创业成功"——因为辍学失败的人不会被采访。',
+ trap:'照抄成功者的做法，不问失败者是不是也这么做。'},
+{n:'089',zh:'达克效应',en:'Dunning-Kruger Effect',m:'axis',c:'思考',
+ s:{x:'真实能力',y:'自信程度',c:[.2,.95,.5,.25,.35,.55,.75],mark:1,markt:'愚昧之巅',
+    note:'刚入门时最自信，深入后反而怀疑自己'},
+ core:'知道得越少，越不知道自己不知道。',
+ when:'刚学会一点新东西、评估自己或别人的水平。',
+ eg:'突然觉得"这行也就那样"时，警报应该响。',
+ trap:'把"绝望之谷"的自我怀疑当成没天赋，退出了。'},
+{n:'090',zh:'邓巴数',en:"Dunbar's Number",m:'layers',c:'人际',
+ s:{l:['150 稳定社交上限','50 好友','15 密友','5 核心'],ring:1},
+ core:'人的关系精力有硬上限，越往内圈越贵。',
+ when:'管理团队规模、清理社交、判断精力往哪投。',
+ eg:'把最核心的 5 个位置想清楚给谁，其余关系自然降级。',
+ trap:'广撒网维护五百人，核心五个人反而疏远。'},
+{n:'091',zh:'地图不等于疆域',en:'The Map Is Not the Territory',m:'venn',c:'思考',
+ s:{a:'你的模型 地图',b:'真实世界 疆域',ab:'模型说对的部分',
+    out:'重叠之外那两块，才是翻车的地方'},
+ core:'所有模型都是简化，用错地方就会翻车。',
+ when:'过度依赖数据、KPI、二手信息时。',
+ eg:'报表说用户满意，去客服听十通电话就知道不是。',
+ trap:'把地图画得越精致，越舍不得承认它错了。'},
+{n:'092',zh:'存量与流量',en:'Stock and Flow',m:'chain',c:'思考',
+ s:{s:['流入','存量（水池）','流出']},
+ core:'看一个系统先看池子（存量），再看进水口和出水口（流量）。',
+ when:'看财务、看用户数、看体重、看知识积累。',
+ eg:'用户数不涨，可能不是拉新不够，而是流失口太大。',
+ trap:'只盯流入，不看流出。'},
+{n:'093',zh:'正负反馈回路',en:'Reinforcing vs Balancing Loop',m:'loop',c:'思考',
+ s:{n:['扰动','放大（正）','偏离更远','或被拉回（负）'],note:'正反馈制造指数，负反馈制造稳态'},
+ core:'正反馈让偏差越滚越大，负反馈让系统回到平衡。',
+ when:'看爆红、看崩盘、看任何"停不下来"的现象。',
+ eg:'口碑→更多用户→更好口碑（正）；价格涨→需求降→价格回落（负）。',
+ trap:'在正反馈系统里用线性思维预测。'},
+{n:'094',zh:'熵增定律',en:'Entropy',m:'axis',c:'思考',
+ s:{x:'时间（不管理）',y:'混乱度',c:[.1,.22,.38,.55,.75,.95],
+    note:'不持续投入能量，一切自动走向混乱'},
+ core:'秩序需要持续供能，放着不管必然变乱。',
+ when:'团队变散、房间变乱、代码变屎、关系变淡。',
+ eg:'所以要有周会、要有重构、要有定期约饭——都是在对抗熵。',
+ trap:'以为搭好了系统就一劳永逸。'},
+{n:'095',zh:'灰度认知，黑白决策',en:'Grey Thinking, Binary Action',m:'axis',c:'决策',
+ s:{x:'认知阶段 → 决策阶段',y:'确定性',c:[.5,.5,.5,.55,.6,1],
+    note:'想的时候允许 60% 把握，做的时候 100% 投入'},
+ core:'认知可以模糊，行动必须干脆。',
+ when:'信息永远不够但必须决定时。',
+ eg:'"我只有七成把握"——照样全力执行，同时准备好掉头。',
+ trap:'把灰度认知带进执行，做事永远半心半意。'},
+{n:'096',zh:'三重大脑',en:'Triune Brain',m:'layers',c:'思考',
+ s:{l:['理性脑 新皮层 慢','情绪脑 边缘系统 快','本能脑 爬虫脑 最快'],pyr:1,
+    up:'慢 耗能 后进化',down:'快 省能 先反应'},
+ core:'本能和情绪先开火，理性最后才到——所以先处理情绪再讲道理。',
+ when:'吵架、谈判、说服、管理自己的冲动。',
+ eg:'对方在气头上讲逻辑没用，先接住情绪。',
+ trap:'指望用道理压住情绪脑。'},
+{n:'097',zh:'马斯洛需求层次',en:"Maslow's Hierarchy",m:'layers',c:'人际',
+ s:{l:['自我实现','尊重','社交归属','安全','生理'],pyr:1,up:'高层',down:'底层'},
+ core:'低层未满足时，高层激励几乎无效。',
+ when:'激励团队、理解用户动机、判断自己缺什么。',
+ eg:'温饱没解决时谈理想，没人听。',
+ trap:'当成严格顺序——现实中会跳层和并存。'},
+{n:'098',zh:'SCARF 模型',en:'SCARF',m:'layers',c:'人际',
+ s:{l:['Status 地位','Certainty 确定性','Autonomy 自主权','Relatedness 归属','Fairness 公平']},
+ core:'这五样被威胁，人的大脑会当成生理危险来反应。',
+ when:'组织变革、给人反馈、宣布坏消息。',
+ eg:'当众批评 = 打击地位；突然改组 = 摧毁确定性。',
+ trap:'只讲道理不管这五项，员工"不讲理"其实是应激。'},
+{n:'099',zh:'系统 1 与系统 2',en:'System 1 / System 2',m:'scale',c:'思考',
+ s:{l:'系统1 快 直觉 省力 易错',r:'系统2 慢 理性 费力 准确',
+    note:'默认跑系统1；重要决定必须强制切到系统2'},
+ core:'大脑默认省电，重要的事要主动切到慢思考。',
+ when:'做重大决定、被促销/话术推着走时。',
+ eg:'刻意加一步："睡一觉再决定"，就是在强制启动系统 2。',
+ trap:'在疲劳、饥饿、赶时间时做大决定——系统 2 根本开不起来。'},
+{n:'100',zh:'大数定律',en:'Law of Large Numbers',m:'axis',c:'决策',
+ s:{x:'尝试次数',y:'实际结果偏离期望的幅度',c:[.95,.7,.5,.35,.24,.15,.08],
+    note:'次数够多，运气会被抹平，只剩真实概率'},
+ core:'单次结果是噪声，只有重复足够多次，你的真实水平才显现。',
+ when:'做内容、投资、销售、任何靠概率吃饭的事。',
+ eg:'发 10 条视频判断不了水平，发 200 条才是你的真实分布。',
+ trap:'样本太小就下结论，把运气当能力（或把倒霉当无能）。'},
+
+/* ═══════════ 第二部分 · 《模型思维》斯科特·佩奇 ═══════════ */
+/* ——— 元层：关于模型本身的模型 ——— */
+{n:'M01',zh:'智慧层次结构',en:'Wisdom Hierarchy',m:'layers',c:'元层',src:'page',
+ s:{l:['智慧 选对模型的能力','知识 关系与因果 = 模型','信息 被命名和归类的数据','数据 原始事件'],pyr:1,
+    up:'越往上越稀缺',down:'越往下越泛滥'},
+ core:'数据→信息→知识→智慧。知识就是模型；智慧是知道该调哪个模型。',
+ when:'觉得"资料看了一堆却没变聪明"的时候，定位自己卡在哪一层。',
+ eg:'毛绒玩具从 6 千米高空掉下：重量是信息，自由落体模型是知识，知道该用它而不是引力模型才是智慧。',
+ trap:'以为多收集数据就能自动升到智慧层——中间那两级不会自己长出来。'},
+{n:'M02',zh:'REDCAPE 七大用途',en:'Seven Uses of Models',m:'tree',c:'元层',src:'page',
+ s:{r:'模型能干什么',k:[{t:'推理 · 解释',c:['识别成立条件','给可检验的解释']},
+    {t:'设计 · 沟通',c:['定规则与制度','把知识接上理解']},
+    {t:'行动 · 预测 · 探索',c:['指导策略选择','数值/分类预测','跑虚拟世界']}]},
+ core:'模型不只用来预测。七种用途各有各的取舍，用途决定了模型该多复杂。',
+ when:'建模、选模型、或者别人说"这模型不准"的时候——先问它是干哪一用的。',
+ eg:'预测常常需要大而粗的模型，解释则需要小而干净的模型，两者不能互换。',
+ trap:'拿一个为解释而生的小模型去做预测，再怪它不准。'},
+{n:'M03',zh:'构建模型的三种方法',en:'Three Approaches to Modeling',m:'tree',c:'元层',src:'page',
+ s:{r:'怎么造一个模型',k:[{t:'具身法',c:['保留关键部件','剥离细节']},
+    {t:'类比法',c:['犯罪当传染病','球形牛']},{t:'另类现实法',c:['纯虚拟世界','生命游戏']}]},
+ core:'要么简化现实，要么打个类比，要么干脆造一个不存在的世界来做实验。',
+ when:'一个现象没现成模型可用的时候，从这三条路里挑一条。',
+ eg:'把政治立场类比成一条左右连续线段，就能直接套用空间竞争模型。',
+ trap:'只会具身法——什么都想画得像，结果模型复杂到没法推理。'},
+{n:'M04',zh:'所有模型都是错的',en:'All Models Are Wrong',m:'scale',c:'元层',src:'page',
+ s:{l:'简化 → 才能推理',r:'简化 → 必定漏掉东西',
+    note:'博克斯：所有模型都是错的，但有些是有用的'},
+ core:'模型有三个共同特征：简化、形式化、必错。价值不在于对，在于能推出结论。',
+ when:'有人用"这不符合现实"一句话否掉一个模型时。',
+ eg:'牛顿定律也只在特定条件下成立——但没人因此不用它。',
+ trap:'只押一个模型，就是把真理押在一个方程的美感上。'},
+{n:'M05',zh:'孔多塞陪审团定理',en:'Condorcet Jury Theorem',m:'axis',c:'元层',src:'page',
+ s:{x:'相互独立的模型个数',y:'多数投票正确的概率',c:[.6,.68,.78,.86,.93,.97,.99],
+    note:'每个模型只要略强于瞎猜，多数票就趋近必对'},
+ core:'一群各自只比瞎猜强一点、但彼此独立的模型，用多数票，准确率趋近 100%。',
+ when:'做二元判断（买/卖、真/假、批不批）时。',
+ eg:'莱文斯："我们的真理，就是若干独立谎言的交集。"',
+ trap:'模型之间不独立（全部出自同一套假设），定理立刻失效——这才是最常见的坑。'},
+{n:'M06',zh:'多样性预测定理',en:'Diversity Prediction Theorem',m:'scale',c:'元层',src:'page',
+ s:{l:'平均模型误差',r:'模型之间的分歧度',tilt:-1,
+    note:'多模型误差 = 平均误差 − 多样性（分歧本身在消误差）'},
+ core:'一群模型的集体误差，等于各自误差的平均，减去它们互相分歧的程度。',
+ when:'组预测团队、做集成模型、找人一起判断。',
+ eg:'机器学习的装袋法（bagging）就是靠随机抽样人为造多样性，再取平均。',
+ trap:'找一堆想法一样的人或模型——多样性为零，集体不会比个体强。'},
+{n:'M07',zh:'一对多映射',en:'One-to-Many Mapping',m:'network',c:'元层',src:'page',
+ s:{c:'同一个模型',a:['城市规模','图书销量','网页链接','地震大小','企业寿命']},
+ core:'不需要学一百个模型。一个模型换个名字，就能装进另一个领域。',
+ when:'学到一个新模型时，强迫自己问："它还能用在哪三个地方？"',
+ eg:'幂律同时解释城市人口、畅销书、网页链接和战争伤亡——一个模型，四个世界。',
+ trap:'生搬硬套。不是每个模型都适合每项任务，套不上就换，别硬掰。'},
+{n:'M08',zh:'模型粒度',en:'Model Granularity',m:'scale',c:'元层',src:'page',
+ s:{l:'大模型 · 适合预测',r:'小模型 · 适合解释',note:'先定用途，再定粒度'},
+ core:'预测要大而粗，解释要小而净——同一个问题，两种最优粒度。',
+ when:'纠结"模型是不是太简单了"的时候。',
+ eg:'预测销量可以塞几十个变量；解释销量为什么涨，必须只留干净的两三个。',
+ trap:'既要精确预测又要清晰解释，最后两头不靠。'},
+{n:'M09',zh:'理性 vs 规则行为者',en:'Rational vs Rule-Based Actors',m:'scale',c:'元层',src:'page',
+ s:{l:'理性行为者 会算最优',r:'规则行为者 照简单规则走',
+    note:'低风险场景用规则，高风险且重复的场景用理性'},
+ core:'对人建模没有唯一正解：看风险高低、看重复次数、看信息多少。',
+ when:'构建任何涉及人的模型时，第一件要定的事。',
+ eg:'预测外套颜色偏好用固定规则就够；预测要不要信任一个合伙人，就得假设人会学习和适应。',
+ trap:'以为"正式模型 = 假设人自私且从不犯错"——那只是入门经济学的起点。'},
+{n:'M10',zh:'卢卡斯批判',en:'Lucas Critique',m:'loop',c:'元层',src:'page',
+ s:{n:['定下政策','人改变行为','旧数据失效','预测落空'],
+    note:'人会对政策做出反应，所以用历史数据估的模型会失准'},
+ core:'政策一变，被管的人的行为就跟着变——用旧行为数据估的模型立刻不准。',
+ when:'定考核指标、改激励、出新规之前。',
+ eg:'1696 年英国按窗户数征税 → 人们把窗户砌上 → 税收下降，居民健康还受损。',
+ trap:'把人当成不会反应的固定环境。'},
+
+/* ——— 分布与函数 ——— */
+{n:'M11',zh:'正态分布',en:'Normal Distribution',m:'axis',c:'形式模型',src:'page',
+ s:{x:'取值',y:'概率',c:[.04,.16,.42,.82,1,.82,.42,.16,.04],
+    note:'中心极限定理：独立随机量相加或取平均 → 钟形'},
+ core:'加法得正态。均值 + 标准差两个数就描述完了，不会冒出怪兽事件。',
+ when:'判断一个量会不会出现极端值、做统计检验、过程管理。',
+ eg:'按百分比加薪会产生对数正态（不平等自我放大）；按绝对金额加薪则接近正态。',
+ trap:'小样本更容易出极端值——用小样本排名，冠亚军多半是噪音。'},
+{n:'M12',zh:'幂律 / 长尾分布',en:'Power Law',m:'axis',c:'形式模型',src:'page',
+ s:{x:'事件按大小排序',y:'发生概率',c:[1,.3,.15,.09,.06,.045,.035,.03],
+    note:'正反馈（非独立）生成长尾：海量小事件 + 极少数巨型事件'},
+ core:'概率 ∝ 大小的负指数。指数 ≤2 时连均值都不收敛——平均值失去意义。',
+ when:'城市规模、图书销量、地震、战争伤亡、网页链接、企业规模。',
+ eg:'如果身高服从幂律，会有一个人比帝国大厦还高，同时 1.8 亿人不到 18 厘米。',
+ trap:'用正态的直觉（看均值和标准差）去管理长尾风险。'},
+{n:'M13',zh:'优先连接 / 马太效应',en:'Preferential Attachment',m:'loop',c:'形式模型',src:'page',
+ s:{n:['已经拥有更多','更容易被选中','拥有得更多'],
+    note:'凡有的，还要加给他 —— 幂律的生成机制之一'},
+ core:'新来的按现有份额选择，长期就长出幂律。',
+ when:'解释"为什么头部这么头部"：畅销书、大城市、超级节点。',
+ eg:'另一条路径是自组织临界（森林火灾、交通拥堵、雪崩）——同样是幂律，机制完全不同。',
+ trap:'看到幂律就以为一定是马太效应——生成幂律的机制至少有五种。'},
+{n:'M14',zh:'线性回归',en:'Linear Model / Regression',m:'axis',c:'形式模型',src:'page',
+ s:{x:'自变量 x',y:'因变量 y',c:[.12,.24,.36,.48,.6,.72,.84],
+    c2:[.2,.18,.42,.44,.55,.8,.78],col2:'#8d98b6',dash2:'2 5',
+    l1:'拟合线 y = mx + b',note:'回归一次给出三件事：方向、大小、显著性'},
+ core:'一条直线拟合数据，读出效应的符号、大小和显著性，R² 是被解释掉的比例。',
+ when:'有数据、想知道"谁影响谁、影响多大"。',
+ eg:'"年龄每增 1 岁，每周少走 0.1 英里"——符号、大小一次说清。',
+ trap:'唯大系数论会扼杀创新：只敢做已被数据证明的边际改良。'},
+{n:'M15',zh:'指数增长与 72 法则',en:'Exponential Growth & Rule of 72',m:'axis',c:'形式模型',src:'page',
+ s:{x:'时间',y:'规模',c:[.03,.05,.09,.17,.32,.6,1],
+    note:'V=V₀(1+R)ᵗ；翻倍所需期数 ≈ 72 ÷ 增长率(%)'},
+ core:'恒定增长率的累积效应远超直觉；72 除以增长率就是翻倍时间。',
+ when:'看任何"年增 X%"的说法：房价、GDP、用户数、你的储蓄。',
+ eg:'房价年涨 10% → 7 年翻倍 → 35 年涨 32 倍，所以泡沫必破；摩尔定律能撑住是因为研发投入恒定。',
+ trap:'用线性直觉外推指数，或反过来把不可持续的指数当成新常态。'},
+{n:'M16',zh:'凸函数与凹函数',en:'Convexity & Concavity',m:'axis',c:'形式模型',src:'page',
+ s:{x:'投入 / 规模',y:'产出',c:[.04,.09,.18,.35,.62,1],c2:[.32,.56,.72,.84,.92,.97],
+    l1:'凸 · 越来越陡',l2:'凹 · 越来越平',note:'凸=正反馈与递增；凹=收益递减与风险规避'},
+ core:'曲率本身就是结论：凸意味着强者更强，凹意味着该见好就收。',
+ when:'判断规模效应、效用、风险偏好、边际投入。',
+ eg:'效用是凹的 → 所以人天然厌恶风险、偏好多样化。',
+ trap:'一旦有了非线性，直觉只能告诉你方向，说不出形状——必须靠模型。'},
+/* ——— 价值、网络与传播 ——— */
+{n:'M17',zh:'夏普利值',en:'Shapley Value',m:'scale',c:'形式模型',src:'page',
+ s:{l:'最后上车者价值 我退出你损失多少',r:'夏普利值 遍历所有加入顺序的平均边际贡献',
+    note:'两把尺子量的是不同的东西：威胁力 vs 贡献度'},
+ core:'一个人的价值 = 他加入团队时的边际贡献，按所有可能的加入顺序取平均。',
+ when:'分股权奖金、评估自己的议价权、看懂政治联盟。',
+ eg:'会法语的、会西语的、双语的三人组：双语者拿 800，两个单语者各拿 200。',
+ trap:'雇主多雇冗余的人、企业多找几家供应商——都是在把你的"最后上车者价值"压到零。'},
+{n:'M18',zh:'网络四统计量',en:'Network Statistics',m:'network',c:'形式模型',src:'page',
+ s:{c:'一个节点',a:['度 有几个邻居','路径长度 到别人多远','介数 多少最短路过我','聚类系数 我的朋友互相认识吗']},
+ core:'任何网络，四个数就能刻画。介数高 = 信息和权力都从你这儿过。',
+ when:'看组织结构、行业格局、社交圈、供应链。',
+ eg:'友谊悖论：平均而言你的朋友比你朋友多——因为受欢迎的人被更多人数进去了。',
+ trap:'只盯"我认识多少人"（度），不看"我卡在多少条最短路径上"（介数）。'},
+{n:'M19',zh:'广播 / 扩散 / SIR 传染',en:'Broadcast, Diffusion & SIR',m:'axis',c:'形式模型',src:'page',
+ s:{x:'时间',y:'累计采用人数',c:[.05,.1,.22,.5,.78,.9,.94],
+    c2:[.35,.6,.76,.85,.9,.93,.95],l1:'扩散 · 口口相传 S 形',l2:'广播 · 单一信源 r 形',
+    note:'R₀ = 传播率 × 接触数 ÷ 痊愈率；R₀>1 才会爆发'},
+ core:'曲线形状暴露传播机制：r 形是广播，S 形是人传人，两者混合就是巴斯模型。',
+ when:'病毒、谣言、时尚、新产品增长、任何"扩散"现象。',
+ eg:'R₀ 跨过 1 就是天壤之别：披头士，还是利物浦地下酒吧的驻唱。',
+ trap:'把社会传播当传染病——买紧身牛仔裤是选择，接触越多概率越高，流感不是。'},
+/* ——— 不确定性与动态 ——— */
+{n:'M20',zh:'熵',en:'Entropy',m:'layers',c:'形式模型',src:'page',
+ s:{l:['随机 熵最高 无法计划','复杂 有结构但难预测','周期 规律地重复','均衡 熵为零'],
+    up:'越不可预测',down:'越可预测'},
+ core:'熵同时是不确定性、信息量和惊喜度。用它把四类结果干净地分开。',
+ when:'判断一个系统是"有规律"还是"真随机"、比较两件事哪个更不确定。',
+ eg:'最理想的往往是复杂：城市要有复杂性才有活力，央行则希望市场处于均衡。',
+ trap:'把复杂（有结构但难预测）当成随机而放弃建模。'},
+{n:'M21',zh:'随机游走',en:'Random Walk',m:'axis',c:'形式模型',src:'page',
+ s:{x:'时间',y:'累计值',c:[.5,.62,.55,.7,.62,.78,.68,.85,.72],
+    note:'一维/二维必然无限次回到原点，三维可能永远回不去'},
+ core:'每步 ±1 的累加。看着有趋势，其实全是噪音。',
+ when:'股价、连胜连败、判断"这是运气还是本事"。',
+ eg:'巴菲特 50 年跑赢 42 年，高出均值约四个标准差，概率百万分之一 → 排除运气。',
+ trap:'《从优秀到卓越》式的"挑出赢家再总结共同特征"——那不是模型思维，是幸存者偏差。'},
+{n:'M22',zh:'路径依赖 · 波利亚过程',en:'Path Dependence',m:'chain',c:'形式模型',src:'page',
+ s:{s:['瓮里各一个球','抽到什么就补一个同色','早期偶然被放大','终点由路径决定']},
+ core:'正反馈把早期的偶然事件锁死成长期结果，而且任何最终比例都等概率发生。',
+ when:'技术标准、习惯、制度、城市规划、职业选择。',
+ eg:'QWERTY 键盘。1000 轮后白球占 40% 和占 2%，概率完全一样。',
+ trap:'把"结果路径依赖"和"均衡路径依赖"混为一谈——过程受历史影响，不代表终点也受。'},
+{n:'M23',zh:'局部互动 · 生命游戏',en:'Local Interaction & Game of Life',m:'chain',c:'形式模型',src:'page',
+ s:{s:['随机初始','每格跟多数邻居对齐','长出斑块','收敛到均衡']},
+ core:'只靠"跟身边人一致"这一条局部规则，宏观图案就自己长出来了。',
+ when:'解释隔离、时尚趋同、行为聚类、组织里的"风气"。',
+ eg:'同样是局部规则，生命游戏却能产生均衡、周期、复杂、随机四种结果——差别在阈值。',
+ trap:'从宏观图案倒推微观意图——图案可能只是局部对齐的副产品，没人想要它。'},
+{n:'M24',zh:'李雅普诺夫函数',en:'Lyapunov Function',m:'axis',c:'形式模型',src:'page',
+ s:{x:'时间',y:'某个只减不增的量',c:[1,.82,.66,.5,.34,.2,.1,.06,.06],
+    note:'找到一个每期至少降 A、且有下界的量 → 系统必达均衡'},
+ core:'能构造出这个量，就能证明系统一定会停下来，还能算出多快停。',
+ when:'判断一个系统会收敛还是会一直折腾。',
+ eg:'逐底竞争：每期最高支持水平至少降 1，且不低于 0，所以必然全部归零。',
+ trap:'构造不出来 ≠ 不收敛（考拉兹猜想至今没人能证）。'},
+{n:'M25',zh:'马尔可夫模型',en:'Markov Model',m:'loop',c:'形式模型',src:'page',
+ s:{n:['当前状态','按固定概率转移','长期分布收敛','与初始状态无关'],
+    note:'转移概率固定 + 状态可互达 → 统计均衡唯一'},
+ core:'满足假设时，长期分布唯一——初始状态和历史都不重要，一次性干预也没用。',
+ when:'状态可分类的系统：民主/专制、活跃/流失、无痛/用药/成瘾。',
+ eg:'阿片成瘾率从 1% 升到 2.5%，均衡成瘾人数涨五倍——小概率，大后果。',
+ trap:'拿它得出"历史不重要"的结论——那只在它的假设成立时才对。'},
+{n:'M26',zh:'系统动力学',en:'System Dynamics',m:'loop',c:'形式模型',src:'page',
+ s:{n:['源','存量','流量','汇'],
+    note:'正反馈造指数，负反馈造稳态，两者并存造复杂'},
+ core:'画出方框（存量）和箭头（流量），给每个箭头标上正负号，反直觉的后果就现形了。',
+ when:'政策、生态、供应链、任何"改一处动全身"的系统。',
+ eg:'防抱死刹车 → 人开得更猛；加宽道路 → 更多人搬去郊区 → 更堵。',
+ trap:'只算直接影响，不画反馈箭头——间接影响事后看都很显然，事前几乎没人想到。'},
+{n:'M27',zh:'阈值模型',en:'Granovetter Threshold Model',m:'axis',c:'形式模型',src:'page',
+ s:{x:'时间',y:'参与人数',c:[.02,.04,.08,.16,.34,.66,.9,.97],
+    note:'阈值的分布远比平均阈值重要'},
+ core:'每个人有一个"多少人参加了我才参加"的门槛，链式反应从阈值为零的人开始。',
+ when:'骚乱、社会运动、时尚、创业公司起量、任何临界点现象。',
+ eg:'平均阈值最低的那组反而毫无动静，因为没有一个人的阈值是 0。',
+ trap:'只看平均值，看不到有没有那个"第一个站出来的人"。'},
+/* ——— 策略与设计 ——— */
+{n:'M28',zh:'空间竞争模型',en:'Hotelling / Downsian Model',m:'chain',c:'形式模型',src:'page',
+ s:{s:['消费者沿一条线分布','各买离自己近的','谁往中间挪谁赚','最后都挤在中点']},
+ core:'只有一个维度可竞争时，参与者会一路挤向中位数。',
+ when:'选举立场、产品定位、店铺选址、内容调性。',
+ eg:'两党都往中间靠。想差异化，唯一的出路是换一个维度来比。',
+ trap:'忘了还有"享受属性"（越多越好那种）——那类属性没有中间可挤，只能硬拼。'},
+{n:'M29',zh:'博弈论与纳什均衡',en:'Game Theory & Nash Equilibrium',m:'matrix',c:'形式模型',src:'page',
+ s:{x:['我不配合','我配合'],y:['他不配合','他配合'],
+    q:['我被占便宜','双赢','双输','我占便宜'],
+    ax:'← 我的选择 →',ay:'← 他的选择 →'},
+ core:'收益取决于双方选择；纳什均衡 = 谁都不想单方面改变。',
+ when:'谈判、竞争、定价、任何"我的最优取决于你怎么做"的场合。',
+ eg:'零和博弈的最优策略是随机化——点球方向、发球落点、扑克诈唬都必须随机。',
+ trap:'把对手当成固定环境，而不是会反应的人。'},
+{n:'M30',zh:'囚徒困境与四种合作机制',en:'Prisoner\'s Dilemma & Cooperation',m:'layers',c:'形式模型',src:'page',
+ s:{l:['重复 我们还会再见面','声誉 别人会知道你干了什么','局部聚类 合作者抱团','群体选择 合作的群体活下来']},
+ core:'背叛是占优策略；要让合作长出来，必须至少靠这四种机制之一。',
+ when:'设计团队、社群、长期合作关系、任何搭便车风险高的场合。',
+ eg:'针锋相对不最优但不会被剥削；一旦有噪音，"赢则坚持、输则改之"更强。',
+ trap:'默认合作总是好事——卡特尔、限产联盟和癌细胞也在高效合作。'},
+{n:'M31',zh:'集体行动与公地悲剧',en:'Collective Action Problems',m:'chain',c:'形式模型',src:'page',
+ s:{s:['个体理性：多用一点','人人都多用','资源崩溃','边界+规则+分级制裁+纠纷机制']},
+ core:'个人利益与集体利益不一致时，自利必然把公共资源用垮。',
+ when:'团队搭便车、公共预算、环保、共享资源、碳排放。',
+ eg:'奥斯特罗姆发现能自治成功的社群都有：明确边界、明确规则、渐进式制裁、解决纠纷的机制。',
+ trap:'以为只有私有化和政府管制两条路——奥斯特罗姆证明了第三条。'},
+{n:'M32',zh:'机制设计',en:'Mechanism Design',m:'chain',c:'形式模型',src:'page',
+ s:{s:['环境 真实情况','行动 人发出的信号','结果函数','我们想要的结果']},
+ core:'反过来设计规则，让每个人的自利行为自动导向你想要的结果。',
+ when:'定考核、设计拍卖、投票规则、激励方案、分配稀缺资源。',
+ eg:'收入等价定理：满足假设时，几种看起来完全不同的拍卖形式收入相同。',
+ trap:'既要效率、又要人说真话、还要预算平衡——常常不可能，得先认清必须放弃哪一个。'},
+{n:'M33',zh:'信号模型',en:'Signaling Model',m:'scale',c:'形式模型',src:'page',
+ s:{l:'说"我会西班牙语" · 零成本',r:'用西语做一小时演示 · 高成本',tilt:1,
+    note:'信号必须昂贵或可验证，否则不携带任何信息'},
+ core:'能区分强弱的信号，必须对弱者贵得多——便宜的信号等于没说。',
+ when:'招聘、择偶、品牌、融资、任何"我怎么证明我是真的"。',
+ eg:'超级碗天价广告是在"烧钱"：只有真信自己产品能卖的企业才敢花。',
+ trap:'设计出浪费型信号（比谁更能熬夜），社会成本极高而信息量极低。'},
+/* ——— 学习与搜索 ——— */
+{n:'M34',zh:'强化学习与社会学习',en:'Reinforcement & Social Learning',m:'loop',c:'形式模型',src:'page',
+ s:{n:['选一个行动','拿到回报','调高它的权重','更常选它'],
+    note:'效果律：回报大学得快；惊奇律：超预期的回报学得最快'},
+ core:'按回报调权重。个体学习靠自己试，社会学习靠抄表现好的人。',
+ when:'习惯养成、团队模仿、市场行为、任何"慢慢摸索出来"的过程。',
+ eg:'两种学习都偏向"避险的均衡"，而不是"效率最高的均衡"。',
+ trap:'一味抄最流行的做法，整个群体会一起卡在次优解上。'},
+{n:'M35',zh:'多臂老虎机',en:'Multi-Armed Bandit',m:'scale',c:'形式模型',src:'page',
+ s:{l:'探索 试没试过的',r:'利用 押目前最好的',
+    note:'吉廷斯指数给出最优平衡点；尝试次数决定该冒多大风险'},
+ core:'回报未知时，必须先花代价买信息，再决定押哪一个。',
+ when:'选品、投放、职业、药物试验、选餐厅、A/B 测试。',
+ eg:'路过小镇选连锁店（利用）；搬去住就到处试（探索）——机会次数变了，最优策略就变了。',
+ trap:'样本太少就锁定"最好的那个"，把噪音当结论。'},
+{n:'M36',zh:'崎岖景观 · NK 模型',en:'Rugged Landscape (NK Model)',m:'axis',c:'形式模型',src:'page',
+ s:{x:'方案空间',y:'价值 / 适合度',c:[.2,.62,.35,.5,.9,.55,.7,.42,.75],
+    note:'属性一旦互相依赖，山峰就变多——爬山法只能到局部最优'},
+ core:'单峰（富士山）的问题谁都能解；属性互相依赖，景观就崎岖，努力爬也只到局部峰。',
+ when:'创新、找方案、组织变革、判断一个难题该不该一个人硬扛。',
+ eg:'越难的问题越需要多样化的求解者——不同起点会爬上不同的峰。',
+ trap:'一直做局部优化，永远发现不了旁边那座更高的山。'}
+];
+
+/* ================= 渲染 ================= */
+const G=document.getElementById('g'), CNT=document.getElementById('cnt');
+const KEY='mm100.done';
+let done=new Set(JSON.parse(localStorage.getItem(KEY)||'[]'));
+let fm='', fc='', fq='', fs='';
+const SRC=[{k:'',t:'全部'},{k:'core',t:'100 个思维模型'},{k:'page',t:'模型思维 · 佩奇'}];
+const srcOf=x=>x.src||'core';
+
+/* ================= 动画演示引擎（SMIL，演完即停的循环） ================= */
+const DUR='7s';
+function anim(node,a){node.appendChild(el('animate',Object.assign({dur:DUR,repeatCount:'indefinite'},a)));return node}
+function animT(node,a){node.appendChild(el('animateTransform',Object.assign(
+  {attributeName:'transform',type:'rotate',dur:DUR,repeatCount:'indefinite'},a)));return node}
+function motion(node,path,begin){node.appendChild(el('animateMotion',
+  {dur:DUR,repeatCount:'indefinite',path,begin:begin||'0s'}));return node}
+/* 依次点亮：t0 为该元素在一轮里被点亮的时刻(0~1) */
+function pulse(node,t0,attr){
+  const a=attr||'fill-opacity',w=.11;
+  anim(node,{attributeName:a,
+    values:'.06;.06;.42;.06;.06',
+    keyTimes:`0;${Math.max(0,t0-w).toFixed(3)};${t0.toFixed(3)};${Math.min(1,t0+w).toFixed(3)};1`});
+  return node}
+function dot(s,r,col){const c=el('circle',{r:r||5,fill:col||C.gd});
+  c.appendChild(el('animate',{attributeName:'opacity',values:'0;1;1;1;0',
+    keyTimes:'0;.06;.5;.94;1',dur:DUR,repeatCount:'indefinite'}));
+  s.appendChild(c);return c}
+function cap(s,t){txt(s,220,278,t,{fs:10.5,fill:C.far})}
+
+const ANIM={
+matrix(){const s=svg(440,292),L=64,R=396,T=26,B=232,mx=(L+R)/2,my=(T+B)/2,w=(R-L)/2,h=(B-T)/2;
+  const pos=[[L,T],[mx,T],[L,my],[mx,my]],ord=[.62,.38,.12,.87];
+  pos.forEach((p,i)=>{const r=el('rect',{x:p[0],y:p[1],width:w,height:h,rx:5,
+    fill:PAL[i%PAL.length],'fill-opacity':.06,stroke:C.line});
+    pulse(r,ord[i]);s.appendChild(r)});
+  line(s,mx,T,mx,B,{stroke:'rgba(140,160,210,.5)'});
+  line(s,L,my,R,my,{stroke:'rgba(140,160,210,.5)'});
+  txt(s,L-8,T+16,'高',{a:'end',fs:10,fill:C.far});txt(s,L-8,B-16,'低',{a:'end',fs:10,fill:C.far});
+  txt(s,L+4,B+18,'低',{a:'start',fs:10,fill:C.far});txt(s,R-4,B+18,'高',{a:'end',fs:10,fill:C.far});
+  const p=`M${L+w/2},${my+h/2} L${mx+w/2},${my+h/2} L${mx+w/2},${T+h/2} L${L+w/2},${T+h/2} Z`;
+  motion(dot(s,6,C.cy),p);
+  cap(s,'同一个东西，只问它落在哪一格 —— 位置本身就是判断');
+  return s},
+
+axis(){const s=svg(440,292),L=66,R=392,T=30,B=232;
+  line(s,L,T,L,B,{stroke:'rgba(140,160,210,.5)'});
+  line(s,L,B,R,B,{stroke:'rgba(140,160,210,.5)'});
+  const V=[.06,.1,.18,.34,.58,.78,.88,.92],
+    pts=V.map((v,i)=>[L+i/(V.length-1)*(R-L),B-v*(B-T)]),
+    d=pts.map((p,i)=>`${i?'L':'M'}${p[0].toFixed(1)},${p[1].toFixed(1)}`).join(' ');
+  const path=el('path',{d,fill:'none',stroke:C.cy,'stroke-width':2.4,'stroke-linecap':'round',
+    pathLength:100,'stroke-dasharray':100,'stroke-dashoffset':100});
+  anim(path,{attributeName:'stroke-dashoffset',values:'100;0;0;100',keyTimes:'0;.45;.85;1'});
+  s.appendChild(path);
+  motion(dot(s,5.5,C.gd),d);
+  [.25,.5,.75].forEach((f,i)=>{const x=L+f*(R-L);
+    line(s,x,B,x,B+5,{stroke:'rgba(140,160,210,.3)'})});
+  txt(s,L-8,T+4,'结果',{a:'end',fs:10,fill:C.far});
+  txt(s,R,B+18,'投入 / 时间',{a:'end',fs:10,fill:C.far});
+  cap(s,'不记数值，记形状：先平、后陡、再封顶');
+  return s},
+
+tree(){const s=svg(440,292);
+  const rw=120,g=el('g');
+  const mk=(x,y,w,h,t,fs,col,t0)=>{const gg=el('g',{opacity:0});
+    anim(gg,{attributeName:'opacity',values:'0;0;1;1;0',
+      keyTimes:`0;${t0};${(t0+.09).toFixed(2)};.9;1`});
+    gg.appendChild(el('rect',{x,y,width:w,height:h,rx:6,fill:col,'fill-opacity':.13,
+      stroke:col,'stroke-opacity':.45}));
+    const tx=el('text',{x:x+w/2,y:y+h/2,'font-size':fs,fill:C.ink,'text-anchor':'middle',
+      'dominant-baseline':'middle','font-family':'-apple-system,"PingFang SC",sans-serif'},t);
+    gg.appendChild(tx);s.appendChild(gg);return gg};
+  mk(220-rw/2,20,rw,32,'大问题',12,C.cy,0);
+  const xs=[92,220,348];
+  xs.forEach((x,i)=>{const ln=el('line',{x1:220,y1:52,x2:x,y2:92,stroke:C.line,opacity:0});
+    anim(ln,{attributeName:'opacity',values:'0;0;1;1;0',keyTimes:`0;.14;.24;.9;1`});s.appendChild(ln);
+    mk(x-52,92,104,30,'子问题'+(i+1),11,C.pu,.16);
+    [0,1].forEach(j=>{
+      const y=140+j*34;
+      const l2=el('line',{x1:x,y1:122+j*34,x2:x,y2:y,stroke:C.line,opacity:0});
+      anim(l2,{attributeName:'opacity',values:'0;0;1;1;0',keyTimes:`0;.3;.4;.9;1`});s.appendChild(l2);
+      mk(x-48,y,96,26,'可动手的事',9.5,C.gr,.32);});});
+  cap(s,'一层只回答上一层的"为什么 / 怎么做"，拆到能动手为止');
+  return s},
+
+chain(){const s=svg(440,292),n=4,w=84,gap=18,x0=42,y=100,h=76;
+  for(let i=0;i<n;i++){const x=x0+i*(w+gap);
+    const r=el('rect',{x,y,width:w,height:h,rx:8,fill:i===n-1?C.gr:C.cy,'fill-opacity':.06,
+      stroke:i===n-1?'rgba(126,232,162,.4)':C.line});
+    pulse(r,.1+i*.2);s.appendChild(r);
+    txt(s,x+w/2,y+h/2,'第 '+(i+1)+' 步',{fs:11,fill:C.ink});
+    if(i<n-1)line(s,x+w+3,y+h/2,x+w+gap-3,y+h/2,{arrow:1});}
+  motion(dot(s,6,C.gd),`M${x0+w/2},${y+h+22} L${x0+3*(w+gap)+w/2},${y+h+22}`);
+  cap(s,'有先后就是链：卡在哪一步，问题就在那一步');
+  return s},
+
+loop(){const s=svg(440,292),cx=220,cy=126,R=80,n=4,names=['做','看结果','找差距','改'];
+  const P=[];for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;P.push([cx+R*Math.cos(a),cy+R*Math.sin(a)])}
+  for(let i=0;i<n;i++){const a=P[i],b=P[(i+1)%n],ang=Math.atan2(b[1]-a[1],b[0]-a[0]),pad=32;
+    line(s,a[0]+Math.cos(ang)*pad,a[1]+Math.sin(ang)*pad,b[0]-Math.cos(ang)*pad,b[1]-Math.sin(ang)*pad,
+      {arrow:1,stroke:'rgba(95,201,232,.5)'});}
+  P.forEach((p,i)=>{const c=el('circle',{cx:p[0],cy:p[1],r:30,fill:C.cy,'fill-opacity':.06,
+    stroke:'rgba(95,201,232,.42)'});pulse(c,.08+i*.24);s.appendChild(c);
+    txt(s,p[0],p[1],names[i],{fs:10.5,fill:C.ink});});
+  motion(dot(s,6,C.gd),
+    `M${cx},${cy-R} A${R},${R} 0 1,1 ${cx},${cy+R} A${R},${R} 0 1,1 ${cx},${cy-R}`);
+  cap(s,'终点接回起点：每转一圈，起点就比上一圈高一点');
+  return s},
+
+layers(){const s=svg(440,292),L=['最表面 现象','中间 做法','底层 结构 / 假设'],n=3,h=52;
+  L.forEach((t,i)=>{const y=44+i*(h+12),k=n-1-i;
+    const r=el('rect',{x:74,y,width:292,height:h,rx:8,fill:PAL[i],'fill-opacity':.06,
+      stroke:PAL[i],'stroke-opacity':.45});
+    pulse(r,.15+k*.26);s.appendChild(r);
+    txt(s,220,y+h/2,t,{fs:11.5,fill:C.ink});});
+  line(s,52,214,52,44,{arrow:1,stroke:'rgba(232,184,74,.45)'});
+  txt(s,40,130,'越往下越根本',{a:'middle',fs:9.5,fill:C.gd}).setAttribute('transform','rotate(-90 40 130)');
+  cap(s,'从下往上亮：改上层是打补丁，改下层才是解决');
+  return s},
+
+venn(){const s=svg(440,292),cy=128,r=76;
+  const A=el('circle',{cx:150,cy,r,fill:C.cy,'fill-opacity':.10,stroke:'rgba(95,201,232,.5)'});
+  const B=el('circle',{cx:290,cy,r,fill:C.pu,'fill-opacity':.10,stroke:'rgba(199,142,240,.5)'});
+  anim(A,{attributeName:'cx',values:'150;200;200;150',keyTimes:'0;.35;.85;1'});
+  anim(B,{attributeName:'cx',values:'290;240;240;290',keyTimes:'0;.35;.85;1'});
+  s.appendChild(A);s.appendChild(B);
+  const lens=el('path',{d:`M220,${cy-73} A${r},${r} 0 0,1 220,${cy+73} A${r},${r} 0 0,1 220,${cy-73}`,
+    fill:C.gd,'fill-opacity':0,stroke:'rgba(232,184,74,.6)','stroke-opacity':0});
+  anim(lens,{attributeName:'fill-opacity',values:'0;0;.22;.22;0',keyTimes:'0;.35;.45;.85;1'});
+  anim(lens,{attributeName:'stroke-opacity',values:'0;0;1;1;0',keyTimes:'0;.35;.45;.85;1'});
+  s.appendChild(lens);
+  txt(s,108,cy,'集合 A',{fs:10.5,fill:C.cy});txt(s,332,cy,'集合 B',{fs:10.5,fill:C.pu});
+  txt(s,220,cy,'答案在这',{fs:11,fill:C.ink,w:600});
+  cap(s,'两边都成立的那一小块，才是可以下手的地方');
+  return s},
+
+scale(){const s=svg(440,292),px=220,py=90;
+  const g=el('g');
+  animT(g,{values:`0 ${px} ${py};-9 ${px} ${py};7 ${px} ${py};-4 ${px} ${py};2 ${px} ${py};-7 ${px} ${py}`,
+    keyTimes:'0;.2;.4;.6;.8;1'});
+  const beam=el('line',{x1:76,y1:py,x2:364,y2:py,stroke:'rgba(140,160,210,.6)','stroke-width':2.4});
+  g.appendChild(beam);
+  [[76,C.cy,'这一边'],[364,C.gd,'那一边']].forEach(([x,col,t])=>{
+    g.appendChild(el('line',{x1:x,y1:py,x2:x,y2:py+30,stroke:'rgba(140,160,210,.35)'}));
+    g.appendChild(el('rect',{x:x-64,y:py+30,width:128,height:52,rx:8,fill:col,'fill-opacity':.09,
+      stroke:col,'stroke-opacity':.45}));
+    const tx=el('text',{x,y:py+56,'font-size':11,fill:C.ink,'text-anchor':'middle',
+      'dominant-baseline':'middle','font-family':'-apple-system,"PingFang SC",sans-serif'},t);
+    g.appendChild(tx);});
+  s.appendChild(g);
+  s.appendChild(el('line',{x1:px,y1:py,x2:px,y2:222,stroke:'rgba(140,160,210,.4)'}));
+  s.appendChild(el('path',{d:'M190,222 L250,222 L234,238 L206,238 Z',fill:'rgba(140,160,210,.16)',stroke:C.line}));
+  s.appendChild(el('circle',{cx:px,cy:py,r:5,fill:C.far}));
+  cap(s,'只有两边放在同一根梁上，才比得出轻重');
+  return s},
+
+network(){const s=svg(440,292),cx=220,cy=132,n=5;
+  const nm=['力量 1','力量 2','力量 3','力量 4','力量 5'],P=[];
+  for(let i=0;i<n;i++){const a=-Math.PI/2+i*2*Math.PI/n;
+    P.push([cx+150*Math.cos(a),cy+92*Math.sin(a)])}
+  P.forEach((p,i)=>{
+    const ang=Math.atan2(cy-p[1],cx-p[0]);
+    const x1=p[0]+Math.cos(ang)*40,y1=p[1]+Math.sin(ang)*18,
+          x2=cx-Math.cos(ang)*48,y2=cy-Math.sin(ang)*28;
+    line(s,x1,y1,x2,y2,{stroke:'rgba(199,142,240,.4)'});
+    motion(dot(s,4.5,C.pu),`M${x1},${y1} L${x2},${y2}`,(i*.5)+'s');
+    const r=el('rect',{x:p[0]-46,y:p[1]-16,width:92,height:32,rx:7,fill:C.pu,'fill-opacity':.06,
+      stroke:'rgba(199,142,240,.35)'});pulse(r,.1+i*.18);s.appendChild(r);
+    txt(s,p[0],p[1],nm[i],{fs:10,fill:C.ink});});
+  s.appendChild(el('ellipse',{cx,cy,rx:54,ry:31,fill:'rgba(95,201,232,.16)',stroke:'rgba(95,201,232,.55)'}));
+  txt(s,cx,cy,'被拉扯的它',{fs:11,fill:C.ink,w:600});
+  cap(s,'看清有几股力在拉它，最强的那股决定结果');
+  return s},
+
+timeline(){const s=svg(440,292),y=140,x0=44,x1=396,n=4;
+  line(s,x0,y,x1,y,{stroke:'rgba(140,160,210,.5)',arrow:1});
+  const gap=(x1-x0-20)/n;
+  for(let i=0;i<n;i++){const x=x0+gap*i+gap/2,up=i%2===0,by=up?60:170;
+    s.appendChild(el('circle',{cx:x,cy:y,r:5,fill:PAL[i%PAL.length]}));
+    line(s,x,y,x,up?96:172,{stroke:'rgba(140,160,210,.28)'});
+    const r=el('rect',{x:x-44,y:by,width:88,height:38,rx:7,fill:PAL[i%PAL.length],'fill-opacity':.06,
+      stroke:C.line});pulse(r,.12+i*.22);s.appendChild(r);
+    txt(s,x,by+19,'阶段 '+(i+1),{fs:10.5,fill:C.ink});}
+  motion(dot(s,6,C.gd),`M${x0},${y} L${x1},${y}`);
+  cap(s,'先后顺序本身就是信息：现在在第几段，下一段是什么');
+  return s}
+};
+
+/* ================= 每张母图的实验室数据 ================= */
+const LAB={
+matrix:{enc:'编码"两个维度同时成立时，你在哪一格"',
+  slots:'4 格 + 2 根轴 = 6 个槽位，正好压在工作记忆上限内',
+  use:'需要<b>分类和取舍</b>，且能找出两个真正独立的维度时',
+  avoid:'两个维度其实相关（比如"收入"和"消费能力"）→ 所有点挤在对角线上，画了等于没画',
+  brain:'四格是最省的空间索引：位置本身携带判断，不用再记标签',
+  vars:[{t:'定位式',d:'四格都要填',m:'matrix',s:{q:['A','B','C','D'],x:['低','高'],y:['低','高']}},
+        {t:'聚焦式',d:'只在乎一格',m:'matrix',s:{q:['','目标格','',''],x:['低','高'],y:['低','高']}},
+        {t:'对角式',d:'从左下走到右上',m:'matrix',s:{q:['过渡','终点','起点','过渡'],x:['弱','强'],y:['低','高']}}]},
+axis:{enc:'编码"一个量随另一个量怎么变"——记形状，不记数值',
+  slots:'2 根轴 + 1~2 条线；超过 3 条线立刻变噪音',
+  use:'涉及<b>时间、投入、数量</b>的变化，尤其是非线性的时候',
+  avoid:'两个量之间根本没有稳定关系时硬画曲线，等于伪造规律',
+  brain:'视觉系统对"斜率和拐点"极敏感，一眼就能读出趋势，不需要逐个比数字',
+  vars:[{t:'S 形',d:'先慢后快再封顶',m:'axis',s:{c:[.05,.09,.2,.5,.78,.9,.93],x:'时间',y:'成果'}},
+        {t:'递减',d:'越加越不划算',m:'axis',s:{c:[.95,.68,.48,.34,.24,.18,.14],x:'投入',y:'边际收益'}},
+        {t:'双线对比',d:'两条命运',m:'axis',s:{c:[.05,.1,.2,.42,.72,.95],c2:[.2,.35,.5,.62,.72,.8],x:'时间',y:'积累',l1:'复利',l2:'线性'}},
+        {t:'U / 驼峰',d:'中间最好或最差',m:'axis',s:{c:[.9,.55,.28,.22,.34,.65,.92],x:'位置',y:'价值'}}]},
+tree:{enc:'编码"整体 → 部分"的从属关系',
+  slots:'每层不超过 5 个分支；超了先合并再拆',
+  use:'问题太大不知从哪下手，需要<b>拆到能动手</b>的颗粒度',
+  avoid:'各部分之间互相影响、有回路时——那是网络不是树，硬拆会丢掉关键耦合',
+  brain:'层级是大脑最省内存的压缩方式：记住一个上位节点就能重建整枝',
+  vars:[{t:'两层拆解',d:'够用的默认',m:'tree',s:{r:'目标',k:[{t:'路径 A'},{t:'路径 B'},{t:'路径 C'}]}},
+        {t:'三层落地',d:'拆到可执行',m:'tree',s:{r:'目标',k:[{t:'A',c:['动作','动作']},{t:'B',c:['动作','动作']},{t:'C',c:['动作','动作']}]}},
+        {t:'MECE 并列',d:'不重不漏',m:'tree',s:{r:'全集',k:[{t:'甲',c:['不重叠']},{t:'乙',c:['不重叠']},{t:'丙',c:['不遗漏']}]}}]},
+chain:{enc:'编码"必须按这个顺序发生"的先后关系',
+  slots:'3~5 步；超过 5 步改成纵向清单，或者先分组',
+  use:'有明确<b>先后依赖</b>的流程、话术、转化路径',
+  avoid:'步骤之间其实可以并行或跳过时——画成链会造出假的强制顺序',
+  brain:'序列记忆靠"前一个提示后一个"，链条给了每一步一个固定的前驱',
+  vars:[{t:'线性流程',d:'一步接一步',m:'chain',s:{s:['第一步','第二步','第三步','第四步']}},
+        {t:'漏斗',d:'每步都在掉人',m:'chain',s:{s:['10000','800','200','60']}},
+        {t:'长流程',d:'超过五步转纵向',m:'chain',s:{s:['收集','厘清','归位','回顾','执行']}}]},
+loop:{enc:'编码"输出会回头影响输入"的自我加强或自我修正',
+  slots:'3~4 个节点；节点太多就看不出它是个环了',
+  use:'涉及<b>反馈、复利、飞轮、恶性循环</b>——任何"越来越…"的现象',
+  avoid:'其实是一次性因果时画成环，会误判成会自动持续',
+  brain:'闭合的形状会被当成一个整体记住（完形），比同样四个孤立节点省得多',
+  vars:[{t:'三节点',d:'最小闭环',m:'loop',s:{n:['行动','结果','调整']}},
+        {t:'四节点',d:'PDCA 型',m:'loop',s:{n:['计划','执行','检查','改进']}},
+        {t:'增强环',d:'越转越强',m:'loop',s:{n:['低价','用户多','规模大','成本低']}}]},
+layers:{enc:'编码"上层建立在下层之上"，底层变了上层全变',
+  slots:'3~5 层；每层必须能一句话说清它比上一层更根本在哪',
+  use:'区分<b>现象 / 做法 / 结构</b>，或表达优先级、依赖、需求层次',
+  avoid:'各项其实是并列的（没有谁支撑谁）时，用清单就好，别硬堆成塔',
+  brain:'垂直方向天然带"重要 / 根本"的隐喻（上下即高低），不用额外解释',
+  vars:[{t:'堆栈',d:'等宽分层',m:'layers',s:{l:['表层','中层','底层']}},
+        {t:'金字塔',d:'越下面越多',m:'layers',s:{l:['顶','中','基'],pyr:1}},
+        {t:'同心圆',d:'从内核往外',m:'layers',s:{l:['外圈','中圈','内核'],ring:1}}]},
+venn:{enc:'编码"两个集合的重合部分才是答案"',
+  slots:'2 个圈（3 个已经接近可读上限）',
+  use:'找<b>交集</b>：既要又要的条件、能力圈、真需求',
+  avoid:'其实是流程或层级关系时——交集图会掩盖先后和从属',
+  brain:'重叠区是视觉上的"图形-背景"分离，注意力会自动落在那一块',
+  vars:[{t:'部分交叠',d:'常规',m:'venn',s:{a:'A',b:'B',ab:'交集'}},
+        {t:'差集视角',d:'不重合处才危险',m:'venn',s:{a:'你以为的',b:'实际的',ab:'对上的'}}]},
+scale:{enc:'编码"两个东西放在同一根梁上比轻重"',
+  slots:'左右各 1 项；要比三项以上就换加权矩阵',
+  use:'<b>二选一</b>的取舍、成本 vs 收益、两种解释谁更可信',
+  avoid:'两边根本不同量纲、无法换算时，天平只会制造假的可比性',
+  brain:'左右对称是最容易做的比较判断，几乎不耗认知资源',
+  vars:[{t:'均衡',d:'势均力敌',m:'scale',s:{l:'方案 A',r:'方案 B'}},
+        {t:'左沉',d:'明显划算',m:'scale',s:{l:'收益',r:'成本',tilt:-1}},
+        {t:'右沉',d:'该放弃',m:'scale',s:{l:'继续投入',r:'另有更好的用法',tilt:1}}]},
+network:{enc:'编码"多股力量同时作用在一个东西上"',
+  slots:'中心 1 个 + 周围 3~6 个；再多就改成分组',
+  use:'分析<b>受力结构</b>：行业竞争、利益相关方、一个决定牵动谁',
+  avoid:'各方之间还有复杂互相关系时——单层星型会把真正的关键链路藏起来',
+  brain:'"中心 + 辐射"是最容易保持的空间布局，方位可以当索引用',
+  vars:[{t:'星型',d:'一对多',m:'network',s:{c:'核心',a:['方 1','方 2','方 3','方 4']}},
+        {t:'受力型',d:'谁在挤压你',m:'network',s:{c:'你的利润',a:['上游','下游','对手','替代品','新进入者']}}]},
+timeline:{enc:'编码"按时间排开的阶段和节奏"',
+  slots:'3~5 段；每段配一个可识别的标志',
+  use:'规划、复盘、阶段判断——回答<b>"我现在在第几段"</b>',
+  avoid:'其实是循环时画成直线，会让人以为走完就结束了',
+  brain:'时间在心里本来就被表示成一条从左到右的线，顺着画最省力',
+  vars:[{t:'三阶段',d:'粗粒度',m:'timeline',s:{p:[{t:'过去',d:'发生了什么'},{t:'现在',d:'卡在哪'},{t:'未来',d:'要去哪'}]}},
+        {t:'四阶段',d:'带节奏',m:'timeline',s:{p:[{t:'启动',d:''},{t:'爬坡',d:''},{t:'高峰',d:''},{t:'收尾',d:''}]}}]}
+};
+
+/* 母图卡 + 实验室 */
+const LABEL=document.getElementById('lab');
+(function(){
+  const wrapEl=document.getElementById('mo');
+  const demo={
+    matrix:{q:['','','',''],x:['',''],y:['','']},
+    axis:{c:[.1,.3,.45,.7,.85,.95],x:'',y:''},
+    tree:{r:'',k:[{t:''},{t:''},{t:''}]},
+    chain:{s:['','','']},
+    loop:{n:['','','','']},
+    layers:{l:['','','']},
+    venn:{a:'',b:'',ab:''},
+    scale:{l:'',r:''},
+    network:{c:'',a:['','','']},
+    timeline:{p:[{t:'',d:''},{t:'',d:''},{t:'',d:''}]}
+  };
+  for(const k in MOM){
+    const n=M.filter(x=>x.m===k).length;
+    const d=document.createElement('div');d.className='mo';d.dataset.k=k;
+    d.innerHTML=`<div class="mc">${n}</div>`;
+    const s=DRAW[k](demo[k]);s.setAttribute('style','opacity:.75');
+    d.appendChild(s);
+    d.insertAdjacentHTML('beforeend',
+      `<div class="mt">${MOM[k].t}</div><div class="md">${MOM[k].d}</div>`);
+    d.onclick=()=>{fm=(fm===k)?'':k;
+      [...wrapEl.children].forEach(c=>c.classList.toggle('on',c.dataset.k===fm));
+      openLab(fm);render()};
+    wrapEl.appendChild(d);
+  }
+})();
+
+function openLab(k){
+  if(!k){LABEL.classList.remove('on');LABEL.innerHTML='';return}
+  const L=LAB[k],mods=M.filter(x=>x.m===k);
+  LABEL.innerHTML=`
+    <div class="lhd"><h3>${MOM[k].t}</h3>
+      <span class="enc">${L.enc}</span>
+      <span class="x" onclick="closeLab()">收起 ✕</span></div>
+    <div class="lgrid">
+      <div><div class="stage" id="stage"></div>
+        <button class="replay" onclick="replay('${k}')">重播动画</button></div>
+      <div>
+        <div class="lrow slot"><em>槽位</em>${L.slots}</div>
+        <div class="lrow"><em>该用</em>${L.use}</div>
+        <div class="lrow avoid"><em>别用</em>${L.avoid}</div>
+        <div class="lrow brain"><em>脑科学</em>${L.brain}</div>
+      </div>
+    </div>
+    <div class="labhint">变体形态 —— 同一个盒子的几种摆法，认出来就不用重记：</div>
+    <div class="vars" id="vars"></div>
+    <div class="labhint">挂在这张母图下的 ${mods.length} 个模型：</div>
+    <div class="lmods" id="lmods"></div>`;
+  document.getElementById('stage').appendChild(ANIM[k]());
+  const vb=document.getElementById('vars');
+  L.vars.forEach(v=>{const e=document.createElement('div');e.className='vr';
+    e.appendChild(DRAW[v.m](v.s));
+    e.insertAdjacentHTML('beforeend',`<div class="vt">${v.t}</div><div class="vd">${v.d}</div>`);
+    vb.appendChild(e)});
+  const lb=document.getElementById('lmods');
+  mods.forEach(x=>{const a=document.createElement('a');a.href='javascript:void 0';
+    a.textContent=x.n+' '+x.zh;
+    a.onclick=()=>{const c=document.getElementById('mm'+x.n);
+      if(c){c.scrollIntoView({block:'center'});c.classList.add('flash');
+        setTimeout(()=>c.classList.remove('flash'),1600)}};
+    lb.appendChild(a)});
+  LABEL.classList.add('on');
+}
+function closeLab(){fm='';openLab('');
+  [...document.getElementById('mo').children].forEach(c=>c.classList.remove('on'));render()}
+function replay(k){const st=document.getElementById('stage');
+  st.innerHTML='';st.appendChild(ANIM[k]())}
+
+/* 来源切换 */
+(function(){
+  const box=document.getElementById('src');
+  SRC.forEach(s=>{const e=document.createElement('span');
+    const n=s.k?M.filter(x=>srcOf(x)===s.k).length:M.length;
+    e.textContent=s.t+' '+n;
+    e.classList.toggle('on',s.k===fs);
+    e.onclick=()=>{fs=s.k;fc='';
+      [...box.children].forEach((c,i)=>c.classList.toggle('on',SRC[i].k===fs));
+      document.getElementById('book').classList.toggle('on',fs==='page');
+      buildCats();render()};
+    box.appendChild(e)});
+})();
+
+/* 场景筛选（随来源重建） */
+function buildCats(){
+  const box=document.getElementById('cat');box.innerHTML='';
+  const pool=M.filter(x=>!fs||srcOf(x)===fs);
+  const cats=[...new Set(pool.map(x=>x.c))];
+  cats.forEach(c=>{const e=document.createElement('span');
+    e.textContent=c+' '+pool.filter(x=>x.c===c).length;
+    e.classList.toggle('on',c===fc);
+    e.onclick=()=>{fc=(fc===c)?'':c;
+      [...box.children].forEach((n,i)=>n.classList.toggle('on',cats[i]===fc));render()};
+    box.appendChild(e)});
+}
+buildCats();
+
+document.getElementById('q').oninput=e=>{fq=e.target.value.trim().toLowerCase();render()};
+
+function card(x){
+  const d=document.createElement('div');
+  d.id='mm'+x.n;
+  d.className='card'+(done.has(x.n)?' done':'');
+  d.innerHTML=`<div class="top">
+      <span class="num">${x.n}</span>
+      <div class="ttl"><h3>${x.zh}</h3><div class="en">${x.en}</div></div>
+      <div class="chk"></div>
+    </div>`;
+  d.querySelector('.chk').onclick=()=>{
+    done.has(x.n)?done.delete(x.n):done.add(x.n);
+    localStorage.setItem(KEY,JSON.stringify([...done]));
+    d.classList.toggle('done');count()};
+  const fig=document.createElement('div');fig.className='fig';
+  let s;
+  try{s=DRAW[x.m](x.s)}catch(e){s=svg(400,120);txt(s,200,60,'图形渲染失败',{fill:'#f08e8e'})}
+  fig.appendChild(s);
+  fig.onclick=()=>{
+    const b=document.getElementById('lbb');b.innerHTML='';
+    let big;try{big=DRAW[x.m](x.s)}catch(e){big=svg(400,120)}
+    b.appendChild(big);
+    b.insertAdjacentHTML('beforeend',
+      `<div class="cap"><b>${x.zh}</b> · ${MOM[x.m].t}<br>${x.core}</div>`);
+    document.getElementById('lb').classList.add('on')};
+  d.appendChild(fig);
+  const body=document.createElement('div');body.className='body';
+  body.innerHTML=`<div class="kv core">${x.core}</div>
+    <div class="kv when">${x.when}</div>
+    <div class="kv eg">${x.eg}</div>
+    ${x.trap?`<div class="kv trap">${x.trap}</div>`:''}
+    <div class="foot"><span class="tag m">${MOM[x.m].t}</span><span class="tag">${x.c}</span>${
+      srcOf(x)==='page'?'<span class="tag p">模型思维</span>':''}</div>`;
+  d.appendChild(body);
+  if(window.BB){const bb=BB.entry(x.zh);bb.style.marginLeft='auto';
+    d.querySelector('.top').appendChild(bb)}
+  return d;
+}
+
+function render(){
+  G.innerHTML='';
+  const list=M.filter(x=>{
+    if(fs&&srcOf(x)!==fs)return false;
+    if(fm&&x.m!==fm)return false;
+    if(fc&&x.c!==fc)return false;
+    if(fq){const hay=(x.zh+x.en+x.core+x.when+x.eg+(x.trap||'')+MOM[x.m].t+x.c).toLowerCase();
+      if(!hay.includes(fq))return false}
+    return true});
+  list.forEach(x=>G.appendChild(card(x)));
+  document.getElementById('none').style.display=list.length?'none':'block';
+  count();
+}
+function count(){CNT.textContent=done.size;document.getElementById('tot').textContent=M.length}
+function reset(){if(!confirm('清空掌握标记？'))return;
+  done=new Set();localStorage.removeItem(KEY);render()}
+function blind(){document.body.classList.toggle('blind');
+  document.getElementById('bd').classList.toggle('on',document.body.classList.contains('blind'))}
+document.getElementById('lb').onclick=()=>document.getElementById('lb').classList.remove('on');
+addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lb').classList.remove('on')});
+
+render();
+</script>

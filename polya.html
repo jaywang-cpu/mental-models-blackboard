@@ -1,0 +1,4070 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<title>解题宇宙 · 波利亚</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#070a12">
+<style>
+  :root{
+    --ink:#e8edf9; --dim:#93a0bd; --far:#5f6a86;
+    --cy:#5fc9e8; --gd:#e8b84a; --pu:#c78ef0; --gr:#7ee8a2; --rd:#f08e8e; --wh:#fff6e2;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%;overflow:hidden;background:#03050c;overscroll-behavior:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+  body{color:var(--ink);font-family:-apple-system,"PingFang SC","Hiragino Sans GB",sans-serif;
+    -webkit-font-smoothing:antialiased;user-select:none}
+  canvas{position:fixed;inset:0;display:block;touch-action:none;cursor:default}
+
+  /* ---------- HUD：全部无框，浮在宇宙上 ---------- */
+  .hud{position:fixed;z-index:10;pointer-events:none}
+  .hud *{pointer-events:auto}
+  #hTop{left:0;right:0;top:0;padding:18px 22px;display:flex;gap:18px;align-items:flex-start}
+  #hTop h1{font-family:"Songti SC","STSong",Georgia,serif;font-size:19px;letter-spacing:.14em;
+    font-weight:600;color:rgba(232,237,249,.9);text-shadow:0 0 22px rgba(95,201,232,.4);cursor:pointer;flex:none}
+  #stmt{flex:1;max-width:640px;background:none;border:0;outline:none;resize:none;color:rgba(232,237,249,.82);
+    font:inherit;font-size:13px;line-height:1.65;height:42px;text-shadow:0 0 18px rgba(3,5,12,.9)}
+  #stmt:focus{color:#fff}
+  #stmt::placeholder{color:var(--far)}
+  .phases{display:flex;gap:5px;align-items:center;flex:none;flex-wrap:wrap;max-width:420px;justify-content:flex-end}
+  .ph{font-size:10.5px;color:var(--far);cursor:pointer;padding:2px 6px;border-radius:8px;
+    transition:.2s;white-space:nowrap}
+  .ph:hover{color:var(--dim)}
+  .ph.on{color:var(--cy);text-shadow:0 0 14px rgba(95,201,232,.7)}
+  .ph.done{color:rgba(126,232,162,.55)}
+
+  #hBot{left:0;right:0;bottom:0;padding:14px 22px;display:flex;gap:16px;align-items:flex-end}
+  #diag{flex:1;font-size:11.5px;color:var(--far);line-height:1.75;max-width:900px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    text-shadow:0 0 16px rgba(3,5,12,.95)}
+  #diag b{color:var(--dim)} #diag .w{color:var(--gd)} #diag .b{color:var(--rd)} #diag .o{color:var(--gr)}
+  .zoomui{display:flex;gap:9px;align-items:center;font-size:11px;color:var(--far);flex:none}
+  .zoomui b{cursor:pointer;font-weight:400;padding:2px 5px;border-radius:6px}
+  .zoomui b:hover{color:var(--cy)}
+  .tips{position:fixed;right:22px;bottom:52px;text-align:right;z-index:10;font-size:11px;color:rgba(95,106,134,.85);
+    line-height:1.9;text-shadow:0 0 14px rgba(3,5,12,.95);
+    max-height:20px;overflow:hidden;opacity:.55;transition:max-height .3s,opacity .3s}
+  .tips:hover{max-height:200px;opacity:1}
+  .tips b{color:rgba(147,160,189,.95);font-weight:400}
+  .tips kbd{font-family:ui-monospace,monospace;color:var(--dim);font-size:10.5px}
+
+  /* ---------- 环形菜单 ---------- */
+  #ring{position:fixed;z-index:40;display:none;width:0;height:0}
+  #ring.on{display:block}
+  #ring .rb{position:absolute;transform:translate(-50%,-50%);width:52px;height:52px;border-radius:50%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+    background:radial-gradient(circle,rgba(10,16,32,.97),rgba(6,10,22,.92));
+    box-shadow:0 0 0 1px rgba(140,160,210,.16),0 10px 30px -14px #000;
+    transition:transform .16s cubic-bezier(.2,1.4,.4,1),box-shadow .16s;animation:pop .2s backwards}
+  @keyframes pop{from{transform:translate(-50%,-50%) scale(.3);opacity:0}}
+  #ring .rb:hover{box-shadow:0 0 0 1px rgba(95,201,232,.7),0 0 26px -4px rgba(95,201,232,.6);
+    transform:translate(-50%,-50%) scale(1.14)}
+  #ring .rb i{font-style:normal;font-size:15px;line-height:1}
+  #ring .rb u{text-decoration:none;font-size:8.5px;color:var(--dim);margin-top:3px;letter-spacing:.02em}
+  #ring .rb:hover u{color:var(--ink)}
+
+  /* ---------- 就地编辑 ---------- */
+  #edit{position:fixed;z-index:50;display:none;background:rgba(6,10,22,.96);border:0;outline:none;
+    color:#fff;font:inherit;resize:none;border-radius:10px;padding:9px 12px;line-height:1.5;
+    box-shadow:0 0 0 1px rgba(95,201,232,.55),0 0 40px -6px rgba(95,201,232,.45)}
+  #edit.on{display:block}
+  #edit{-webkit-user-select:text;user-select:text}
+
+  /* ---------- iPad 触控条：无框，只有字 ---------- */
+  #tbar{position:fixed;left:50%;bottom:calc(46px + env(safe-area-inset-bottom));z-index:45;display:none;
+    gap:18px;align-items:flex-end;transform:translateX(-50%)}
+  html.touch #tbar{display:flex}
+  #tbar.shift{transform:translateX(-50%) translateX(-168px)}
+  #tbar b{display:flex;flex-direction:column;align-items:center;gap:3px;width:46px;
+    font-weight:400;color:var(--far);cursor:pointer;transition:color .18s,text-shadow .18s;
+    -webkit-user-select:none;user-select:none}
+  #tbar b i{font-style:normal;font-size:19px;line-height:1;text-shadow:0 0 20px rgba(3,5,12,.95)}
+  #tbar b u{text-decoration:none;font-size:8.5px;letter-spacing:.05em;white-space:nowrap}
+  #tbar b.on,#tbar b:active{color:var(--cy);text-shadow:0 0 16px rgba(95,201,232,.75)}
+  html.touch #hBot{padding-bottom:max(14px,env(safe-area-inset-bottom))}
+  html.touch #hTop{padding-top:max(18px,env(safe-area-inset-top))}
+  html.touch #ring .rb{width:60px;height:60px}
+  html.touch #ring .rb i{font-size:17px}
+  html.touch #ring .rb u{font-size:9px}
+
+  /* ---------- 命令面板 / 提问 / 模型 ---------- */
+  .sheet{position:fixed;inset:0;z-index:60;display:none;align-items:flex-start;justify-content:center;
+    padding:14vh 20px;background:rgba(2,4,10,.7);backdrop-filter:blur(10px)}
+  .sheet.on{display:flex}
+  .sheet .in{width:100%;max-width:660px}
+  .sheet input{width:100%;background:none;border:0;border-bottom:1px solid rgba(140,160,210,.22);
+    outline:none;color:#fff;font:inherit;font-size:19px;padding:6px 2px 12px;
+    font-family:"Songti SC",Georgia,serif;letter-spacing:.06em}
+  .sheet input::placeholder{color:var(--far)}
+  .sheet .li{max-height:56vh;overflow-y:auto;margin-top:6px}
+  .sheet .li::-webkit-scrollbar{width:4px}
+  .sheet .li::-webkit-scrollbar-thumb{background:rgba(140,160,210,.25);border-radius:9px}
+  .sheet .it{padding:9px 4px;cursor:pointer;display:flex;gap:12px;align-items:baseline;border-radius:8px}
+  .sheet .it:hover,.sheet .it.k{background:rgba(95,201,232,.09)}
+  .sheet .it .nm{font-size:14px;color:var(--ink);flex:none}
+  .sheet .it .ky{font-family:ui-monospace,monospace;font-size:10px;color:var(--far);flex:none;min-width:26px}
+  .sheet .it .de{font-size:11.5px;color:var(--far);flex:1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .sheet .it .tg{font-size:9.5px;color:var(--cy);flex:none}
+  .sheet .src{font-size:11px;color:var(--far);margin-top:14px;line-height:1.8;border-top:1px solid rgba(140,160,210,.14);padding-top:10px}
+  .sheet .src b{color:var(--dim);font-weight:400}
+
+  /* ---------- 提问星弹出 ---------- */
+
+  /* ---------- 模式切换 ---------- */
+  .modes{display:flex;gap:3px;flex:none;align-items:center}
+  .modes span{font-size:11.5px;color:var(--far);cursor:pointer;padding:3px 11px;border-radius:99px;transition:.2s}
+  .modes span:hover{color:var(--dim)}
+  .modes span.on{color:var(--cy);background:rgba(95,201,232,.12);
+    box-shadow:0 0 18px -6px rgba(95,201,232,.8)}
+
+  /* ---------- 新手面板（左上那个框） ---------- */
+  #panel{position:fixed;left:20px;top:74px;z-index:30;width:246px;display:none;
+    border-radius:14px;background:rgba(6,10,22,.9);backdrop-filter:blur(12px);
+    box-shadow:0 0 0 1px rgba(140,160,210,.14),0 24px 60px -30px #000;
+    max-height:calc(100vh - 140px);overflow-y:auto}
+  #panel.on{display:block}
+  #panel::-webkit-scrollbar{width:4px}
+  #panel::-webkit-scrollbar-thumb{background:rgba(140,160,210,.25);border-radius:9px}
+  #panel h4{font-size:10px;letter-spacing:.22em;color:var(--far);padding:13px 15px 7px;font-weight:400}
+  #panel .sec{padding:0 15px 12px}
+  #panel .close{position:absolute;right:10px;top:10px;font-size:11px;color:var(--far);cursor:pointer}
+  #panel .close:hover{color:var(--ink)}
+  .chip2{display:flex;align-items:center;gap:9px;padding:6px 9px;border-radius:9px;cursor:grab;
+    margin-bottom:5px;transition:.15s;background:rgba(255,255,255,.02)}
+  .chip2:hover{background:rgba(95,201,232,.10)}
+  .chip2:active{cursor:grabbing}
+  .chip2 u{width:11px;height:11px;border-radius:99px;flex:none;text-decoration:none}
+  .chip2 b{font-size:12.5px;font-weight:400;color:var(--ink)}
+  .chip2 i{font-style:normal;font-size:10px;color:var(--far);margin-left:auto;
+    font-family:ui-monospace,monospace}
+  .lg{display:flex;gap:9px;align-items:flex-start;margin-bottom:8px;font-size:11px;color:var(--dim);line-height:1.55}
+  .lg em{font-style:normal;flex:none;width:26px;text-align:center;color:var(--cy);font-size:12px}
+  .lg span{flex:1}
+  .kb{display:flex;justify-content:space-between;font-size:11px;color:var(--dim);margin-bottom:5px}
+  .kb u{text-decoration:none;font-family:ui-monospace,monospace;color:var(--far);font-size:10.5px}
+  #drag{position:fixed;z-index:70;pointer-events:none;display:none;font-size:13px;
+    padding:6px 12px;border-radius:9px;background:rgba(6,10,22,.95);
+    box-shadow:0 0 22px -6px rgba(95,201,232,.7)}
+
+
+  /* ---------- 动画文稿按钮 ---------- */
+  .playbtn{flex:none;font-size:11.5px;color:var(--gd);cursor:pointer;padding:3px 12px;
+    border-radius:99px;background:rgba(232,184,74,.12);transition:.2s;white-space:nowrap}
+  .playbtn:hover{background:rgba(232,184,74,.24);color:#fff;
+    box-shadow:0 0 20px -6px rgba(232,184,74,.9)}
+
+  /* ---------- 右上角 ☰ 与保存列表 ---------- */
+  .burger{flex:none;cursor:pointer;width:26px;height:20px;display:flex;flex-direction:column;
+    justify-content:center;gap:5px;padding-top:4px}
+  .burger u{display:block;height:1.4px;background:rgba(147,160,189,.85);border-radius:9px;
+    transition:.2s;text-decoration:none}
+  .burger:hover u{background:var(--cy);box-shadow:0 0 10px rgba(95,201,232,.8)}
+
+  /* ── 右侧笔记栏（点一颗星就出来） ── */
+  #np{position:fixed;right:0;top:0;bottom:0;z-index:61;width:320px;display:none;
+    flex-direction:column;background:rgba(6,10,20,.93);backdrop-filter:blur(16px);
+    border-left:1px solid rgba(140,160,210,.14);box-shadow:-30px 0 80px -40px #000}
+  #np.on{display:flex}
+  #np .hd{padding:16px 18px 12px;border-bottom:1px solid rgba(140,160,210,.12)}
+  #np .kd{font-size:10px;letter-spacing:.22em;color:var(--far);margin-bottom:6px}
+  #np .tt{font-size:15px;line-height:1.5;color:var(--ink);word-break:break-word;font-weight:600}
+  #np .sec{padding:14px 18px 0}
+  #np .lb{font-size:10px;letter-spacing:.22em;color:var(--far);margin-bottom:8px}
+  #np .fs{display:flex;gap:6px}
+  #np .fs b{flex:1;text-align:center;padding:6px 0;border-radius:8px;cursor:pointer;font-weight:400;
+    border:1px solid rgba(140,160,210,.16);color:var(--far);transition:.15s}
+  #np .fs b:nth-child(1){font-size:10px}#np .fs b:nth-child(2){font-size:12px}
+  #np .fs b:nth-child(3){font-size:14px}#np .fs b:nth-child(4){font-size:16px}
+  #np .fs b:nth-child(5){font-size:19px}
+  #np .fs b:hover{color:var(--ink);border-color:rgba(140,160,210,.4)}
+  #np .fs b.on{color:#fff;border-color:var(--cy);background:rgba(95,201,232,.14)}
+  #np .cw{display:flex;flex-wrap:wrap;gap:7px}
+  #np .cw i{width:24px;height:24px;border-radius:50%;cursor:pointer;font-style:normal;
+    border:1px solid rgba(255,255,255,.14);transition:.15s;display:block}
+  #np .cw i:hover{transform:scale(1.14)}
+  #np .cw i.on{box-shadow:0 0 0 2px rgba(255,255,255,.5)}
+  #np .cw i.auto{background:repeating-linear-gradient(45deg,#2a3450 0 5px,#3d4a6b 5px 10px);
+    font-size:9px;color:#aab;line-height:24px;text-align:center}
+  #np .nt{flex:1;display:flex;flex-direction:column;padding:14px 18px 18px;min-height:0}
+  #np textarea{flex:1;width:100%;min-height:140px;resize:none;border-radius:10px;padding:11px 12px;
+    border:1px solid rgba(140,160,210,.16);background:rgba(3,6,14,.7);color:var(--ink);
+    font:13px/1.8 -apple-system,"PingFang SC",sans-serif;outline:none}
+  #np textarea:focus{border-color:rgba(95,201,232,.5)}
+  #np .ft{padding:0 18px 14px;font-size:10.5px;color:var(--far)}
+  #np .x{position:absolute;top:12px;right:14px;width:24px;height:24px;border-radius:50%;
+    cursor:pointer;color:var(--far);font-size:15px;line-height:24px;text-align:center}
+  #np .x:hover{color:var(--ink);background:rgba(140,160,210,.14)}
+  #files{position:fixed;right:18px;top:60px;z-index:62;width:308px;display:none;
+    border-radius:14px;background:rgba(6,10,22,.96);backdrop-filter:blur(14px);
+    box-shadow:0 0 0 1px rgba(140,160,210,.16),0 26px 70px -30px #000;
+    max-height:calc(100vh - 96px);overflow-y:auto;animation:fade .22s}
+  #files.on{display:block}
+  #files::-webkit-scrollbar{width:4px}
+  #files::-webkit-scrollbar-thumb{background:rgba(140,160,210,.25);border-radius:9px}
+  #files h4{font-size:10px;letter-spacing:.22em;color:var(--far);padding:14px 16px 8px;font-weight:400}
+  #files .act{display:flex;align-items:center;gap:9px;padding:9px 16px;cursor:pointer;font-size:13px;
+    color:var(--ink);transition:.15s}
+  #files .act:hover{background:rgba(95,201,232,.1)}
+  #files .act em{font-style:normal;color:var(--cy);font-size:14px;width:18px;text-align:center}
+  #files .sp{height:1px;background:rgba(140,160,210,.12);margin:6px 0}
+  #files .row{display:flex;align-items:flex-start;gap:8px;padding:9px 16px;cursor:pointer;transition:.15s}
+  #files .row:hover{background:rgba(95,201,232,.09)}
+  #files .row.cur{background:rgba(95,201,232,.13);box-shadow:inset 2px 0 0 var(--cy)}
+  #files .row .nm{flex:1;min-width:0;font-size:13px;color:var(--ink);
+    overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  #files .row .dt{font-size:10.5px;color:var(--far);margin-top:2px;font-family:ui-monospace,monospace}
+  #files .row .ops{display:flex;gap:6px;opacity:0;transition:.15s;flex:none;padding-top:2px}
+  #files .row:hover .ops{opacity:1}
+  #files .row .ops b{font-size:11px;color:var(--far);font-weight:400;padding:1px 5px;border-radius:5px}
+  #files .row .ops b:hover{color:#fff;background:rgba(95,201,232,.28)}
+  /* ---------- 演示 ---------- */
+  #demo{position:fixed;left:50%;bottom:56px;transform:translateX(-50%);z-index:59;
+    max-width:min(900px,90vw);text-align:center;display:none}
+  #demo.on{display:block}
+  #demo .say{font-family:"Songti SC",Georgia,serif;font-size:21px;letter-spacing:.05em;color:#fff;
+    line-height:1.6;text-shadow:0 0 34px rgba(95,201,232,.65);min-height:34px}
+  #demo .say b{color:var(--cy);font-weight:600}
+  #demo .say i{font-style:normal;color:var(--gd)}
+  #demo .ctl{margin-top:14px;display:flex;gap:14px;justify-content:center;align-items:center;
+    font-size:12px;color:var(--far)}
+  #demo .ctl b{cursor:pointer;font-weight:400;padding:4px 14px;border-radius:99px;
+    background:rgba(95,201,232,.14);color:var(--cy)}
+  #demo .ctl b:hover{background:rgba(95,201,232,.26)}
+  #demo .ctl u{text-decoration:none;cursor:pointer}
+  #demo .ctl u:hover{color:var(--dim)}
+  #demo .pg{margin-top:9px;height:2px;background:rgba(140,160,210,.18);border-radius:9px;overflow:hidden}
+  #demo .pg i{display:block;height:100%;background:linear-gradient(90deg,var(--cy),var(--pu));
+    transition:width .4s cubic-bezier(.2,.8,.2,1)}
+  /* ---------- 手把手引导（一次一句，做到了自己往下走） ---------- */
+  #coach{position:fixed;left:50%;bottom:78px;transform:translateX(-50%);z-index:58;
+    max-width:min(720px,88vw);text-align:center;display:none}
+  #coach.on{display:block;animation:rise .4s cubic-bezier(.2,.9,.3,1)}
+  #coach .st{font-family:"Songti SC",Georgia,serif;font-size:20px;letter-spacing:.05em;
+    color:#fff;line-height:1.6;text-shadow:0 0 30px rgba(95,201,232,.65)}
+  #coach .st b{color:var(--cy);font-weight:600}
+  #coach .why{font-size:12px;color:var(--dim);margin-top:8px;line-height:1.7}
+  #coach .bar{margin-top:12px;display:flex;gap:16px;justify-content:center;align-items:center;
+    font-size:11.5px;color:var(--far)}
+  #coach .bar b{cursor:pointer;font-weight:400;padding:3px 12px;border-radius:99px;
+    background:rgba(95,201,232,.12);color:var(--cy)}
+  #coach .bar b:hover{background:rgba(95,201,232,.22)}
+  #coach .bar i{font-style:normal;cursor:pointer}
+  #coach .bar i:hover{color:var(--dim)}
+  #coach .dots{display:flex;gap:5px;justify-content:center;margin-top:10px}
+  #coach .dots u{width:5px;height:5px;border-radius:99px;background:rgba(140,160,210,.28);text-decoration:none}
+  #coach .dots u.on{background:var(--cy);box-shadow:0 0 8px var(--cy)}
+
+  #askbox{position:fixed;z-index:55;left:50%;bottom:16vh;transform:translateX(-50%);
+    max-width:640px;text-align:center;display:none;pointer-events:none}
+  #askbox.on{display:block;animation:rise .4s cubic-bezier(.2,.9,.3,1)}
+  @keyframes rise{from{opacity:0;transform:translateX(-50%) translateY(14px)}}
+  #askbox .q{font-family:"Songti SC",Georgia,serif;font-size:23px;letter-spacing:.06em;color:#fff;
+    line-height:1.5;text-shadow:0 0 34px rgba(95,201,232,.6)}
+  #askbox .s{font-size:11px;color:var(--far);margin-top:9px}
+</style>
+
+<canvas id="sky"></canvas>
+
+<div class="hud" id="hTop">
+  <h1 id="title" title="点击切换题目 / 新建题目">解题宇宙</h1>
+  <div class="modes" id="modes"></div>
+  <span class="playbtn" id="playbtn" onclick="demoPick()">▶ 动画文稿</span>
+  <a href="100个思维模型.html" style="color:rgba(95,201,232,.75);text-decoration:none;font-size:11.5px;flex:none;padding-top:6px">◈ 136 个模型</a>
+  <textarea id="stmt" placeholder="题面写在这里。第一步只做一件事：一句话说清「给了什么、要什么」。"></textarea>
+  <div class="phases" id="phases"></div>
+  <div class="burger" id="burger" title="保存的思维导图"><u></u><u></u><u></u></div>
+</div>
+<div id="files"></div>
+<div id="np">
+  <div class="x" onclick="npClose()">×</div>
+  <div class="hd"><div class="kd" id="npk"></div><div class="tt" id="npt"></div></div>
+  <div class="sec"><div class="lb">字号</div>
+    <div class="fs" id="npfs"><b data-w="1">小</b><b data-w="2">·</b><b data-w="3">中</b><b data-w="4">·</b><b data-w="5">大</b></div></div>
+  <div class="sec"><div class="lb">颜色</div><div class="cw" id="npc"></div></div>
+  <div class="nt"><div class="lb">笔记</div><textarea id="npn" placeholder="这颗星的笔记写在这里，自动保存。"></textarea></div>
+  <div class="ft">⌥ 点空白处关闭 · 内容跟着这颗星走</div>
+</div>
+
+
+<div class="tips" id="tips"></div>
+
+<div class="hud" id="hBot">
+  <div id="diag"></div>
+  <div class="zoomui">
+    <b onclick="zoomBy(1/1.3)">－</b><span id="zl">100%</span><b onclick="zoomBy(1.3)">＋</b>
+    <b onclick="if(compact()){deoverlap();save()}fitAll()">全景</b>
+    <b onclick="tidy()">整理</b><b onclick="openSheet('pal')">⌘K 命令</b>
+  </div>
+</div>
+
+<div id="tbar"></div>
+<div id="ring"></div>
+<textarea id="edit" spellcheck="false"></textarea>
+
+<div class="sheet" id="pal"><div class="in">
+  <input id="palq" placeholder="做点什么…（波利亚的动作全在这里）">
+  <div class="li" id="pall"></div>
+</div></div>
+
+<div class="sheet" id="pick"><div class="in">
+  <input id="pkq" placeholder="挂模型到选中的星体上 · 或点右边「▦ 黑板」翻开它的板子…">
+  <div class="li" id="pkl"></div>
+</div></div>
+
+<div id="panel"></div>
+<div id="drag"></div>
+<div id="demo"></div>
+<div id="coach"></div>
+<div id="askbox"><div class="q" id="askq"></div><div class="s" id="asks"></div></div>
+
+<!--BB-START-->
+<script>
+/* ══════════════════════════════════════════════════════════════
+   黑板 · 每个思维模型一块无限延展的板子
+   Pencil 写字画画 · 手指平移缩放 · 拖入图片/视频 · 拖角调大小
+   存在 IndexedDB（同一个域名下，两个页面共享同一块板）
+   ────────────────────────────────────────────────────────────── */
+(function(){
+if(window.BB)return;
+
+/* ---------- 存储 ---------- */
+const DBN='bb1';
+let dbp=null;
+function db(){
+  if(!dbp)dbp=new Promise((res,rej)=>{
+    const r=indexedDB.open(DBN,1);
+    r.onupgradeneeded=()=>{const d=r.result;
+      if(!d.objectStoreNames.contains('boards'))d.createObjectStore('boards',{keyPath:'id'});
+      if(!d.objectStoreNames.contains('blobs'))d.createObjectStore('blobs',{keyPath:'id'});};
+    r.onsuccess=()=>res(r.result); r.onerror=()=>rej(r.error);
+  });
+  return dbp;
+}
+function req(store,mode,fn){
+  return db().then(d=>new Promise((res,rej)=>{
+    const t=d.transaction(store,mode), q=fn(t.objectStore(store));
+    q.onsuccess=()=>res(q.result); q.onerror=()=>rej(q.error);
+  }));
+}
+const dbGet=(s,k)=>req(s,'readonly',o=>o.get(k));
+const dbPut=(s,v)=>req(s,'readwrite',o=>o.put(v));
+const dbDel=(s,k)=>req(s,'readwrite',o=>o.delete(k));
+const dbAll=(s)=>req(s,'readonly',o=>o.getAll());
+
+const slug=s=>String(s||'').trim().replace(/\s+/g,'').toLowerCase();
+const uid=()=>Math.random().toString(36).slice(2,10)+(seq++);
+let seq=0;
+
+/* ---------- 状态 ---------- */
+let B=null;                       /* 当前板 */
+let root=null, world=null, ink=null, stage=null;
+let cam={x:0,y:0,z:1};
+let tool='pen';
+let pen={c:'#e8edf9',w:2.2};
+let selId=null;
+const els=new Map();              /* itemId -> dom */
+const urls=new Map();             /* blobId -> objectURL */
+let undoStack=[], saveT=null;
+
+const PENS=[['#e8edf9','白'],['#5fc9e8','青'],['#e8b84a','金'],['#c78ef0','紫'],['#7ee8a2','绿'],['#f08e8e','红']];
+const WIDTHS=[1.4,2.2,4,8];
+
+/* ---------- 样式 ---------- */
+const CSS=`
+.bbroot{position:fixed;inset:0;z-index:9000;background:#070a12;color:#e8edf9;
+  font-family:-apple-system,"PingFang SC","Hiragino Sans GB",sans-serif;
+  overscroll-behavior:none;-webkit-touch-callout:none;-webkit-tap-highlight-color:transparent}
+.bbstage{position:absolute;inset:0;overflow:hidden;touch-action:none;cursor:crosshair}
+.bbroot[data-tool="move"] .bbstage{cursor:default}
+.bbworld{position:absolute;left:0;top:0;width:0;height:0;transform-origin:0 0}
+.bbink{position:absolute;left:0;top:0;width:1px;height:1px;
+  pointer-events:none;overflow:visible;z-index:5000}
+.bbroot[data-tool="pen"] .bbitem,.bbroot[data-tool="erase"] .bbitem{pointer-events:none}
+.bbgo{cursor:pointer;color:#5f6a86;letter-spacing:.04em}
+.bbgo:hover,.bbgo:active{color:#5fc9e8}
+.bbitem{position:absolute;border-radius:10px;outline:0;
+  box-shadow:0 0 0 0 rgba(95,201,232,0)}
+.bbitem>.c{width:100%;height:100%;pointer-events:none;border-radius:10px;overflow:hidden;display:block}
+.bbitem.sel{box-shadow:0 0 0 1.5px rgba(95,201,232,.85)}
+.bbitem.sel>.c{pointer-events:auto}
+.bbitem video,.bbitem img,.bbitem iframe{width:100%;height:100%;display:block;border:0;
+  border-radius:10px;background:#0b1020;object-fit:contain}
+.bbitem .txt{width:100%;height:100%;padding:8px 10px;font-size:17px;line-height:1.6;
+  color:#e8edf9;outline:0;overflow:hidden;white-space:pre-wrap;word-break:break-word;
+  -webkit-user-select:text;user-select:text}
+.bbitem .txt:empty:before{content:attr(data-ph);color:#5f6a86}
+.bbh{position:absolute;width:26px;height:26px;margin:-13px;border-radius:50%;
+  display:none;align-items:center;justify-content:center;pointer-events:auto;touch-action:none;
+  transform-origin:50% 50%}
+.bbh:after{content:'';width:11px;height:11px;border-radius:50%;
+  background:#5fc9e8;box-shadow:0 0 12px rgba(95,201,232,.7)}
+.bbitem.sel .bbh{display:flex}
+.bbh.nw{left:0;top:0;cursor:nwse-resize}.bbh.ne{left:100%;top:0;cursor:nesw-resize}
+.bbh.sw{left:0;top:100%;cursor:nesw-resize}.bbh.se{left:100%;top:100%;cursor:nwse-resize}
+.bbgrip{position:absolute;left:50%;top:0;transform:translate(-50%,-135%);display:none;
+  gap:12px;align-items:center;pointer-events:auto;touch-action:none;white-space:nowrap;
+  font-size:12px;color:#93a0bd;cursor:grab;transform-origin:50% 100%}
+.bbitem.sel .bbgrip{display:flex}
+.bbgrip b{font-weight:400;cursor:pointer;padding:0 2px}
+.bbgrip b:active{color:#5fc9e8}
+
+.bbui{position:fixed;z-index:9010}
+.bbtop{left:0;right:0;top:0;padding:max(14px,env(safe-area-inset-top)) 20px 0;
+  display:flex;gap:16px;align-items:center;pointer-events:none}
+.bbtop *{pointer-events:auto}
+.bbtop h2{font-family:"Songti SC","STSong",Georgia,serif;font-size:17px;font-weight:600;
+  letter-spacing:.1em;color:rgba(232,237,249,.92);flex:none}
+.bbtop .sub{font-size:11px;color:#5f6a86;flex:1}
+.bbtop .x{font-size:12px;color:#93a0bd;cursor:pointer;flex:none}
+.bbtop .x:active{color:#5fc9e8}
+.bbbar{left:50%;bottom:max(16px,env(safe-area-inset-bottom));transform:translateX(-50%);
+  display:flex;gap:16px;align-items:flex-end}
+.bbbar b{display:flex;flex-direction:column;align-items:center;gap:3px;width:46px;
+  font-weight:400;color:#5f6a86;cursor:pointer;-webkit-user-select:none;user-select:none;
+  transition:color .16s,text-shadow .16s}
+.bbbar b i{font-style:normal;font-size:19px;line-height:1}
+.bbbar b u{text-decoration:none;font-size:8.5px;letter-spacing:.05em;white-space:nowrap}
+.bbbar b.on,.bbbar b:active{color:#5fc9e8;text-shadow:0 0 16px rgba(95,201,232,.75)}
+.bbpal{left:50%;bottom:calc(84px + env(safe-area-inset-bottom));transform:translateX(-50%);
+  display:none;gap:14px;align-items:center}
+.bbpal.on{display:flex}
+.bbpal s{width:22px;height:22px;border-radius:50%;cursor:pointer;text-decoration:none;
+  box-shadow:0 0 0 1px rgba(140,160,210,.25) inset;transition:transform .14s}
+.bbpal s.on{transform:scale(1.28);box-shadow:0 0 0 1.5px #fff inset,0 0 14px rgba(255,255,255,.35)}
+.bbpal em{width:1px;height:20px;background:rgba(140,160,210,.22)}
+.bbpal q{cursor:pointer;quotes:none;display:flex;align-items:center;justify-content:center;
+  width:26px;height:26px;opacity:.5;transition:opacity .14s}
+.bbpal q.on{opacity:1}
+.bbpal q:before{content:'';border-radius:50%;background:#e8edf9;
+  width:var(--d);height:var(--d)}
+.bbzoom{right:20px;bottom:max(18px,env(safe-area-inset-bottom));display:flex;gap:10px;
+  align-items:center;font-size:11px;color:#5f6a86}
+.bbzoom b{cursor:pointer;font-weight:400;padding:2px 5px}
+.bbzoom b:active{color:#5fc9e8}
+.bbask{position:fixed;inset:0;z-index:9020;display:none;align-items:center;justify-content:center;
+  background:rgba(3,5,12,.72);backdrop-filter:blur(8px)}
+.bbask.on{display:flex}
+.bbask .in{width:min(520px,86vw);display:flex;flex-direction:column;gap:14px}
+.bbask .q{font-size:13px;color:#93a0bd}
+.bbask input{background:none;border:0;border-bottom:1px solid rgba(140,160,210,.3);outline:0;
+  color:#fff;font:inherit;font-size:17px;padding:8px 2px}
+.bbask .row{display:flex;gap:20px;font-size:12px;color:#93a0bd}
+.bbask .row b{font-weight:400;cursor:pointer}
+.bbask .row b:active{color:#5fc9e8}
+.bbtip{position:fixed;left:50%;top:64px;transform:translateX(-50%);z-index:9015;
+  font-size:12px;color:#93a0bd;opacity:0;transition:opacity .3s;pointer-events:none;
+  text-shadow:0 0 14px rgba(3,5,12,.9)}
+.bbtip.on{opacity:1}
+.bbentry{cursor:pointer;font-size:11px;color:#5f6a86;letter-spacing:.04em}
+.bbentry:active,.bbentry:hover{color:#5fc9e8}
+`;
+
+function css(){
+  if(document.getElementById('bbcss'))return;
+  const s=document.createElement('style');s.id='bbcss';s.textContent=CSS;
+  document.head.appendChild(s);
+}
+
+/* ---------- 坐标 ---------- */
+const s2w=(sx,sy)=>({x:(sx-cam.x)/cam.z,y:(sy-cam.y)/cam.z});
+function applyCam(){
+  world.style.transform=`translate(${cam.x}px,${cam.y}px) scale(${cam.z})`;
+  root.style.setProperty('--iz',1/cam.z);
+  els.forEach(el=>{
+    el.querySelectorAll('.bbh,.bbgrip').forEach(h=>{h.style.transform=
+      h.classList.contains('bbgrip')?`translate(-50%,-135%) scale(${1/cam.z})`:`scale(${1/cam.z})`});
+  });
+  const z=document.getElementById('bbzl'); if(z)z.textContent=Math.round(cam.z*100)+'%';
+}
+function zoomAt(sx,sy,k){
+  const p=s2w(sx,sy);
+  cam.z=Math.max(.12,Math.min(6,cam.z*k));
+  cam.x=sx-p.x*cam.z; cam.y=sy-p.y*cam.z;
+  applyCam();queue();
+}
+
+/* ---------- 存 ---------- */
+function queue(){clearTimeout(saveT);saveT=setTimeout(flush,420)}
+function flush(){
+  if(!B)return;
+  if(!B.items.length&&!B.strokes.length&&!B.saved)return;   /* 空板子不留痕 */
+  B.saved=1;
+  B.cam={x:cam.x,y:cam.y,z:cam.z}; B.updated=Date.now();
+  dbPut('boards',B).catch(e=>tip('存档失败：'+e.message));
+}
+function snap(){
+  undoStack.push(JSON.stringify({items:B.items,strokes:B.strokes}));
+  if(undoStack.length>40)undoStack.shift();
+}
+function undo(){
+  const s=undoStack.pop(); if(!s)return tip('没有可撤销的了');
+  const o=JSON.parse(s); B.items=o.items; B.strokes=o.strokes;
+  redrawAll();queue();
+}
+
+/* ---------- 墨迹 ---------- */
+function d2path(pts){
+  if(pts.length<2)return `M${pts[0][0]} ${pts[0][1]} l0 0`;
+  let d=`M${pts[0][0]} ${pts[0][1]}`;
+  for(let i=1;i<pts.length-1;i++){
+    const a=pts[i],b=pts[i+1];
+    d+=` Q${a[0]} ${a[1]} ${(a[0]+b[0])/2} ${(a[1]+b[1])/2}`;
+  }
+  const l=pts[pts.length-1]; d+=` L${l[0]} ${l[1]}`;
+  return d;
+}
+function drawStroke(st){
+  const p=document.createElementNS('http://www.w3.org/2000/svg','path');
+  p.setAttribute('d',d2path(st.pts));p.setAttribute('fill','none');
+  p.setAttribute('stroke',st.c);p.setAttribute('stroke-width',st.w);
+  p.setAttribute('stroke-linecap','round');p.setAttribute('stroke-linejoin','round');
+  p.dataset.id=st.id;
+  ink.appendChild(p);return p;
+}
+function redrawAll(){
+  ink.innerHTML='';B.strokes.forEach(drawStroke);
+  els.forEach(el=>el.remove());els.clear();
+  B.items.forEach(makeItem);
+  selId=null;
+}
+
+/* ---------- 元素 ---------- */
+function makeItem(it){
+  const el=document.createElement('div');
+  el.className='bbitem';el.dataset.id=it.id;
+  const c=document.createElement('div');c.className='c';
+  el.appendChild(c);
+  ['nw','ne','sw','se'].forEach(k=>{
+    const h=document.createElement('div');h.className='bbh '+k;h.dataset.h=k;el.appendChild(h)});
+  const g=document.createElement('div');g.className='bbgrip';
+  g.innerHTML='<span>✥ 拖我</span><b data-a="front">置顶</b><b data-a="del">删掉</b>';
+  el.appendChild(g);
+  world.appendChild(el);els.set(it.id,el);
+  fillItem(it,el);posItem(it,el);
+  return el;
+}
+function fillItem(it,el){
+  const c=el.querySelector('.c');c.innerHTML='';
+  if(it.type==='text'){
+    const t=document.createElement('div');
+    t.className='txt';t.setAttribute('data-ph','写点什么…');
+    t.contentEditable='true';t.spellcheck=false;t.textContent=it.text||'';
+    t.addEventListener('input',()=>{it.text=t.textContent;autoH(it,el);queue()});
+    t.addEventListener('keydown',e=>{e.stopPropagation();
+      if(e.key==='Escape'){e.preventDefault();t.blur();select(null)}});
+    t.addEventListener('pointerdown',e=>e.stopPropagation());
+    c.appendChild(t);
+  }else if(it.type==='img'){
+    const im=document.createElement('img');im.decoding='async';
+    srcFor(it).then(u=>{im.src=u;
+      im.onload=()=>{ if(!it.h||it.autofit){ it.h=it.w*(im.naturalHeight/im.naturalWidth||.62);
+        it.autofit=false;posItem(it,el);queue() } }});
+    c.appendChild(im);
+  }else if(it.type==='video'){
+    const v=document.createElement('video');
+    v.controls=true;v.playsInline=true;v.preload='metadata';
+    srcFor(it).then(u=>{v.src=u;
+      v.onloadedmetadata=()=>{ if(it.autofit&&v.videoWidth){ it.h=it.w*(v.videoHeight/v.videoWidth);
+        it.autofit=false;posItem(it,el);queue() } }});
+    c.appendChild(v);
+  }else if(it.type==='embed'){
+    const f=document.createElement('iframe');
+    f.src=it.url;f.allow='autoplay; fullscreen; encrypted-media; picture-in-picture';
+    f.setAttribute('allowfullscreen','');f.referrerPolicy='no-referrer';
+    c.appendChild(f);
+  }
+}
+function autoH(it,el){
+  if(it.type!=='text')return;
+  const t=el.querySelector('.txt'); if(!t)return;
+  el.style.height='auto'; const h=Math.max(44,t.scrollHeight+2);
+  it.h=h; el.style.height=h+'px';
+}
+function posItem(it,el){
+  el.style.left=it.x+'px';el.style.top=it.y+'px';
+  el.style.width=it.w+'px';
+  el.style.height=(it.type==='text'?'auto':it.h+'px');
+  el.style.zIndex=it.z||1;
+  if(it.type==='text')autoH(it,el);
+}
+function srcFor(it){
+  if(it.url)return Promise.resolve(it.url);
+  if(urls.has(it.blobId))return Promise.resolve(urls.get(it.blobId));
+  return dbGet('blobs',it.blobId).then(r=>{
+    if(!r)return '';
+    const u=URL.createObjectURL(r.blob);urls.set(it.blobId,u);return u;
+  });
+}
+function select(id){
+  if(selId&&els.get(selId))els.get(selId).classList.remove('sel');
+  selId=id;
+  if(id&&els.get(id)){els.get(id).classList.add('sel');applyCam()}
+}
+function addItem(o){
+  snap();
+  const it=Object.assign({id:uid(),x:0,y:0,w:320,h:200,z:(B.items.length+1)},o);
+  const k=B.items.length%7; it.x+=k*22; it.y+=k*22;      /* 别叠成一坨 */
+  B.items.push(it);makeItem(it);queue();return it;
+}
+function delItem(id){
+  const i=B.items.findIndex(x=>x.id===id); if(i<0)return;
+  snap();
+  const it=B.items[i];
+  if(it.blobId)dbDel('blobs',it.blobId).catch(()=>{});
+  B.items.splice(i,1);
+  const el=els.get(id); if(el)el.remove(); els.delete(id);
+  if(selId===id)selId=null;
+  queue();
+}
+function centerWorld(){
+  const s=s2w(innerWidth/2,innerHeight/2);return s;
+}
+
+/* ---------- 交互 ---------- */
+const FG=new Map(); let pinch=null,tpan=null;
+let drawing=null, dragging=null, resizing=null, lastTap=0,lastTX=0,lastTY=0;
+
+function onDown(e){
+  if(e.target.closest('.bbui,.bbask'))return;
+
+  /* 手指：只管平移缩放 */
+  if(e.pointerType==='touch'&&!e.target.closest('.bbh,.bbgrip')){
+    e.preventDefault();
+    FG.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    stage.setPointerCapture&&safeCapture(e);
+    if(FG.size===1){tpan={sx:e.clientX,sy:e.clientY,cx:cam.x,cy:cam.y};pinch=null}
+    else if(FG.size===2){
+      tpan=null;const f=[...FG.values()];
+      pinch={d:Math.hypot(f[0].x-f[1].x,f[0].y-f[1].y),
+             mx:(f[0].x+f[1].x)/2,my:(f[0].y+f[1].y)/2};
+    }
+    return;
+  }
+
+  const hEl=e.target.closest('.bbh');
+  if(hEl){                                     /* 拖角调大小 */
+    const it=itemOf(hEl); if(!it)return;
+    snap();
+    resizing={it,k:hEl.dataset.h,w:it.w,h:it.h,x:it.x,y:it.y,
+      start:s2w(e.clientX,e.clientY),ratio:(it.type==='text'?0:it.h/it.w)};
+    safeCapture(e);e.preventDefault();return;
+  }
+  const gEl=e.target.closest('.bbgrip');
+  if(gEl){
+    const it=itemOf(gEl); if(!it)return;
+    const a=e.target.dataset.a;
+    if(a==='del'){delItem(it.id);return}
+    if(a==='front'){snap();it.z=Math.max(...B.items.map(x=>x.z||1))+1;
+      els.get(it.id).style.zIndex=it.z;queue();return}
+    startDrag(it,e);e.preventDefault();return;
+  }
+
+  const iEl=e.target.closest('.bbitem');
+  if(iEl&&tool==='move'){
+    const it=itemOf(iEl);
+    if(it.id!==selId){select(it.id);startDrag(it,e);e.preventDefault()}
+    return;
+  }
+
+  /* 空白 */
+  if(tool==='pen'){
+    const w=s2w(e.clientX,e.clientY);
+    snap();
+    drawing={id:uid(),c:pen.c,w:pen.w,pts:[[w.x,w.y]]};
+    drawing.el=drawStroke(drawing);
+    safeCapture(e);e.preventDefault();return;
+  }
+  if(tool==='erase'){eraseAt(e.clientX,e.clientY);erasing=true;safeCapture(e);e.preventDefault();return}
+  /* move 工具：点空白 = 取消选中；双击 = 新建文字 */
+  select(null);
+  const t=e.timeStamp;
+  if(t-lastTap<360&&Math.hypot(e.clientX-lastTX,e.clientY-lastTY)<34){
+    lastTap=0;newText(e.clientX,e.clientY);
+  }else{lastTap=t;lastTX=e.clientX;lastTY=e.clientY}
+}
+let erasing=false;
+
+function safeCapture(e){try{stage.setPointerCapture(e.pointerId)}catch(err){}}
+function itemOf(el){const p=el.closest('.bbitem');return p?B.items.find(x=>x.id===p.dataset.id):null}
+
+function startDrag(it,e){
+  const w=s2w(e.clientX,e.clientY);
+  snap();
+  dragging={it,dx:it.x-w.x,dy:it.y-w.y};
+  safeCapture(e);
+}
+
+function onMove(e){
+  if(e.pointerType==='touch'&&FG.has(e.pointerId)){
+    e.preventDefault();
+    const p=FG.get(e.pointerId);p.x=e.clientX;p.y=e.clientY;
+    if(FG.size>=2&&pinch){
+      const f=[...FG.values()];
+      const d=Math.hypot(f[0].x-f[1].x,f[0].y-f[1].y);
+      const mx=(f[0].x+f[1].x)/2,my=(f[0].y+f[1].y)/2;
+      if(pinch.d>4&&d>4)zoomAt(mx,my,d/pinch.d);
+      cam.x+=mx-pinch.mx; cam.y+=my-pinch.my;
+      pinch.d=d;pinch.mx=mx;pinch.my=my;applyCam();queue();
+    }else if(tpan){
+      cam.x=tpan.cx+(e.clientX-tpan.sx); cam.y=tpan.cy+(e.clientY-tpan.sy);
+      applyCam();queue();
+    }
+    return;
+  }
+  if(drawing){
+    const w=s2w(e.clientX,e.clientY);
+    const l=drawing.pts[drawing.pts.length-1];
+    if(Math.hypot(w.x-l[0],w.y-l[1])*cam.z<1.1)return;
+    drawing.pts.push([w.x,w.y]);
+    drawing.el.setAttribute('d',d2path(drawing.pts));
+    return;
+  }
+  if(erasing){eraseAt(e.clientX,e.clientY);return}
+  if(resizing){
+    const w=s2w(e.clientX,e.clientY), r=resizing;
+    const dx=w.x-r.start.x, dy=w.y-r.start.y, k=r.k;
+    let nw=r.w+(k==='ne'||k==='se'?dx:-dx);
+    let nh=r.h+(k==='sw'||k==='se'?dy:-dy);
+    nw=Math.max(60,nw);
+    if(r.ratio){nh=nw*r.ratio}else{nh=Math.max(44,nh)}
+    r.it.w=nw;r.it.h=nh;
+    r.it.x=(k==='nw'||k==='sw')?r.x+r.w-nw:r.x;
+    r.it.y=(k==='nw'||k==='ne')?r.y+r.h-nh:r.y;
+    posItem(r.it,els.get(r.it.id));
+    return;
+  }
+  if(dragging){
+    const w=s2w(e.clientX,e.clientY);
+    dragging.it.x=w.x+dragging.dx; dragging.it.y=w.y+dragging.dy;
+    posItem(dragging.it,els.get(dragging.it.id));
+    return;
+  }
+}
+function onUp(e){
+  if(e.pointerType==='touch'&&FG.has(e.pointerId)){
+    FG.delete(e.pointerId);
+    if(FG.size<2)pinch=null;
+    if(FG.size===1){const f=[...FG.values()][0];tpan={sx:f.x,sy:f.y,cx:cam.x,cy:cam.y}}
+    if(FG.size===0)tpan=null;
+    return;
+  }
+  if(drawing){
+    if(drawing.pts.length>1){B.strokes.push({id:drawing.id,c:drawing.c,w:drawing.w,pts:drawing.pts})}
+    else drawing.el.remove();
+    drawing=null;queue();return;
+  }
+  if(erasing){erasing=false;queue();return}
+  if(resizing){resizing=null;queue();return}
+  if(dragging){dragging=null;queue();return}
+}
+function eraseAt(sx,sy){
+  const w=s2w(sx,sy), r=14/cam.z;
+  let hit=false;
+  for(let i=B.strokes.length-1;i>=0;i--){
+    const st=B.strokes[i];
+    if(st.pts.some(p=>Math.abs(p[0]-w.x)<r&&Math.abs(p[1]-w.y)<r)){
+      if(!hit)snap();
+      const p=ink.querySelector(`path[data-id="${st.id}"]`); if(p)p.remove();
+      B.strokes.splice(i,1);hit=true;
+    }
+  }
+}
+
+/* ---------- 新建 ---------- */
+function newText(sx,sy){
+  const w=s2w(sx===undefined?innerWidth/2:sx, sy===undefined?innerHeight/2:sy);
+  const it=addItem({type:'text',text:'',x:w.x-140,y:w.y-24,w:280,h:44});
+  const el=els.get(it.id);select(it.id);
+  const t=el.querySelector('.txt');
+  t.focus();
+  const r=document.createRange();r.selectNodeContents(t);r.collapse(false);
+  const s=getSelection();s.removeAllRanges();s.addRange(r);
+  return it;
+}
+function addFiles(files){
+  const c=centerWorld();
+  let n=0;
+  [...files].forEach(f=>{
+    const isV=/^video\//.test(f.type), isI=/^image\//.test(f.type);
+    if(!isV&&!isI)return;
+    const bid=uid();
+    dbPut('blobs',{id:bid,blob:f,name:f.name}).then(()=>{
+      const w=isV?420:320;
+      addItem({type:isV?'video':'img',blobId:bid,autofit:true,
+        x:c.x-w/2+n*26,y:c.y-120+n*26,w:w,h:isV?236:200});
+      n++;
+    }).catch(err=>tip('存不下：'+err.message));
+  });
+}
+function embedURL(u){
+  u=u.trim();let m;
+  if(m=u.match(/bilibili\.com\/video\/(BV[0-9A-Za-z]+)/i))
+    return 'https://player.bilibili.com/player.html?bvid='+m[1]+'&high_quality=1&danmaku=0&autoplay=0';
+  if(m=u.match(/(?:youtube\.com\/watch\?[^ ]*v=|youtu\.be\/|youtube\.com\/embed\/)([\w-]{6,})/i))
+    return 'https://www.youtube.com/embed/'+m[1];
+  if(!/^https?:/i.test(u))u='https://'+u;
+  return u;
+}
+function addEmbed(u){
+  const c=centerWorld();
+  addItem({type:'embed',url:embedURL(u),x:c.x-260,y:c.y-160,w:520,h:300});
+}
+
+/* ---------- 小提问框 ---------- */
+function ask(q,ph){
+  return new Promise(res=>{
+    const box=document.getElementById('bbask');
+    box.querySelector('.q').textContent=q;
+    const inp=box.querySelector('input');inp.value='';inp.placeholder=ph||'';
+    box.classList.add('on');setTimeout(()=>inp.focus(),40);
+    const done=v=>{box.classList.remove('on');inp.onkeydown=null;res(v)};
+    box.querySelector('[data-ok]').onclick=()=>done(inp.value.trim()||null);
+    box.querySelector('[data-no]').onclick=()=>done(null);
+    inp.onkeydown=e=>{e.stopPropagation();
+      if(e.key==='Enter')done(inp.value.trim()||null);
+      if(e.key==='Escape')done(null)};
+  });
+}
+let tipT=null;
+function tip(s){
+  const t=document.getElementById('bbtip');if(!t)return;
+  t.textContent=s;t.classList.add('on');
+  clearTimeout(tipT);tipT=setTimeout(()=>t.classList.remove('on'),2600);
+}
+
+/* ---------- 工具条 ---------- */
+function setTool(t){
+  tool=t;root.dataset.tool=t;
+  [...document.querySelectorAll('.bbbar b[data-t]')].forEach(b=>
+    b.classList.toggle('on',b.dataset.t===t));
+  document.getElementById('bbpal').classList.toggle('on',t==='pen');
+  if(t!=='move')select(null);
+}
+function buildUI(name){
+  root=document.createElement('div');root.className='bbroot';root.dataset.tool=tool;
+  root.innerHTML=`
+    <div class="bbstage"><div class="bbworld">
+      <svg class="bbink"></svg>
+    </div></div>
+    <div class="bbui bbtop">
+      <h2>${esc(name)}</h2>
+      <div class="sub">Pencil 写 · 手指两指缩放 · 双击空白打字</div>
+      <div class="x" id="bbclose">收起 ✕</div>
+    </div>
+    <div class="bbui bbpal" id="bbpal">
+      ${PENS.map((p,i)=>`<s data-c="${p[0]}" style="background:${p[0]}" class="${i===0?'on':''}"></s>`).join('')}
+      <em></em>
+      ${WIDTHS.map((w,i)=>`<q data-w="${w}" style="--d:${Math.min(16,4+w*1.4)}px" class="${i===1?'on':''}"></q>`).join('')}
+    </div>
+    <div class="bbui bbbar">
+      <b data-t="pen" class="on"><i>✎</i><u>写</u></b>
+      <b data-t="erase"><i>⌫</i><u>擦</u></b>
+      <b data-t="move"><i>✥</i><u>摆</u></b>
+      <b data-a="text"><i>T</i><u>文字</u></b>
+      <b data-a="file"><i>▣</i><u>图/片</u></b>
+      <b data-a="link"><i>⛓</i><u>链接</u></b>
+      <b data-a="undo"><i>↺</i><u>撤销</u></b>
+      <b data-a="home"><i>⊙</i><u>回原点</u></b>
+    </div>
+    <div class="bbui bbzoom"><b data-a="zo">－</b><span id="bbzl">100%</span><b data-a="zi">＋</b></div>
+    <div class="bbtip" id="bbtip"></div>
+    <div class="bbask" id="bbask"><div class="in">
+      <div class="q"></div><input spellcheck="false">
+      <div class="row"><b data-ok>好</b><b data-no>算了</b></div>
+    </div></div>
+    <input type="file" id="bbfile" accept="image/*,video/*" multiple style="display:none">`;
+  document.body.appendChild(root);
+  stage=root.querySelector('.bbstage');
+  world=root.querySelector('.bbworld');
+  ink=root.querySelector('.bbink');
+
+  stage.addEventListener('pointerdown',onDown);
+  stage.addEventListener('pointermove',onMove,{passive:false});
+  stage.addEventListener('pointerup',onUp);
+  stage.addEventListener('pointercancel',onUp);
+  stage.addEventListener('wheel',e=>{
+    e.preventDefault();
+    const unit=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1);
+    if(e.ctrlKey||e.metaKey)zoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*unit*0.0022));
+    else{cam.x-=(e.shiftKey?e.deltaY:e.deltaX)*unit;cam.y-=(e.shiftKey?0:e.deltaY)*unit;applyCam();queue()}
+  },{passive:false});
+
+  root.querySelectorAll('.bbbar b[data-t]').forEach(b=>b.onclick=()=>setTool(b.dataset.t));
+  root.querySelectorAll('.bbbar b[data-a]').forEach(b=>b.onclick=async()=>{
+    const a=b.dataset.a;
+    if(a==='text'){setTool('move');newText()}
+    if(a==='file')document.getElementById('bbfile').click();
+    if(a==='link'){const u=await ask('贴一个视频链接（B站 / YouTube 都行）','https://www.bilibili.com/video/BV...');
+      if(u){setTool('move');addEmbed(u)}}
+    if(a==='undo')undo();
+    if(a==='home'){cam={x:innerWidth/2,y:innerHeight/2,z:1};applyCam();queue()}
+  });
+  root.querySelectorAll('.bbzoom b').forEach(b=>b.onclick=()=>
+    zoomAt(innerWidth/2,innerHeight/2,b.dataset.a==='zi'?1.3:1/1.3));
+  root.querySelectorAll('.bbpal s').forEach(s=>s.onclick=()=>{
+    pen.c=s.dataset.c;root.querySelectorAll('.bbpal s').forEach(o=>o.classList.remove('on'));
+    s.classList.add('on')});
+  root.querySelectorAll('.bbpal q').forEach(q=>q.onclick=()=>{
+    pen.w=+q.dataset.w;root.querySelectorAll('.bbpal q').forEach(o=>o.classList.remove('on'));
+    q.classList.add('on')});
+  document.getElementById('bbclose').onclick=close;
+  document.getElementById('bbfile').onchange=e=>{addFiles(e.target.files);e.target.value=''};
+
+  root.addEventListener('paste',e=>{
+    const f=[...(e.clipboardData&&e.clipboardData.files||[])];
+    if(f.length){e.preventDefault();addFiles(f)}
+  });
+  ['dragover','drop'].forEach(t=>root.addEventListener(t,e=>{
+    e.preventDefault();
+    if(t==='drop'&&e.dataTransfer&&e.dataTransfer.files.length)addFiles(e.dataTransfer.files);
+  }));
+  root.addEventListener('keydown',e=>{
+    if(document.activeElement&&document.activeElement.classList.contains('txt'))return;
+    e.stopPropagation();
+    if(e.key==='Escape'){selId?select(null):close();return}
+    if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='z'){e.preventDefault();undo();return}
+    if(e.key==='Backspace'||e.key==='Delete'){if(selId){e.preventDefault();delItem(selId)}return}
+    if(e.key==='p')setTool('pen'); if(e.key==='e')setTool('erase'); if(e.key==='v')setTool('move');
+    if(e.key==='t'){setTool('move');newText()}
+  });
+  root.tabIndex=-1;
+}
+const esc=s=>String(s).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+
+/* ---------- 开 / 关 ---------- */
+async function open(name,subtitle){
+  if(root)close();
+  css();
+  const id=slug(name);
+  let b=null;
+  try{b=await dbGet('boards',id)}catch(e){tip('读不出存档：'+e.message)}
+  B=b||{id,name,items:[],strokes:[],cam:{x:innerWidth/2,y:innerHeight/2,z:1},updated:Date.now()};
+  B.name=name;
+  B.items=B.items||[];B.strokes=B.strokes||[];
+  undoStack=[];selId=null;els.clear();
+  tool='pen';
+  buildUI(subtitle?name+' · '+subtitle:name);
+  setTool('pen');
+  cam=Object.assign({x:innerWidth/2,y:innerHeight/2,z:1},B.cam||{});
+  applyCam();
+  B.strokes.forEach(drawStroke);
+  B.items.forEach(makeItem);
+  void root.offsetWidth;root.classList.add('on');root.focus();
+  if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+  if(!B.items.length&&!B.strokes.length)
+    tip('Pencil 直接写 · 双指缩放 · 底下「图/片」拖视频进来');
+  return B;
+}
+function close(){
+  flush();
+  urls.forEach(u=>URL.revokeObjectURL(u));urls.clear();
+  if(root)root.remove();
+  root=null;world=null;ink=null;stage=null;B=null;els.clear();
+  FG.clear();pinch=null;tpan=null;drawing=null;dragging=null;resizing=null;erasing=false;
+}
+
+/* ---------- 入口小按钮 ---------- */
+function entry(name,label){
+  const s=document.createElement('span');
+  s.className='bbentry';s.textContent=label||'▦ 黑板';
+  s.onclick=e=>{e.stopPropagation();open(name)};
+  return s;
+}
+
+window.BB={open,close,entry,list:()=>dbAll('boards'),slug};
+})();
+
+</script>
+<!--BB-END-->
+<script>
+/* ══════════════════════════════════════════════════════════
+   解题宇宙 —— G·波利亚《怎样解题》全书操作化
+   所有动作都对应书中原文，出处写在命令面板里
+   ══════════════════════════════════════════════════════════ */
+
+/* ---------- 九个阶段（用户流程 + 波利亚四阶段） ---------- */
+const PHASES=[
+{n:'①',t:'扫整体',p:'熟悉题目',
+ g:'尽可能清晰、生动地把整个题目形象化，暂时抛开细节。',
+ src:'第二部分·熟悉题目',
+ ask:['我应该从哪里开始？从题目的叙述开始。','这道题在问什么？用我自己的话说一遍。','这是求解题还是证明题？']},
+{n:'②',t:'摊零件',p:'深入理解题目',
+ g:'把主要部分分离出来：未知量、已知数据、条件（证明题则是题设、结论）。',
+ src:'第二部分·深入理解题目 / 词条「未知量是什么？」',
+ ask:['未知量是什么？','已知数据是什么？','条件是什么？','条件的各个不同部分是什么？','第一个已知数据是什么？第二个呢？']},
+{n:'③',t:'筛关键',p:'寻求有用的思路',
+ g:'强调不同的部分，考察不同的细节，从不同的角度处理它们。',
+ src:'第二部分·寻求有用的思路 / 词条「分解和重组」1',
+ ask:['哪个条件直接碰到未知量？','哪一条我到现在还没用过？','换一个当主角会怎样？','这个细节有新的意义吗？']},
+{n:'④',t:'挖细节',p:'深入理解题目',
+ g:'研究每个数据本身，将条件的不同部分分开，并研究每一个部分本身——但不要超过需要的程度。',
+ src:'词条「分解和重组」2',
+ ask:['回到定义上去：这个词到底是什么意思？','这一条能写成式子、画成图吗？','退回整体看：结构清楚了没有？']},
+{n:'⑤',t:'再循环',p:'变化题目',
+ g:'我们必须一次又一次地变化、重述、变换，直到最终找到一些有用的东西。',
+ src:'词条「变化题目」6',
+ ask:['你知道一道与它有关的题目吗？','观察未知量！有相同或相似未知量的题吗？','你能重新叙述这道题目吗？','能不能从已知数据这一头造桥？','你能倒着干吗？']},
+{n:'⑥',t:'拆 + 砍',p:'放弃一部分条件',
+ g:'只保留条件的一部分，而丢掉其他部分。这样就弱化了条件、减少了对未知量的限制——那么未知量可以确定到什么程度，它能怎样变化？',
+ src:'词条「分解和重组」7',
+ ask:['砍掉这一半，未知量还剩多大活动范围？','这个范围能画出来吗（轨迹）？','另一半条件单独看，又画出什么？','两条轨迹的交点是不是答案？']},
+{n:'⑦',t:'重组',p:'辅助题目',
+ g:'把元素重组成一道新的、更容易入手的题目。够不着就换一个踏脚石未知量——它必须既容易着手，又有用。',
+ src:'词条「分解和重组」3、5',
+ ask:['保持未知量不变，能换一组数据来确定它吗？','能不能从已知数据里先造出一个中间量？','这块石头够近吗？踩上去有用吗？','你能先解出题目的一部分吗？']},
+{n:'⑧',t:'执行',p:'执行方案',
+ g:'耐心逐个检查所有细节，直到每一点都非常清晰。区分大步骤和小步骤。',
+ src:'第一部分 11',
+ ask:['这一步我能清楚地看出它是对的吗？','这一步我能证明吗？','你用到所有的已知数据了吗？用到全部条件了吗？']},
+{n:'⑨',t:'回顾',p:'回顾',
+ g:'没有任何一个题目是彻底完成了的。检验、简化、迁移。',
+ src:'第一部分 13',
+ ask:['你能检验这个结果吗？','把数据推到极端，公式还对吗？','你能以不同的方式推导这个结果吗？','你能一眼就看出它来吗？','你能在别的题目中利用这个结果或这种方法吗？']}
+];
+
+/* ---------- 136 个思维模型索引 ---------- */
+const MODELS=[{"n":"001","zh":"PREP 法则","m":"chain","c":"表达","core":"先给结论，再补支撑，最后把结论钉一遍。"},{"n":"002","zh":"FABE 法则","m":"chain","c":"表达","core":"卖东西的四段式，落点必须在\"对你有什么用\"。"},{"n":"003","zh":"SDS 法","m":"chain","c":"表达","core":"重要的话说三遍，中间那遍才展开。"},{"n":"004","zh":"DESC 法","m":"chain","c":"表达","core":"提意见的安全通道：先说事，再说人的感受，然后给出路。"},{"n":"005","zh":"金字塔原理","m":"tree","c":"表达","core":"结论在顶，往下每层都在回答上一层的\"为什么/怎么做\"。"},{"n":"006","zh":"MECE 原则","m":"tree","c":"表达","core":"分类要做到：彼此不重叠，合起来不遗漏。"},{"n":"007","zh":"SCQA 结构","m":"chain","c":"表达","core":"先建共识，再制造张力，对方自己问出问题，你再答。"},{"n":"008","zh":"STAR 法则","m":"chain","c":"表达","core":"讲经历必须落到可量化的结果，否则只是流水账。"},{"n":"009","zh":"5W2H","m":"tree","c":"表达","core":"七个问题填满，一件事就不会漏。"},{"n":"010","zh":"黄金圈法则","m":"layers","c":"表达","core":"从内圈的 Why 往外说，而不是从外圈的 What 往里说。"},{"n":"011","zh":"乔哈里窗","m":"matrix","c":"人际","core":"沟通的本质是扩大开放区：多自我暴露，多主动求反馈。"},{"n":"012","zh":"非暴力沟通","m":"chain","c":"人际","core":"把指责翻译成\"我的需要 + 一个具体请求\"。"},{"n":"013","zh":"3F 倾听","m":"layers","c":"人际","core":"别人说的是事实，藏的是情绪，要的是意图——听到第三层才算听懂。"},{"n":"014","zh":"峰终定律","m":"axis","c":"人际","core":"体验的记忆 = 最强烈那一刻 + 最后一刻，不是平均值。"},{"n":"015","zh":"电梯演讲","m":"chain","c":"表达","core":"30 秒内让对方知道你是谁、凭什么、要什么。"},{"n":"016","zh":"艾森豪威尔矩阵","m":"matrix","c":"时间","core":"重要不紧急（第二象限）才是决定人生走向的格子。"},{"n":"017","zh":"SWOT 分析","m":"matrix","c":"商业","core":"内外各看好坏两面，再配对出策略（用优势抓机会、补劣势防威胁）。"},{"n":"018","zh":"波士顿矩阵","m":"matrix","c":"商业","core":"用现金牛的钱去养明星，问题业务限时观察，瘦狗尽快退。"},{"n":"019","zh":"加权决策矩阵","m":"matrix","c":"决策","core":"先定权重再打分，避免被某个无关紧要的亮点带偏。"},{"n":"020","zh":"第一性原理","m":"tree","c":"思考","core":"不看别人怎么做，拆到无法再拆的事实，再从那里重新造。"},{"n":"021","zh":"奥卡姆剃刀","m":"scale","c":"思考","core":"如无必要，勿增实体。"},{"n":"022","zh":"汉隆剃刀","m":"scale","c":"人际","core":"大部分伤害来自疏忽，不是敌意。"},{"n":"023","zh":"机会成本","m":"scale","c":"决策","core":"做任何选择的代价，是你没选的那个最好的。"},{"n":"024","zh":"沉没成本谬误","m":"axis","c":"决策","core":"只看往前的收益，不看已经投进去的。"},{"n":"025","zh":"边际效用递减","m":"axis","c":"决策","core":"同一件事重复投入，每一份的回报越来越小。"},{"n":"026","zh":"二八法则","m":"axis","c":"决策","core":"找出那 20%，其余的敢于不做。"},{"n":"027","zh":"二阶思维","m":"chain","c":"思考","core":"总要多问一句\"然后呢\"。"},{"n":"028","zh":"决策树","m":"tree","c":"决策","core":"把选项、概率、后果画成树，比在脑子里绕清楚十倍。"},{"n":"029","zh":"后悔最小化框架","m":"timeline","c":"决策","core":"站在人生终点回看，哪个选择更让你后悔，就别选它。"},{"n":"030","zh":"10/10/10 法则","m":"timeline","c":"决策","core":"情绪上头时，用三个时间尺度给这件事重新称重。"},{"n":"031","zh":"可逆 / 不可逆决策","m":"matrix","c":"决策","core":"可逆的门快进快出，不可逆的门慢下来。"},{"n":"032","zh":"OODA 循环","m":"loop","c":"决策","core":"比对手更快跑完一圈，他就永远在应付你上一步。"},{"n":"033","zh":"PDCA 循环","m":"loop","c":"执行","core":"做完必须检查，检查完必须把结论固化成新标准。"},{"n":"034","zh":"反脆弱","m":"axis","c":"思考","core":"脆弱怕波动，坚固扛波动，反脆弱靠波动变强。"},{"n":"035","zh":"期望值思维","m":"scale","c":"决策","core":"决策看期望值，结果好坏不代表决策对错。"},{"n":"036","zh":"贝叶斯更新","m":"chain","c":"思考","core":"观点不是真假开关，是一个随证据滑动的百分比。"},{"n":"037","zh":"逆向思维","m":"chain","c":"思考","core":"不知道怎么赢的时候，先确保不输。"},{"n":"038","zh":"Cynefin 框架","m":"matrix","c":"决策","core":"先判断你在哪种问题里，再决定用哪套方法。"},{"n":"039","zh":"商业模式画布","m":"layers","c":"商业","core":"一家公司能不能成，九个格子填完就看得见漏洞。"},{"n":"040","zh":"波特五力","m":"network","c":"商业","core":"你的利润被五个方向同时拉扯，最弱的那一环决定你赚不赚钱。"},{"n":"041","zh":"价值链","m":"chain","c":"商业","core":"把公司拆成一串环节，看每一环各自加了多少价值、花了多少钱。"},{"n":"042","zh":"飞轮效应","m":"loop","c":"商业","core":"找到能自我加强的闭环，前期很沉，转起来就停不下。"},{"n":"043","zh":"网络效应","m":"network","c":"商业","core":"用户越多，产品对每个用户越有价值——价值来自用户之间，不是产品本身。"},{"n":"044","zh":"规模效应","m":"axis","c":"商业","core":"量上去，单位成本下来——但有极限，过了会反升。"},{"n":"045","zh":"护城河","m":"layers","c":"商业","core":"问题不是\"你现在赚钱吗\"，是\"别人抄你要多久\"。"},{"n":"046","zh":"微笑曲线","m":"axis","c":"商业","core":"价值集中在链条两端：研发和品牌；中间的组装最苦。"},{"n":"047","zh":"长尾理论","m":"axis","c":"商业","core":"货架无限时，冷门商品的总和能媲美爆款。"},{"n":"048","zh":"创新扩散曲线","m":"axis","c":"商业","core":"新东西按五类人依次扩散，每类人要的说辞完全不同。"},{"n":"049","zh":"S 型曲线","m":"axis","c":"商业","core":"任何增长都是先平、后陡、再平——沉默期不是失败。"},{"n":"050","zh":"跨越鸿沟","m":"axis","c":"商业","core":"尝鲜的人喜欢你，不代表大众会买——中间隔着一道鸿沟。"},{"n":"051","zh":"第二曲线","m":"axis","c":"商业","core":"新曲线要在旧曲线最风光的时候开始，不是等它衰退。"},{"n":"052","zh":"破坏性创新","m":"axis","c":"商业","core":"颠覆从\"更差但更便宜/更方便\"开始，不是从更强开始。"},{"n":"053","zh":"定位理论","m":"matrix","c":"商业","core":"不是在产品上做文章，是在潜在客户的脑子里占一个词。"},{"n":"054","zh":"蓝海战略","m":"matrix","c":"商业","core":"靠\"剔除-减少-增加-创造\"四步跳出现有竞争维度。"},{"n":"055","zh":"AARRR 海盗指标","m":"chain","c":"商业","core":"增长按五步拆开，哪一步漏得最凶就先补哪一步。"},{"n":"056","zh":"转化漏斗","m":"chain","c":"商业","core":"每一层的转化率乘起来才是最终结果，改善最低那层收益最大。"},{"n":"057","zh":"LTV / CAC","m":"scale","c":"商业","core":"一个客户赚回来的钱必须显著大于买他花的钱。"},{"n":"058","zh":"单位经济模型","m":"chain","c":"商业","core":"一单赚不赚钱，规模化只会把结论放大。"},{"n":"059","zh":"需求三角","m":"tree","c":"商业","core":"三者缺一，需求就不成立。"},{"n":"060","zh":"供需曲线","m":"axis","c":"商业","core":"价格是供需两条线的交点，不是谁定的。"},{"n":"061","zh":"冰山模型","m":"layers","c":"人际","core":"能看见的只有一小块，决定长期表现的全在水下。"},{"n":"062","zh":"KANO 模型","m":"matrix","c":"商业","core":"功能分四类：基本型必须有，期望型越多越好，兴奋型制造口碑。"},{"n":"063","zh":"心智阶梯","m":"layers","c":"商业","core":"消费者每个品类只记得住 2~3 个名字，排不进去等于不存在。"},{"n":"064","zh":"GTD 工作法","m":"chain","c":"时间","core":"脑子是用来思考的，不是用来记事的——全部外置。"},{"n":"065","zh":"番茄工作法","m":"timeline","c":"时间","core":"把时间切成不可打断的小块，一块只服务一件事。"},{"n":"066","zh":"时间块","m":"timeline","c":"时间","core":"不写待办清单，直接在日历上给每件事划一块时间。"},{"n":"067","zh":"两分钟法则","m":"chain","c":"时间","core":"小事立刻做掉，比记下来再做便宜得多。"},{"n":"068","zh":"帕金森定律","m":"axis","c":"时间","core":"工作会自动膨胀到填满你给它的时间。"},{"n":"069","zh":"复利效应","m":"axis","c":"思考","core":"小优势 × 长时间 = 不可逾越的差距，关键是活到拐点。"},{"n":"070","zh":"心流通道","m":"matrix","c":"思考","core":"难度略高于能力（约 +4%）时进入心流；两边失衡就是焦虑或无聊。"},{"n":"071","zh":"精力管理","m":"axis","c":"时间","core":"时间是常量，精力是变量——把最难的事放在精力峰值。"},{"n":"072","zh":"最小可行产品","m":"chain","c":"商业","core":"用最小成本验证最大的那个假设，而不是把东西做完美。"},{"n":"073","zh":"OKR","m":"tree","c":"执行","core":"目标要激动人心，关键结果必须能用数字判定真假。"},{"n":"074","zh":"SMART 原则","m":"layers","c":"执行","core":"一个目标要能被验收，五个条件缺一不可。"},{"n":"075","zh":"关键路径","m":"timeline","c":"执行","core":"只有关键路径上的任务能决定完工时间，其它都有余量。"},{"n":"076","zh":"木桶原理","m":"layers","c":"执行","core":"系统的产出由最短板决定；但个人的价值由最长板决定。"},{"n":"077","zh":"杠杆思维","m":"scale","c":"思考","core":"别问\"我能多干多少\"，问\"我这一份力能被放大几倍\"。"},{"n":"078","zh":"断舍离","m":"chain","c":"时间","core":"决策疲劳的根源是选项太多，先减少选项本身。"},{"n":"079","zh":"清单革命","m":"chain","c":"执行","core":"高手也会漏，清单把\"记忆\"变成\"核对\"。"},{"n":"080","zh":"反馈闭环","m":"loop","c":"执行","core":"没有反馈的努力等于蒙眼练习。"},{"n":"081","zh":"费曼学习法","m":"loop","c":"思考","core":"用最简单的话讲给外行，卡壳处就是你的漏洞。"},{"n":"082","zh":"遗忘曲线","m":"axis","c":"思考","core":"记忆按指数衰减，在临界点复习一次，曲线就被抬起来。"},{"n":"083","zh":"刻意练习","m":"loop","c":"思考","core":"一万小时不管用，管用的是有反馈、有难度、有针对性的那部分。"},{"n":"084","zh":"学习金字塔","m":"layers","c":"思考","core":"越是\"输出型\"的学习方式，留存率越高。"},{"n":"085","zh":"三区理论","m":"layers","c":"思考","core":"成长只发生在学习区——舒适区外一点点，恐慌区里面一点点。"},{"n":"086","zh":"双环学习","m":"loop","c":"思考","core":"第一环问\"我做错了什么\"，第二环问\"我的前提是不是就是错的\"。"},{"n":"087","zh":"确认偏误","m":"venn","c":"思考","core":"人天生只搜集支持自己的证据。"},{"n":"088","zh":"幸存者偏差","m":"venn","c":"思考","core":"数据只来自幸存者时，结论必然是错的。"},{"n":"089","zh":"达克效应","m":"axis","c":"思考","core":"知道得越少，越不知道自己不知道。"},{"n":"090","zh":"邓巴数","m":"layers","c":"人际","core":"人的关系精力有硬上限，越往内圈越贵。"},{"n":"091","zh":"地图不等于疆域","m":"venn","c":"思考","core":"所有模型都是简化，用错地方就会翻车。"},{"n":"092","zh":"存量与流量","m":"chain","c":"思考","core":"看一个系统先看池子（存量），再看进水口和出水口（流量）。"},{"n":"093","zh":"正负反馈回路","m":"loop","c":"思考","core":"正反馈让偏差越滚越大，负反馈让系统回到平衡。"},{"n":"094","zh":"熵增定律","m":"axis","c":"思考","core":"秩序需要持续供能，放着不管必然变乱。"},{"n":"095","zh":"灰度认知，黑白决策","m":"axis","c":"决策","core":"认知可以模糊，行动必须干脆。"},{"n":"096","zh":"三重大脑","m":"layers","c":"思考","core":"本能和情绪先开火，理性最后才到——所以先处理情绪再讲道理。"},{"n":"097","zh":"马斯洛需求层次","m":"layers","c":"人际","core":"低层未满足时，高层激励几乎无效。"},{"n":"098","zh":"SCARF 模型","m":"layers","c":"人际","core":"这五样被威胁，人的大脑会当成生理危险来反应。"},{"n":"099","zh":"系统 1 与系统 2","m":"scale","c":"思考","core":"大脑默认省电，重要的事要主动切到慢思考。"},{"n":"100","zh":"大数定律","m":"axis","c":"决策","core":"单次结果是噪声，只有重复足够多次，你的真实水平才显现。"},{"n":"M01","zh":"智慧层次结构","m":"layers","c":"元层","core":"数据→信息→知识→智慧。知识就是模型；智慧是知道该调哪个模型。"},{"n":"M02","zh":"REDCAPE 七大用途","m":"tree","c":"元层","core":"模型不只用来预测。七种用途各有各的取舍，用途决定了模型该多复杂。"},{"n":"M03","zh":"构建模型的三种方法","m":"tree","c":"元层","core":"要么简化现实，要么打个类比，要么干脆造一个不存在的世界来做实验。"},{"n":"M04","zh":"所有模型都是错的","m":"scale","c":"元层","core":"模型有三个共同特征：简化、形式化、必错。价值不在于对，在于能推出结论。"},{"n":"M05","zh":"孔多塞陪审团定理","m":"axis","c":"元层","core":"一群各自只比瞎猜强一点、但彼此独立的模型，用多数票，准确率趋近 100%。"},{"n":"M06","zh":"多样性预测定理","m":"scale","c":"元层","core":"一群模型的集体误差，等于各自误差的平均，减去它们互相分歧的程度。"},{"n":"M07","zh":"一对多映射","m":"network","c":"元层","core":"不需要学一百个模型。一个模型换个名字，就能装进另一个领域。"},{"n":"M08","zh":"模型粒度","m":"scale","c":"元层","core":"预测要大而粗，解释要小而净——同一个问题，两种最优粒度。"},{"n":"M09","zh":"理性 vs 规则行为者","m":"scale","c":"元层","core":"对人建模没有唯一正解：看风险高低、看重复次数、看信息多少。"},{"n":"M10","zh":"卢卡斯批判","m":"loop","c":"元层","core":"政策一变，被管的人的行为就跟着变——用旧行为数据估的模型立刻不准。"},{"n":"M11","zh":"正态分布","m":"axis","c":"形式模型","core":"加法得正态。均值 + 标准差两个数就描述完了，不会冒出怪兽事件。"},{"n":"M12","zh":"幂律 / 长尾分布","m":"axis","c":"形式模型","core":"概率 ∝ 大小的负指数。指数 ≤2 时连均值都不收敛——平均值失去意义。"},{"n":"M13","zh":"优先连接 / 马太效应","m":"loop","c":"形式模型","core":"新来的按现有份额选择，长期就长出幂律。"},{"n":"M14","zh":"线性回归","m":"axis","c":"形式模型","core":"一条直线拟合数据，读出效应的符号、大小和显著性，R² 是被解释掉的比例。"},{"n":"M15","zh":"指数增长与 72 法则","m":"axis","c":"形式模型","core":"恒定增长率的累积效应远超直觉；72 除以增长率就是翻倍时间。"},{"n":"M16","zh":"凸函数与凹函数","m":"axis","c":"形式模型","core":"曲率本身就是结论：凸意味着强者更强，凹意味着该见好就收。"},{"n":"M17","zh":"夏普利值","m":"scale","c":"形式模型","core":"一个人的价值 = 他加入团队时的边际贡献，按所有可能的加入顺序取平均。"},{"n":"M18","zh":"网络四统计量","m":"network","c":"形式模型","core":"任何网络，四个数就能刻画。介数高 = 信息和权力都从你这儿过。"},{"n":"M19","zh":"广播 / 扩散 / SIR 传染","m":"axis","c":"形式模型","core":"曲线形状暴露传播机制：r 形是广播，S 形是人传人，两者混合就是巴斯模型。"},{"n":"M20","zh":"熵","m":"layers","c":"形式模型","core":"熵同时是不确定性、信息量和惊喜度。用它把四类结果干净地分开。"},{"n":"M21","zh":"随机游走","m":"axis","c":"形式模型","core":"每步 ±1 的累加。看着有趋势，其实全是噪音。"},{"n":"M22","zh":"路径依赖 · 波利亚过程","m":"chain","c":"形式模型","core":"正反馈把早期的偶然事件锁死成长期结果，而且任何最终比例都等概率发生。"},{"n":"M23","zh":"局部互动 · 生命游戏","m":"chain","c":"形式模型","core":"只靠\"跟身边人一致\"这一条局部规则，宏观图案就自己长出来了。"},{"n":"M24","zh":"李雅普诺夫函数","m":"axis","c":"形式模型","core":"能构造出这个量，就能证明系统一定会停下来，还能算出多快停。"},{"n":"M25","zh":"马尔可夫模型","m":"loop","c":"形式模型","core":"满足假设时，长期分布唯一——初始状态和历史都不重要，一次性干预也没用。"},{"n":"M26","zh":"系统动力学","m":"loop","c":"形式模型","core":"画出方框（存量）和箭头（流量），给每个箭头标上正负号，反直觉的后果就现形了。"},{"n":"M27","zh":"阈值模型","m":"axis","c":"形式模型","core":"每个人有一个\"多少人参加了我才参加\"的门槛，链式反应从阈值为零的人开始。"},{"n":"M28","zh":"空间竞争模型","m":"chain","c":"形式模型","core":"只有一个维度可竞争时，参与者会一路挤向中位数。"},{"n":"M29","zh":"博弈论与纳什均衡","m":"matrix","c":"形式模型","core":"收益取决于双方选择；纳什均衡 = 谁都不想单方面改变。"},{"n":"M30","zh":"囚徒困境与四种合作机制","m":"layers","c":"形式模型","core":"背叛是占优策略；要让合作长出来，必须至少靠这四种机制之一。"},{"n":"M31","zh":"集体行动与公地悲剧","m":"chain","c":"形式模型","core":"个人利益与集体利益不一致时，自利必然把公共资源用垮。"},{"n":"M32","zh":"机制设计","m":"chain","c":"形式模型","core":"反过来设计规则，让每个人的自利行为自动导向你想要的结果。"},{"n":"M33","zh":"信号模型","m":"scale","c":"形式模型","core":"能区分强弱的信号，必须对弱者贵得多——便宜的信号等于没说。"},{"n":"M34","zh":"强化学习与社会学习","m":"loop","c":"形式模型","core":"按回报调权重。个体学习靠自己试，社会学习靠抄表现好的人。"},{"n":"M35","zh":"多臂老虎机","m":"scale","c":"形式模型","core":"回报未知时，必须先花代价买信息，再决定押哪一个。"},{"n":"M36","zh":"崎岖景观 · NK 模型","m":"axis","c":"形式模型","core":"单峰（富士山）的问题谁都能解；属性互相依赖，景观就崎岖，努力爬也只到局部峰。"}];
+const MOMT={"matrix":"四象限","axis":"坐标曲线","tree":"层级树","chain":"流程链","loop":"循环回路","layers":"分层堆栈","venn":"集合交叠","scale":"天平权衡","network":"节点网络","timeline":"时间轴"};
+
+/* ---------- 星体种类 ---------- */
+const KINDS={
+ unknown:{t:'未知量',c:[95,201,232], hint:'盯住目标。观察未知量！'},
+ data   :{t:'已知',  c:[126,232,162],hint:'你用到所有的已知数据了吗？'},
+ cond   :{t:'条件',  c:[232,184,74], hint:'把条件的不同部分分开。'},
+ aux    :{t:'辅助',  c:[199,142,240],hint:'引入辅助元素必须有理由，不能随心所欲。'},
+ idea   :{t:'念头',  c:[140,160,210],hint:'只要你有任何一个念头，就很幸运了。'},
+ locus  :{t:'轨迹',  c:[240,142,142],hint:'砍掉一部分条件后，未知量能怎样变化？'},
+ result :{t:'结论',  c:[255,246,226],hint:'你能检验这个结果吗？'},
+ given  :{t:'题设',  c:[126,232,162],hint:'你用到全部的题设了吗？'},
+ concl  :{t:'要证的结论',c:[95,201,232],hint:'观察结论！想出一条有相同或相似结论的熟悉定理。'},
+ lemma  :{t:'辅助定理',c:[199,142,240],hint:'希望通过一条定理的证明促进对原题的解答。'}
+};
+/* 求解题 ↔ 证明题：波利亚说表本身必须改写（现代探索法 2 / 求解题、证明题 5、6） */
+const KINDKEYS={
+  solve:['unknown','data','cond','aux','idea'],
+  prove:['concl','given','cond','lemma','idea']
+};
+const ASKP={          /* 下标和 PHASES 一样是 0 起：0=①扫整体 … 8=⑨回顾 */
+ 1:['结论是什么？','题设是什么？','你假定的是什么？','题设的各个部分是什么？'],
+ 2:['哪一条题设直接碰到结论？','哪一条我到现在还没用过？'],
+ 4:['观察结论！想出一条有相同或相似结论的熟悉定理。','你能重新叙述这个定理吗？','能不能反过来证（归谬法）？'],
+ 5:['只保留题设的一部分，结论还成立吗？','把结论弱化一点，还能证出来吗？'],
+ 6:['为了应用那条熟悉的定理，该引入什么辅助元素？','先证一条辅助定理行不行？'],
+ 7:['这一步我能清楚地看出它是对的吗？','这一步我能证明吗？','你用到全部的题设了吗？'],
+ 8:['你能检验这个论证吗？','你能以不同的方式证明它吗？','这个方法还能证别的什么？']
+};
+/* ---------- 关系线 ---------- */
+const RELS={
+ bind :{t:'约束', c:[232,184,74], dash:0,   arrow:1},
+ imply:{t:'推出', c:[126,232,162],dash:0,   arrow:1},
+ same :{t:'等价', c:[95,201,232], dash:0,   arrow:0},
+ analog:{t:'类比',c:[199,142,240],dash:[5,6],arrow:0},
+ back :{t:'倒推', c:[240,142,142],dash:[2,5],arrow:1},
+ part :{t:'分出', c:[140,160,210],dash:[3,4],arrow:1},
+ clash:{t:'矛盾', c:[240,142,142],dash:0,   arrow:0},
+ reduce:{t:'约简',c:[95,201,232], dash:[7,4],arrow:1},   /* 辅助题目 6：可逆 / 单向 */
+ locusof:{t:'轨迹',c:[240,142,142],dash:[3,5],arrow:0}
+};
+
+/* ---------- 未知量类型 → 波利亚给的现成方案（词条「观察未知量」3） ---------- */
+const UTYPE=[
+ {k:'★ 我自己想一道有相同未知量的题',own:1,
+  plan:'尽量想出一道你所熟悉的、具有相同或相似未知量的题目。—— 这一步永远排在查表之前（拘泥与变通：永远要先开动你的脑筋）。'},
+ {k:'一条线段的长度',plan:'把它作为某个三角形的一条边来求 —— 需要引入一个由三个已知或容易求得部分组成的三角形。'},
+ {k:'一个角',       plan:'把它作为某个三角形的一个角来求 —— 需要引入一个适当的三角形。'},
+ {k:'一个体积',     plan:'需要找到一个面的面积和相应的高。（波利亚原文只说到这里，没给公式）'},
+ {k:'平面上一个点', plan:'作为两条轨迹的交点求得，每条轨迹要么是一个圆，要么是一条直线 —— 需要从已知条件中清理出这样的轨迹。'},
+ {k:'一个数',       plan:'建立方程：把条件的每一部分翻译成式子，方程个数要和未知量个数比。'},
+ {k:'一个证明（结论）',plan:'观察结论！想出一条有相同或相似结论的熟悉定理，再问：为了应用它，该引入什么辅助元素？'}
+];
+/* 观察未知量 4：找不到同未知量的旧题，题目会难得多 —— 这时退而求"相似未知量" */
+const UTYPE_NONE='没有一道以前解过的、有相同未知量的题？那这道题会困难得多（观察未知量 4）。退一步：找有【相似】未知量的题 —— 阿基米德求球面积时，靠的就是圆柱、圆锥、圆台的侧面积。';
+
+</script>
+<script>
+/* ══════════ 状态 ══════════ */
+const KEY='polya.universe.v2';
+function blank(name){return {name,stmt:'',phase:0,nodes:[],edges:[],seq:1,cam:{x:0,y:0,z:1},learn:''}}
+let DB=null; try{DB=JSON.parse(localStorage.getItem(KEY)||'null')}catch(err){console.warn('存档读不出来，已重置',err)}
+if(!DB||!DB.probs){DB={cur:0,probs:[blank('未命名')]}}
+const P=()=>DB.probs[DB.cur];
+let saveT=null;
+function save(){
+  try{const p=DB.probs[DB.cur];if(p){p.updatedAt=Date.now();if(!p.createdAt)p.createdAt=p.updatedAt}}catch(e){}
+  clearTimeout(saveT);saveT=setTimeout(()=>localStorage.setItem(KEY,JSON.stringify(DB)),260);
+}
+
+const N=()=>P().nodes, E=()=>P().edges;
+const byId=id=>N().find(n=>n.id===id);
+let sel=new Set(), hov=null, linkFrom=null, linkTo=null;
+
+/* ══════════ 相机 ══════════ */
+let cam={x:0,y:0,z:1}, camT={x:0,y:0,z:1};
+function s2w(sx,sy){return{x:(sx-innerWidth/2)/cam.z+cam.x, y:(sy-innerHeight/2)/cam.z+cam.y}}
+function w2s(wx,wy){return{x:(wx-cam.x)*cam.z+innerWidth/2, y:(wy-cam.y)*cam.z+innerHeight/2}}
+function zoomAt(sx,sy,k){
+  const p=s2w(sx,sy);
+  const nz=Math.max(.04,Math.min(4,cam.z*k));
+  cam.z=nz; camT.z=nz;
+  const q=s2w(sx,sy);          /* 用新的 z 重算，光标下那一点才钉得住 */
+  cam.x+=p.x-q.x; cam.y+=p.y-q.y;
+  camT.x=cam.x; camT.y=cam.y;
+}
+function zoomBy(k){zoomAt(innerWidth/2,innerHeight/2,k)}
+/* 星体被甩到极远时，把整张图等比收回来 —— 保持相对位置，只改尺度 */
+function bbox(){
+  const ns=N(); if(!ns.length)return null;
+  let x0=1e18,y0=1e18,x1=-1e18,y1=-1e18;
+  ns.forEach(n=>{x0=Math.min(x0,n.x);x1=Math.max(x1,n.x);y0=Math.min(y0,n.y);y1=Math.max(y1,n.y)});
+  return {x0,y0,x1,y1,w:x1-x0,h:y1-y0,cx:(x0+x1)/2,cy:(y0+y1)/2};
+}
+function compact(force){
+  const b=bbox(); if(!b)return false;
+  const span=Math.max(b.w,b.h);
+  if(!force&&span<=5200)return false;          /* 没跑飞就不动 */
+  const k=2600/Math.max(span,1);
+  N().forEach(n=>{
+    n.x=(n.x-b.cx)*k; n.y=(n.y-b.cy)*k;
+    n.hx=n.x; n.hy=n.y;
+  });
+  boxCache.clear();ghostDirty=true;save();
+  return true;
+}
+/* 有没有两颗星叠在一起 */
+function hasOverlap(){
+  const ns=N();
+  for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){
+    const A=nodeBox(ns[i]),B=nodeBox(ns[j]);
+    if(Math.abs(A.x-B.x)<(A.w+B.w)/2+8&&Math.abs(A.y-B.y)<(A.h+B.h)/2+8)return true;
+  }
+  return false;
+}
+/* 新星落地时自动避让：沿螺旋往外找一个空位 */
+function nudge(n){
+  const pad=30, others=N().filter(m=>m!==n);
+  const hit=()=>{
+    const A=nodeBox(n);
+    return others.some(m=>{const B=nodeBox(m);
+      return Math.abs(A.x-B.x)<(A.w+B.w)/2+pad&&Math.abs(A.y-B.y)<(A.h+B.h)/2+pad});
+  };
+  if(!hit())return;
+  const x0=n.x,y0=n.y;
+  const step=Math.max(34,(nodeBox(n).w+nodeBox(n).h)/4);
+  for(let k=1;k<=400;k++){
+    const a=k*2.399963, r=step*Math.sqrt(k);    /* 黄金角螺旋，铺得均匀 */
+    n.x=x0+Math.cos(a)*r; n.y=y0+Math.sin(a)*r;
+    boxCache.delete(n.id);
+    if(!hit())break;
+  }
+  n.hx=n.x;n.hy=n.y;
+}
+
+/* 逐对推开，直到任意两颗星的框都不重叠 */
+function deoverlap(iters){
+  const pad=30, ns=N();
+  for(let it=0;it<(iters||400);it++){
+    let moved=false;
+    for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){
+      const a=ns[i],b=ns[j],A=nodeBox(a),B=nodeBox(b);
+      const dx=b.x-a.x, dy=b.y-a.y;
+      const ox=(A.w+B.w)/2+pad-Math.abs(dx);
+      const oy=(A.h+B.h)/2+pad-Math.abs(dy);
+      if(ox>0&&oy>0){
+        moved=true;
+        if(ox<oy){const t=(dx>=0?1:-1)*ox/2||ox/2; a.x-=t; b.x+=t}
+        else     {const t=(dy>=0?1:-1)*oy/2||oy/2; a.y-=t; b.y+=t}
+      }
+    }
+    if(!moved)break;
+  }
+  N().forEach(n=>{n.hx=n.x;n.hy=n.y});
+  boxCache.clear();
+  return !hasOverlap();      /* 真推开了才算成功 */
+}
+/* 保证不重叠：先温和推开，推不开就整个重排 */
+function ensureNoOverlap(){
+  if(!hasOverlap())return false;
+  if(deoverlap(400))return true;
+  ringLayout(); deoverlap(400);
+  return true;
+}
+/* 一键整理：目标在中心，条件一圈，已知一圈，其余在外圈；再推开到互不重叠 */
+function ringLayout(){        /* 横向分栏：从左往右读 —— 已知 → 条件 → 目标 → 辅助 → 结论 */
+  const ns=N(); if(!ns.length)return;
+  const cols=[
+    ns.filter(n=>n.k==='data'||n.k==='given'),
+    ns.filter(n=>n.k==='cond'),
+    ns.filter(n=>n.k==='unknown'||n.k==='concl'),
+    ns.filter(n=>n.k==='aux'||n.k==='lemma'||n.k==='locus'),
+    ns.filter(n=>n.k==='result'||n.k==='idea'),
+  ].filter(c=>c.length);
+  const GAPX=150, GAPY=48, MAXH=760;
+  /* 一栏太高就拆成并排的子栏 —— 保证整张图始终是横的 */
+  const packs=[];
+  cols.forEach(arr=>{
+    const hs=arr.map(n=>nodeBox(n).h+GAPY);
+    const th=hs.reduce((a,b)=>a+b,0);
+    const k=Math.max(1,Math.ceil(th/MAXH));
+    const per=Math.ceil(arr.length/k);
+    for(let i=0;i<arr.length;i+=per)packs.push(arr.slice(i,i+per));
+  });
+  const W=packs.map(c=>Math.max(...c.map(n=>nodeBox(n).w)));
+  let x=0;
+  const xs=W.map(w=>{const cx=x+w/2; x+=w+GAPX; return cx});
+  const totalW=x-GAPX;
+  packs.forEach((arr,ci)=>{
+    const hs=arr.map(n=>nodeBox(n).h+GAPY);
+    const th=hs.reduce((a,b)=>a+b,0);
+    let y=-th/2;
+    arr.forEach((n,i)=>{
+      n.x=xs[ci]-totalW/2;            /* 整体水平居中 */
+      n.y=y+hs[i]/2;
+      y+=hs[i];
+      if(arr.length>3)n.x+=(i%2?1:-1)*18;   /* 轻微错开，线不挤成一束 */
+    });
+  });
+  N().forEach(n=>{n.hx=n.x;n.hy=n.y});
+  boxCache.clear();
+}
+function tidy(){
+  if(!N().length)return;
+  snap(); ringLayout(); deoverlap(400);
+  save();fitAll();
+  toast('整理好了','从左往右：已知 → 条件 → 目标 → 辅助/轨迹 → 结论；你摆的位置随时可以再改');
+}
+function viewRect(){          /* 真正能看见的那块：避开左面板、顶栏、底栏 */
+  const pn=document.getElementById('panel');
+  const L=(pn&&pn.classList.contains('on'))?(pn.getBoundingClientRect().right+26):24;
+  const T=62, R=innerWidth-24, B=innerHeight-92;
+  return {L,T,R,B,w:Math.max(200,R-L),h:Math.max(200,B-T),cx:(L+R)/2,cy:(T+B)/2};
+}
+function fitAll(){
+  const ns=N(); if(!ns.length){camT={x:0,y:0,z:1};return}
+  let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+  ns.forEach(n=>{const r=nodeBox(n);
+    x0=Math.min(x0,r.x-r.w/2);x1=Math.max(x1,r.x+r.w/2);
+    y0=Math.min(y0,r.y-r.h/2);y1=Math.max(y1,r.y+r.h/2)});
+  const pad=90,w=x1-x0+pad*2,h=y1-y0+pad*2;
+  const v=viewRect();
+  camT.z=Math.max(.04,Math.min(2,Math.min(v.w/w,v.h/h)));
+  const bcx=(x0+x1)/2, bcy=(y0+y1)/2;
+  camT.x=bcx+(innerWidth/2 - v.cx)/camT.z;    /* 把图心对到可见区的中心 */
+  camT.y=bcy+(innerHeight/2 - v.cy)/camT.z;
+}
+function flyTo(n,z){camT.x=n.x;camT.y=n.y;if(z)camT.z=z}
+
+/* ══════════ 画布 ══════════ */
+const cv=document.getElementById('sky'), ctx=cv.getContext('2d');
+let DPR=1,Wd=0,Hd=0;
+function resize(){
+  DPR=Math.min(2,devicePixelRatio||1);
+  Wd=innerWidth;Hd=innerHeight;
+  cv.width=Wd*DPR;cv.height=Hd*DPR;
+  cv.style.width=Wd+'px';cv.style.height=Hd+'px';
+  ctx.setTransform(DPR,0,0,DPR,0,0);
+  makeStars();
+}
+addEventListener('resize',resize);
+
+/* 星空：三层视差 */
+let STAR=[];
+function makeStars(){
+  STAR=[];
+  const n=Math.round(Wd*Hd/2600);
+  for(let i=0;i<n;i++){
+    const d=Math.random();
+    STAR.push({x:(Math.random()-.5)*4200,y:(Math.random()-.5)*3000,
+      d:.15+d*.75, r:d*1.5+.25, a:d*.5+.1,
+      tw:Math.random()*.0016+.0004, ph:Math.random()*6.28,
+      h:Math.random()<.15?(Math.random()<.5?198:278):null});
+  }
+}
+
+/* ══════════ 节点几何 ══════════ */
+const FS=[0,12,13.5,15.5,18,21.5];      /* 重要度 → 字号 */
+const MAXW=[0,150,180,215,255,300];
+function wrapText(t,fs,maxw){
+  ctx.font=`${fs}px -apple-system,"PingFang SC",sans-serif`;
+  const lines=[];let cur='';
+  for(const ch of t){
+    if(ch==='\n'){lines.push(cur);cur='';continue}
+    if(ctx.measureText(cur+ch).width>maxw&&cur){lines.push(cur);cur=ch}
+    else cur+=ch;
+  }
+  if(cur||!lines.length)lines.push(cur);
+  return lines;
+}
+const boxCache=new Map();
+function nodeBox(n){
+  const key=n.w+'|'+(n.ms?n.ms.length:0)+'|'+(n.dof||0)+'|'+(n.eq||'')+'|'+n.t;
+  const c=boxCache.get(n.id);
+  if(c&&c.key===key){c.box.x=n.x;c.box.y=n.y;return c.box}
+  const fs=FS[n.w], maxw=MAXW[n.w];
+  const lines=wrapText(n.t||' ',fs,maxw);
+  let w=0;ctx.font=`${fs}px -apple-system,"PingFang SC",sans-serif`;
+  lines.forEach(l=>w=Math.max(w,ctx.measureText(l).width));
+  const lh=fs*1.45;
+  const extra=(n.ms&&n.ms.length?fs*1.1:0)+(n.dof?fs*.9:0)+(n.eq?fs*1.0:0);
+  const box={x:n.x,y:n.y,w:Math.max(w,26)+30,h:lines.length*lh+22+extra,lines,fs,lh};
+  boxCache.set(n.id,{key,box});
+  return box;
+}
+function hit(wx,wy){
+  const o=zOrder();
+  for(let i=o.length-1;i>=0;i--){
+    const n=o[i],b=nodeBox(n),zf=1+.09*(n.z||0);
+    const r=rimW();
+    if(cam.z<.34){                       /* 远景只剩光点：按屏幕上 20px 的圆来点 */
+      if(Math.hypot(wx-b.x,wy-b.y)<20/cam.z)return n;
+      continue;
+    }
+    if(Math.abs(wx-b.x)<b.w*zf/2+r&&Math.abs(wy-b.y)<b.h*zf/2+r)return n;
+  }
+  return null;
+}
+
+/* ══════════ 绘制 ══════════ */
+let T=0;
+function draw(t){
+  T=t||0;
+  /* 相机缓动（平移用缓动，缩放已即时） */
+  cam.x+=(camT.x-cam.x)*.22; cam.y+=(camT.y-cam.y)*.22; cam.z+=(camT.z-cam.z)*.22;
+  if(RELAX)relaxStep(); else if(returning)goHome();
+  if(sigDirty&&T-sigAt>500){sigDirty=false;sigAt=T;checkSignals()}
+  ctx.clearRect(0,0,Wd,Hd);
+
+  /* —— 星云 —— */
+  const neb=(x,y,r,col)=>{const g=ctx.createRadialGradient(x,y,0,x,y,r);
+    g.addColorStop(0,col);g.addColorStop(1,'rgba(3,5,12,0)');ctx.fillStyle=g;ctx.fillRect(0,0,Wd,Hd)};
+  ctx.fillStyle='#03050c';ctx.fillRect(0,0,Wd,Hd);
+  const dr=Math.max(Wd,Hd);
+  neb(Wd*.72-cam.x*.04*cam.z, Hd*.24-cam.y*.04*cam.z, dr*.72,'rgba(95,201,232,.055)');
+  neb(Wd*.18-cam.x*.07*cam.z, Hd*.78-cam.y*.07*cam.z, dr*.62,'rgba(199,142,240,.05)');
+  neb(Wd*.52-cam.x*.02*cam.z, Hd*1.1-cam.y*.02*cam.z, dr*.5, 'rgba(232,184,74,.022)');
+
+  /* —— 星 —— */
+  for(const s of STAR){
+    const sx=(s.x-cam.x*s.d)*cam.z+Wd/2, sy=(s.y-cam.y*s.d)*cam.z+Hd/2;
+    if(sx<-40||sx>Wd+40||sy<-40||sy>Hd+40)continue;
+    const a=s.a*(.62+.38*Math.sin(T*s.tw+s.ph));
+    ctx.fillStyle=s.h?`hsla(${s.h} 80% 82% / ${a})`:`rgba(232,237,249,${a})`;
+    ctx.beginPath();ctx.arc(sx,sy,s.r*Math.max(.5,Math.min(1.6,cam.z)),0,6.2832);ctx.fill();
+  }
+
+  /* —— 连线 —— */
+  DEG={}; E().forEach(e=>{DEG[e.a]=(DEG[e.a]||0)+1;DEG[e.b]=(DEG[e.b]||0)+1});
+  E().forEach(e=>drawEdge(e));
+  /* 正在连的线 */
+  if(linkFrom){
+    const a=w2s(linkFrom.x,linkFrom.y);
+    const b=linkTo?w2s(linkTo.x,linkTo.y):MS;
+    const rc=(RELS[pendingRel]||RELS.bind).c;
+    ctx.strokeStyle=`rgba(${rc},.9)`;ctx.lineWidth=1.8;ctx.setLineDash([3,5]);
+    ctx.beginPath();ctx.moveTo(a.x,a.y);ctx.lineTo(b.x,b.y);ctx.stroke();ctx.setLineDash([]);
+    /* 手上那一端的光点 */
+    ctx.fillStyle=`rgba(${rc},.9)`;ctx.beginPath();ctx.arc(b.x,b.y,3.4,0,6.2832);ctx.fill();
+    if(!linkTo){
+      ctx.font='11px -apple-system,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+      ctx.fillStyle='rgba(147,160,189,.9)';
+      ctx.fillText('松手落在空白处 = 直接长出一颗新星', b.x+12, b.y+16);
+    }
+  }
+
+  /* —— 该连却没连：共享同一个符号或词，画一条极淡的呼吸虚线，点一下就成真 —— */
+  if(ghostDirty&&T-ghostAt>400){ghostDirty=false;ghostAt=T;GHOST=findGhosts()}
+  let near=null,nd=90;
+  GHOST.forEach(g=>{
+    const A=w2s(g.a.x,g.a.y),B=w2s(g.b.x,g.b.y);
+    ctx.strokeStyle=`rgba(232,237,249,${.05+.04*Math.sin(T*.003)})`;   /* 更淡 */
+    ctx.lineWidth=1;ctx.setLineDash([2,11]);
+    ctx.beginPath();ctx.moveTo(A.x,A.y);ctx.lineTo(B.x,B.y);ctx.stroke();ctx.setLineDash([]);
+    const mx=(A.x+B.x)/2,my=(A.y+B.y)/2, d=Math.hypot(MS.x-mx,MS.y-my);
+    if(d<nd){nd=d;near={g,mx,my}}
+  });
+  /* 文字只给离鼠标最近的那一条 —— 不再满屏都是 */
+  if(near&&cam.z>.6){
+    ctx.font='10.5px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(232,237,249,.62)';
+    ctx.shadowColor='rgba(3,5,12,.95)';ctx.shadowBlur=7;
+    ctx.fillText('「'+near.g.k+'」两边都有，要连吗？',near.mx,near.my);
+    ctx.shadowBlur=0;
+  }
+
+  /* —— 卫星星云（同一个 host 的一撮，用一团雾表示"是一伙的"，没有任何框线） —— */
+  drawHostNebula();
+  /* —— 手绘墨迹 —— */
+  drawInk();
+  /* —— 节点：按深度排序，后面的先画 —— */
+  if(ghostDirty||T-deadAt>400){deadAt=T;DEAD=deadSet()}
+  HOSTS=new Set(); N().forEach(n=>{if(n.host)HOSTS.add(n.host)});
+  LINKED=new Set(); E().forEach(e=>{LINKED.add(e.a);LINKED.add(e.b)});
+  FSET=null;
+  if(FOCUS){FSET=new Set([...sel]);
+    E().forEach(e=>{if(sel.has(e.a))FSET.add(e.b);if(sel.has(e.b))FSET.add(e.a)})}
+  SSET=null;
+  if(SPOT){SSET=new Set();E().forEach(e=>{if(e.k===SPOT){SSET.add(e.a);SSET.add(e.b)}})}
+  const order=zOrder();
+  if(cam.z<.34){drawFarClusters(order);}
+  else order.forEach(n=>drawNode(n));
+
+  /* —— 空宇宙：中心一颗呼吸的空心星，点它就开始 —— */
+  if(!N().length){
+    const cx=Wd/2, cy=Hd/2, pr=.5+.5*Math.sin(T*.0018);
+    const g=ctx.createRadialGradient(cx,cy,0,cx,cy,150);
+    g.addColorStop(0,`rgba(95,201,232,${.10+.05*pr})`);g.addColorStop(1,'rgba(95,201,232,0)');
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(cx,cy,150,0,6.2832);ctx.fill();
+    ctx.strokeStyle=`rgba(95,201,232,${.25+.2*pr})`;ctx.lineWidth=1.2;ctx.setLineDash([5,7]);
+    ctx.beginPath();ctx.arc(cx,cy,54+pr*5,0,6.2832);ctx.stroke();ctx.setLineDash([]);
+    ctx.font='16px "Songti SC",Georgia,serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.shadowColor='rgba(95,201,232,.7)';ctx.shadowBlur=20;
+    ctx.fillStyle='rgba(232,237,249,.92)';
+    ctx.fillText(P().mode2==='prove'?'结论是什么？':'未知量是什么？',cx,cy);
+    ctx.shadowBlur=0;
+    ctx.font='11.5px -apple-system,sans-serif';ctx.fillStyle='rgba(147,160,189,.8)';
+    ctx.fillText('点这里开始 · 或者先在上面写题面',cx,cy+96);
+  }
+
+  drawPlus();
+
+  /* —— 框选 —— */
+  if(marq){
+    const x=Math.min(marq.x0,marq.x1),y=Math.min(marq.y0,marq.y1);
+    const w=Math.abs(marq.x1-marq.x0),h=Math.abs(marq.y1-marq.y0);
+    const r=Math.min(26,w/2,h/2);
+    ctx.fillStyle='rgba(95,201,232,.05)';rrect(x,y,w,h,r);ctx.fill();
+    ctx.strokeStyle='rgba(95,201,232,.45)';ctx.lineWidth=1;ctx.setLineDash([4,6]);
+    rrect(x,y,w,h,r);ctx.stroke();ctx.setLineDash([]);
+  }
+  document.getElementById('zl').textContent=Math.round(cam.z*100)+'%';
+  requestAnimationFrame(draw);
+}
+
+function edgePts(e){
+  const a=byId(e.a),b=byId(e.b); if(!a||!b)return null;
+  const A=w2s(a.x,a.y),B=w2s(b.x,b.y);
+  const mx=(A.x+B.x)/2,my=(A.y+B.y)/2;
+  const dx=B.x-A.x,dy=B.y-A.y,len=Math.hypot(dx,dy)||1;
+  const cx=mx-dy/len*len*.13, cy=my+dx/len*len*.13;   /* 轻微弧线 */
+  return {A,B,cx,cy,a,b};
+}
+function drawEdge(e){
+  const p=edgePts(e); if(!p)return;
+  const r=RELS[e.k]||RELS.bind;
+  let dim=(p.a.cut||p.b.cut)?.28:1;
+  if(SPOT&&e.k!==SPOT)dim*=.14;                       /* 关系聚光灯 */
+  const picked=selE.has(e.id);
+  const on=picked||sel.has(e.a)||sel.has(e.b)||hov===p.a||hov===p.b;
+  ctx.strokeStyle=`rgba(${picked?lighten(r.c):r.c},${(picked?1:on?.85:.42)*dim})`;
+  /* 远看时按度数加粗：枢纽自动浮出来 */
+  const boost=cam.z<.6?(1+.4*Math.min(3,((DEG[e.a]||1)+(DEG[e.b]||1))-2)):1;
+  ctx.lineWidth=(picked?3:on?2:1.25)*boost;
+  ctx.setLineDash(r.dash&&r.dash.length?r.dash.map(v=>v*Math.max(.6,cam.z)):[]);
+  ctx.beginPath();ctx.moveTo(p.A.x,p.A.y);ctx.quadraticCurveTo(p.cx,p.cy,p.B.x,p.B.y);ctx.stroke();
+  ctx.setLineDash([]);
+  /* 流动的光点 —— 方向感 */
+  if(r.arrow&&!p.a.cut&&!p.b.cut){
+    const u=((T/1400)+(e.id*.17))%1;
+    const q=qpt(p.A,{x:p.cx,y:p.cy},p.B,u);
+    ctx.fillStyle=`rgba(${r.c},.95)`;
+    ctx.beginPath();ctx.arc(q.x,q.y,2.4*Math.max(.7,Math.min(1.4,cam.z)),0,6.2832);ctx.fill();
+  }
+  if(picked&&!e.label){        /* 选中但没标签：把关系名显出来，好知道选的是哪一条 */
+    const q=qpt(p.A,{x:p.cx,y:p.cy},p.B,.5);
+    ctx.font='11px -apple-system,sans-serif';ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle=`rgba(${lighten(r.c)},.95)`;
+    ctx.shadowColor='rgba(3,5,12,.95)';ctx.shadowBlur=6;
+    ctx.fillText(r.t,q.x,q.y);ctx.shadowBlur=0;
+  }
+  if(e.label&&cam.z>.5){
+    const q=qpt(p.A,{x:p.cx,y:p.cy},p.B,.5);
+    ctx.font=`${10.5*Math.min(1.3,Math.max(.8,cam.z))}px -apple-system,sans-serif`;
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.fillStyle=`rgba(${lighten(r.c)},${.92*dim})`;
+    ctx.shadowColor='rgba(3,5,12,.95)';ctx.shadowBlur=6;
+    ctx.fillText(e.label,q.x,q.y);ctx.shadowBlur=0;
+  }
+}
+function qpt(A,C,B,u){const m=1-u;return{
+  x:m*m*A.x+2*m*u*C.x+u*u*B.x, y:m*m*A.y+2*m*u*C.y+u*u*B.y}}
+
+
+/* ══════════ ＋ 长出一颗子星 ══════════ */
+/* 选中（或悬停）一颗星时，右边浮出一个 ＋。点它 = 长出一根线 + 一颗小星，直接打字 */
+function plusOf(n){
+  if(!n||editing||inkMode||mode==='link'||mode==='marq')return null;
+  if(cam.z<.34)return null;
+  const b=nodeBox(n), zf=1+.09*(n.z||0), S=w2s(b.x,b.y);
+  const sw=b.w*cam.z*zf;
+  return {x:S.x+sw/2+20, y:S.y, r:13, node:n};
+}
+function plusTarget(){
+  if(sel.size===1)return byId([...sel][0]);
+  return hov||null;
+}
+function hitPlus(sx,sy){
+  const p=plusOf(plusTarget());
+  if(!p)return null;
+  return Math.hypot(sx-p.x,sy-p.y)<=p.r+5 ? p.node : null;
+}
+/* 子星按扇形往外排，不会叠在一起 */
+function growChild(n){
+  const kids=E().filter(e=>e.a===n.id).length;
+  const b=nodeBox(n);
+  const R=Math.max(300,b.w*.75+250);
+  const a=(-46+kids*30)*Math.PI/180;                 /* 从右上往右下扇开 */
+  const kind=(n.k==='unknown'||n.k==='concl')?'cond':(n.k==='cond'?'data':'idea');
+  const c=addNode('',kind,n.x+Math.cos(a)*R,n.y+Math.sin(a)*R,{w:3});
+  makeEdge(n.id,c.id,'part');
+  sel.clear();sel.add(c.id);
+  ghostDirty=true;save();diag();
+  startEdit(c);
+  return c;
+}
+function drawPlus(){
+  const n=plusTarget(), p=plusOf(n);
+  if(!p)return;
+  const K=KINDS[n.k]||KINDS.idea, C=nodeCol(n);
+  const hot=plusHot;
+  const pr=.5+.5*Math.sin(T*.003);
+  ctx.save();
+  const g=ctx.createRadialGradient(p.x,p.y,0,p.x,p.y,p.r*2.6);
+  g.addColorStop(0,`rgba(${C},${hot?.38:.20+.06*pr})`);g.addColorStop(1,`rgba(${C},0)`);
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(p.x,p.y,p.r*2.6,0,6.2832);ctx.fill();
+  ctx.fillStyle='rgba(6,10,20,.9)';
+  ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.fill();
+  ctx.strokeStyle=`rgba(${C},${hot?.95:.62})`;ctx.lineWidth=hot?1.8:1.3;
+  ctx.beginPath();ctx.arc(p.x,p.y,p.r,0,6.2832);ctx.stroke();
+  ctx.strokeStyle=`rgba(${lighten(C)},.98)`;ctx.lineWidth=1.7;ctx.lineCap='round';
+  ctx.beginPath();
+  ctx.moveTo(p.x-5.5,p.y);ctx.lineTo(p.x+5.5,p.y);
+  ctx.moveTo(p.x,p.y-5.5);ctx.lineTo(p.x,p.y+5.5);
+  ctx.stroke();
+  if(hot){
+    ctx.font='11px -apple-system,sans-serif';ctx.textAlign='left';ctx.textBaseline='middle';
+    ctx.fillStyle='rgba(200,212,236,.9)';
+    ctx.shadowColor='rgba(3,5,12,.95)';ctx.shadowBlur=6;
+    ctx.fillText('长出一颗子星　⇧N',p.x+p.r+8,p.y);ctx.shadowBlur=0;
+  }
+  ctx.restore();
+}
+let plusHot=false;
+
+const PALETTE=[null,[95,201,232],[126,232,162],[232,184,74],[199,142,240],
+  [240,142,142],[255,246,226],[140,160,210],[122,232,214],[240,170,110]];
+function nodeCol(n){return (n&&n.col)||((KINDS[n.k]||KINDS.idea).c)}
+function drawNode(n){
+  const b=nodeBox(n);
+  const zf=1+.09*(n.z||0);                              /* 深度：越靠前越大 */
+  const S=w2s(b.x,b.y);
+  const sw=b.w*cam.z*zf, sh=b.h*cam.z*zf;
+  if(S.x+sw<-80||S.x-sw>Wd+80||S.y+sh<-80||S.y-sh>Hd+80)return;
+  const K=KINDS[n.k]||KINDS.idea, C=nodeCol(n);
+  const isSel=sel.has(n.id), isHov=hov===n;
+  const pulse=.5+.5*Math.sin(T*.0016+n.id*1.7);
+  let alpha=n.cut?.26:(n.w<=1?.66:1);
+  if((n.z||0)<0)alpha*=1+(n.z*.22);                     /* 压到后面：变小变暗，但还在 */
+  if(FSET&&!FSET.has(n.id))alpha*=.16;                  /* 焦平面：其余全部退远 */
+  if(SSET&&!SSET.has(n.id))alpha*=.18;
+  if(DEAD.has(n.id))alpha*=.34;                         /* 已经和目标断开的一簇 */
+  if(n.cand)alpha*=.55;                                 /* 还没定类型的候选星 */
+  alpha=Math.max(.05,alpha);
+
+  /* 有笔记：右上角一个小点 */
+  if(n.note&&n.note.trim()&&cam.z>.34){
+    const bx=S.x+sw/2-3, by=S.y-sh/2+3;
+    ctx.save();ctx.globalAlpha=alpha*.9;
+    ctx.fillStyle=`rgba(${lighten(C)},.95)`;
+    ctx.shadowColor=`rgba(${C},.9)`;ctx.shadowBlur=8;
+    ctx.beginPath();ctx.arc(bx,by,3.1,0,6.2832);ctx.fill();
+    ctx.restore();
+  }
+
+  /* 光晕 —— 所有反馈都走发光，不用一条直角线 */
+  const gr=Math.max(sw,sh)*(n.k==='unknown'?1.15:.92);
+  const g=ctx.createRadialGradient(S.x,S.y,0,S.x,S.y,gr);
+  const ga=(n.k==='unknown'?.20:.13)*alpha*(isSel?2.3:isHov?1.7:1)
+           *(n.k==='unknown'?(.75+.25*pulse):1);
+  g.addColorStop(0,`rgba(${C},${ga})`);
+  g.addColorStop(.55,`rgba(${C},${ga*.35})`);
+  g.addColorStop(1,`rgba(${C},0)`);
+  ctx.fillStyle=g;ctx.beginPath();ctx.arc(S.x,S.y,gr,0,6.2832);ctx.fill();
+
+  /* 未知量：脉冲环 */
+  if((n.k==='unknown'||n.k==='concl')&&!n.cut){
+    const rings=Math.max(1,Math.min(4,n.dof||1));       /* 环数 = 自由度，欠定超定看得见 */
+    for(let i=0;i<rings;i++){
+      const u=((T/2600)+i/rings)%1;
+      ctx.strokeStyle=`rgba(${C},${(1-u)*.32*alpha})`;ctx.lineWidth=1.2;
+      ctx.beginPath();ctx.arc(S.x,S.y,(Math.max(sw,sh)*.5)+u*70*cam.z,0,6.2832);ctx.stroke();
+    }
+  }
+  /* 轨迹：一圈虚线椭圆，表示"它能跑到哪儿" */
+  if(n.k==='locus'&&!n.cut){
+    ctx.strokeStyle=`rgba(${C},${.5*alpha})`;ctx.lineWidth=1.4;ctx.setLineDash([4,5]);
+    ctx.beginPath();ctx.ellipse(S.x,S.y,sw*.78,sh*.9,0,0,6.2832);ctx.stroke();ctx.setLineDash([]);
+  }
+  /* 选中 / 悬停：底部一道弧，不是方框 */
+  if(isSel||isHov){
+    const R=Math.max(sw,sh)*.56;
+    ctx.strokeStyle=`rgba(${C},${isSel?.85:.42})`;ctx.lineWidth=isSel?1.8:1.2;
+    ctx.beginPath();ctx.arc(S.x,S.y,R,Math.PI*.18,Math.PI*.82);ctx.stroke();
+    if(isSel){ctx.beginPath();ctx.arc(S.x,S.y,R,Math.PI*1.18,Math.PI*1.82);ctx.stroke()}
+  }
+  /* 悬停：边缘一圈提示"从这里可以拉线出去" */
+  if(isHov&&!editing){
+    /* 照着文字框描一圈：这一圈就是拉线区，和 onRim 判的完全同一块 */
+    ctx.strokeStyle=`rgba(${C},${.18+.12*Math.sin(T*.005)})`;ctx.lineWidth=RIM;
+    rrect(S.x-sw/2-RIM/2, S.y-sh/2-RIM/2, sw+RIM, sh+RIM, Math.min(14,(sh+RIM)/2));
+    ctx.stroke();
+  }
+  /* 有卫星：画一圈极淡的轨道 */
+  if(HOSTS.has(n.id)){
+    ctx.strokeStyle=`rgba(${C},${.13*alpha})`;ctx.lineWidth=1;ctx.setLineDash([2,7]);
+    ctx.beginPath();ctx.arc(S.x,S.y,ORB*cam.z,0,6.2832);ctx.stroke();ctx.setLineDash([]);
+  }
+
+  /* 条件：底下一个小方块 —— 写了式子就填实 */
+  if(n.k==='cond'&&!n.cut&&cam.z>.5){
+    const q=3.2*cam.z, qy=S.y+sh*.5+q*2.4;
+    ctx.strokeStyle=`rgba(${C},${.55*alpha})`;ctx.lineWidth=1;
+    ctx.beginPath();ctx.arc(S.x,qy,q,0,6.2832);ctx.stroke();
+    if(n.eq&&n.eq.trim()){ctx.fillStyle=`rgba(${lighten(C)},${.85*alpha})`;
+      ctx.beginPath();ctx.arc(S.x,qy,q*.62,0,6.2832);ctx.fill()}
+  }
+  /* 文字 */
+  const zt=cam.z>1.8?1.8+(cam.z-1.8)*.25:cam.z;      /* 拉近时字号不再线性放大 */
+  const fs=b.fs*zt*zf, lh=b.lh*zt*zf;
+  ctx.font=`${fs}px -apple-system,"PingFang SC",sans-serif`;
+  ctx.textAlign='center';ctx.textBaseline='middle';
+  const extra=(n.ms&&n.ms.length?1:0)+(n.dof?1:0)+(n.eq?1:0);
+  let y=S.y-((b.lines.length-1)*lh)/2 - extra*fs*.55;
+  ctx.shadowColor=`rgba(${C},${(isSel||isHov?.85:.45)*alpha})`;
+  ctx.shadowBlur=(isSel||isHov?22:12)*Math.min(1.4,cam.z);
+  ctx.fillStyle=n.cut?`rgba(${C},${.42*alpha})`:`rgba(${lighten(C)},${alpha})`;
+  b.lines.forEach(l=>{ctx.fillText(l,S.x,y);y+=lh});
+  ctx.shadowBlur=0;
+  if(n.cut){
+    ctx.strokeStyle=`rgba(240,142,142,${.55*alpha})`;ctx.lineWidth=1;
+    ctx.beginPath();ctx.moveTo(S.x-sw*.42,S.y);ctx.lineTo(S.x+sw*.42,S.y);ctx.stroke();
+  }
+  if(n.eq&&cam.z>.45){
+    ctx.font=`${11*cam.z*zf}px ui-monospace,monospace`;
+    ctx.fillStyle=`rgba(${lighten(C)},${.9*alpha})`;
+    ctx.fillText(n.eq, S.x, y+lh*.25); y+=lh*.8;
+  }
+  if(n.dof&&cam.z>.45){
+    ctx.font=`${10*cam.z*zf}px ui-monospace,monospace`;
+    ctx.fillStyle=`rgba(${lighten(C)},${.72*alpha})`;
+    ctx.fillText('⚖ 自由度 '+n.dof, S.x, y+lh*.2); y+=lh*.75;
+  }
+  if(n.ms&&n.ms.length&&cam.z>.45){
+    ctx.font=`${10*cam.z*zf}px -apple-system,sans-serif`;
+    ctx.fillStyle=`rgba(199,142,240,${.9*alpha})`;
+    ctx.fillText('◈ '+n.ms.map(x=>(MI(x)||{}).zh).filter(Boolean).join(' · '), S.x, y+lh*.2);
+    y+=lh*.7;
+  }
+  /* 语义放大：拉近到 180% 以上，星体自己吐出内部信息 */
+  if(cam.z>1.8){
+    const deep=[];
+    if(n.utype)deep.push('类型：'+n.utype);
+    if(n.reason)deep.push('引入的理由：'+n.reason);
+    (n.ms||[]).forEach(id=>{const m=MI(id);if(m)deep.push('◈ '+m.zh+'：'+m.core)});
+    ctx.font=`${11*cam.z*.8}px -apple-system,sans-serif`;
+    ctx.fillStyle=`rgba(147,160,189,${Math.min(1,(cam.z-1.8)*2)*alpha})`;
+    deep.forEach(d=>{
+      wrapText(d,11*cam.z*.8,MAXW[n.w]*cam.z*1.4).forEach(l=>{
+        ctx.fillText(l,S.x,y+lh*.5); y+=lh*.62;
+      });
+    });
+  }
+  /* 没连上任何东西的已知数据：一圈呼吸的虚线圆（你用到所有的已知数据了吗？） */
+  if((n.k==='data'||n.k==='given')&&!n.cut&&!n.spare&&STUCK&&!LINKED.has(n.id)){
+    const a=(.3+.3*Math.sin(T*.004))*alpha;
+    ctx.strokeStyle=`rgba(240,142,142,${a})`;ctx.lineWidth=1.2;ctx.setLineDash([3,6]);
+    ctx.beginPath();ctx.arc(S.x,S.y,Math.max(sw,sh)*.62,0,6.2832);ctx.stroke();ctx.setLineDash([]);
+  }
+}
+
+/* 共享符号但没连线 —— "你用到所有的已知数据了吗"的图形版 */
+let GHOST=[],ghostDirty=true,ghostAt=0,deadAt=0;
+function findGhosts(){
+  const ns=N().filter(n=>!n.cut&&n.t), out=[];
+  const key=n=>{
+    if(n._kt===n.t&&n._k)return n._k;
+    const m=[];
+    (n.t.match(/[a-zA-Zα-ωΑ-Ω]/g)||[]).forEach(x=>m.push(x));   /* 只认符号，不认通用词 */
+    n._kt=n.t;n._k=m;return m;
+  };
+  const has=new Set();E().forEach(e=>{has.add(e.a+'_'+e.b);has.add(e.b+'_'+e.a)});
+  /* 出现在四颗星以上的字母太常见，当噪音丢掉 */
+  const freq={};ns.forEach(n=>{new Set(key(n)).forEach(x=>freq[x]=(freq[x]||0)+1)});
+  for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){
+    const a=ns[i],b=ns[j];
+    if(has.has(a.id+'_'+b.id))continue;
+    const ka=key(a),kb=key(b);
+    const sh=ka.find(x=>kb.includes(x)&&freq[x]<=3);
+    if(sh)out.push({a,b,k:sh});
+    if(out.length>=3)return out;
+  }
+  return out;
+}
+/* 和目标断开的死枝 */
+function deadSet(){
+  const goal=N().find(n=>n.k==='unknown'||n.k==='concl'); if(!goal)return new Set();
+  const adj={};E().forEach(e=>{(adj[e.a]=adj[e.a]||[]).push(e.b);(adj[e.b]=adj[e.b]||[]).push(e.a)});
+  const seen=new Set([goal.id]),q=[goal.id];
+  while(q.length){const x=q.pop();(adj[x]||[]).forEach(y=>{if(!seen.has(y)){seen.add(y);q.push(y)}})}
+  const dead=new Set();
+  N().forEach(n=>{if(!seen.has(n.id)&&E().some(e=>e.a===n.id||e.b===n.id))dead.add(n.id)});
+  return dead;
+}
+
+/* ---- 拉远：小星并成星团，重要的保留名字 ---- */
+function drawFarClusters(order){
+  const cells=new Map(), keep=[];
+  order.forEach(n=>{
+    const S=w2s(n.x,n.y);
+    if(S.x<-60||S.x>Wd+60||S.y<-60||S.y>Hd+60)return;
+    if(n.w>=4){keep.push({n,S});return}
+    const k=Math.round(S.x/34)+'_'+Math.round(S.y/34);
+    if(!cells.has(k))cells.set(k,{x:0,y:0,c:0,top:n});
+    const g=cells.get(k);g.x+=S.x;g.y+=S.y;g.c++;
+    if(n.w>(g.top.w||0))g.top=n;
+  });
+  cells.forEach(g=>{
+    const C=(KINDS[g.top.k]||KINDS.idea).c, x=g.x/g.c, y=g.y/g.c;
+    const r=3+Math.min(9,g.c*2.2);
+    const gd=ctx.createRadialGradient(x,y,0,x,y,r*3);
+    gd.addColorStop(0,`rgba(${C},.5)`);gd.addColorStop(1,`rgba(${C},0)`);
+    ctx.fillStyle=gd;ctx.beginPath();ctx.arc(x,y,r*3,0,6.2832);ctx.fill();
+    ctx.fillStyle=`rgba(${lighten(C)},.9)`;
+    ctx.beginPath();ctx.arc(x,y,r*.55,0,6.2832);ctx.fill();
+    if(g.c>1){
+      ctx.font='10px ui-monospace,monospace';ctx.textAlign='center';ctx.textBaseline='middle';
+      ctx.fillStyle=`rgba(${C},.85)`;ctx.fillText('×'+g.c,x,y+r*1.9);
+    }
+  });
+  keep.forEach(({n,S})=>{
+    const C=nodeCol(n);
+    const gd=ctx.createRadialGradient(S.x,S.y,0,S.x,S.y,34);
+    gd.addColorStop(0,`rgba(${C},.42)`);gd.addColorStop(1,`rgba(${C},0)`);
+    ctx.fillStyle=gd;ctx.beginPath();ctx.arc(S.x,S.y,34,0,6.2832);ctx.fill();
+    ctx.font='11px -apple-system,"PingFang SC",sans-serif';
+    ctx.textAlign='center';ctx.textBaseline='middle';
+    ctx.shadowColor=`rgba(${C},.8)`;ctx.shadowBlur=14;
+    ctx.fillStyle=`rgba(${lighten(C)},.96)`;
+    ctx.fillText(n.t.length>12?n.t.slice(0,12)+'…':n.t,S.x,S.y);
+    ctx.shadowBlur=0;
+  });
+}
+
+/* ---- 卫星群的星云：一团雾说明"这几颗是一伙的" ---- */
+function drawHostNebula(){
+  HOSTS.forEach(hid=>{
+    const h=byId(hid); if(!h)return;
+    const S=w2s(h.x,h.y), C=(KINDS[h.k]||KINDS.idea).c;
+    const r=(ORB+90)*cam.z;
+    const g=ctx.createRadialGradient(S.x,S.y,0,S.x,S.y,r);
+    g.addColorStop(0,`rgba(${C},.055)`);g.addColorStop(1,`rgba(${C},0)`);
+    ctx.fillStyle=g;ctx.beginPath();ctx.arc(S.x,S.y,r,0,6.2832);ctx.fill();
+  });
+}
+
+/* ---- 墨迹：随手圈画，不参与任何逻辑 ---- */
+function drawInk(){
+  (P().ink||[]).forEach(st=>{
+    if(st.length<2)return;
+    ctx.strokeStyle='rgba(232,237,249,.34)';
+    ctx.lineWidth=1.6*cam.z;ctx.lineCap='round';ctx.lineJoin='round';
+    ctx.beginPath();
+    st.forEach((pt,i)=>{const S=w2s(pt[0],pt[1]);i?ctx.lineTo(S.x,S.y):ctx.moveTo(S.x,S.y)});
+    ctx.stroke();
+  });
+  if(inking&&inking.length>1){
+    ctx.strokeStyle='rgba(95,201,232,.75)';ctx.lineWidth=1.8*cam.z;
+    ctx.beginPath();
+    inking.forEach((pt,i)=>{const S=w2s(pt[0],pt[1]);i?ctx.lineTo(S.x,S.y):ctx.moveTo(S.x,S.y)});
+    ctx.stroke();
+  }
+}
+function rrect(x,y,w,h,r){ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.arcTo(x+w,y,x+w,y+h,r);ctx.arcTo(x+w,y+h,x,y+h,r);
+  ctx.arcTo(x,y+h,x,y,r);ctx.arcTo(x,y,x+w,y,r);ctx.closePath()}
+function lighten(c){return c.map(v=>Math.min(255,Math.round(v*.45+150))).join(',')}
+</script>
+<script>
+/* ══════════ 交互 ══════════ */
+let MS={x:0,y:0}, mode='idle', dragOff=null, marq=null, spaceDown=false, panFrom=null;
+let selE=new Set();
+let FOCUS=false, SPOT=null, DEG={}, RELAX=false, returning=0, inking=null, inkMode=false,
+    DEAD=new Set(), HOSTS=new Set(), LINKED=new Set(), FSET=null, SSET=null;
+const RIM=14;      /* 星体边缘这一圈是"拉线区" */
+const ORB=132;     /* 卫星轨道半径 */
+
+/* 点到线上：把曲线采样成折线，量最近距离（屏幕坐标，阈值 10px） */
+function hitEdge(sx,sy){
+  let best=null,bd=10;
+  for(const e of E()){
+    const p=edgePts(e); if(!p)continue;
+    for(let i=0;i<=14;i++){
+      const q=qpt(p.A,{x:p.cx,y:p.cy},p.B,i/14);
+      const d=Math.hypot(q.x-sx,q.y-sy);
+      if(d<bd){bd=d;best=e}
+    }
+  }
+  return best;
+}
+function zOrder(){return N().slice().sort((a,b)=>(a.z||0)-(b.z||0))}
+function inFocus(n){
+  if(sel.has(n.id))return true;
+  return E().some(e=>(e.a===n.id&&sel.has(e.b))||(e.b===n.id&&sel.has(e.a)));
+}
+function touchesSpot(n){return E().some(e=>e.k===SPOT&&(e.a===n.id||e.b===n.id))}
+function pushZ(d){selNodes().forEach(n=>n.z=Math.max(-3,Math.min(3,(n.z||0)+d)));save();
+  toast(d>0?'拉到前面来了':'压到后面去了','越靠后越小越暗 —— 但它还在，随时能捞回来')}
+function toggleFocus(){FOCUS=!FOCUS;
+  toast(FOCUS?'焦平面：只剩选中的和直接连着它的':'全深度','按 \\ 切回来')}
+function cycleSpot(){
+  const ks=[null].concat(Object.keys(RELS));
+  const i=ks.indexOf(SPOT);
+  SPOT=ks[(i+1)%ks.length];
+  toast(SPOT?('只看【'+RELS[SPOT].t+'】这一类关系'):'恢复全部关系',
+        SPOT?'哪个条件直接碰到未知量？换一个当主角试试':'');
+}
+function setSpot(k){SPOT=(SPOT===k)?null:k;
+  toast(SPOT?('只看【'+RELS[SPOT].t+'】这一类关系'):'恢复全部关系',
+        SPOT?'哪个条件直接碰到未知量？换一个当主角试试':'')}
+
+/* ---- 力导向"呼吸"：按住 G 让图自己长开，松手回到你手摆的位置 ---- */
+function relaxStep(){
+  const ns=N().filter(n=>!n.cut);
+  const fx={},fy={};
+  ns.forEach(a=>{fx[a.id]=0;fy[a.id]=0});
+  for(let i=0;i<ns.length;i++)for(let j=i+1;j<ns.length;j++){
+    const a=ns[i],b=ns[j];
+    let dx=b.x-a.x,dy=b.y-a.y,d2=dx*dx+dy*dy||1,d=Math.sqrt(d2);
+    const rep=Math.min(2.2,46000/d2);
+    fx[a.id]-=dx/d*rep;fy[a.id]-=dy/d*rep;
+    fx[b.id]+=dx/d*rep;fy[b.id]+=dy/d*rep;
+  }
+  E().forEach(e=>{
+    const a=byId(e.a),b=byId(e.b); if(!a||!b||a.cut||b.cut)return;
+    const dx=b.x-a.x,dy=b.y-a.y,d=Math.hypot(dx,dy)||1;
+    const f=(d-240)*.006;
+    fx[a.id]+=dx/d*f;fy[a.id]+=dy/d*f;
+    fx[b.id]-=dx/d*f;fy[b.id]-=dy/d*f;
+  });
+  const LIM=6000;
+  ns.forEach(n=>{
+    if(mode==='drag'&&sel.has(n.id))return;
+    n.x+=Math.max(-9,Math.min(9,fx[n.id]||0));
+    n.y+=Math.max(-9,Math.min(9,fy[n.id]||0));
+    n.x=Math.max(-LIM,Math.min(LIM,n.x));      /* 硬边界，永远不许跑飞 */
+    n.y=Math.max(-LIM,Math.min(LIM,n.y));
+  });
+}
+function goHome(){
+  let moved=false;
+  N().forEach(n=>{
+    if(n.hx==null)return;
+    const dx=n.hx-n.x, dy=n.hy-n.y;
+    if(Math.abs(dx)>.4||Math.abs(dy)>.4){n.x+=dx*.18;n.y+=dy*.18;moved=true}
+    else{n.x=n.hx;n.y=n.hy}
+  });
+  if(!moved)returning=0;
+}
+/* ---- 卫星：把选中的收成第一颗的一圈轨道 ---- */
+function orbit(){
+  const ns=selNodes(); if(ns.length<2)return toast('选中两个以上：第一个当中心，其余变成它的卫星');
+  snap();
+  const h=ns[0], sats=ns.slice(1);
+  const already=sats.every(n=>n.host===h.id);
+  if(already){sats.forEach(n=>{n.host=null});save();return toast('散开了')}
+  sats.forEach((n,i)=>{
+    const a=-Math.PI/2+i*2*Math.PI/sats.length;
+    n.host=h.id; n.x=n.hx=h.x+Math.cos(a)*ORB; n.y=n.hy=h.y+Math.sin(a)*ORB;
+    n.z=Math.max(-3,(h.z||0)-1);
+  });
+  save();toast('收成卫星了','拖动中心，整簇跟着走；再按一次 O 散开');
+}
+
+cv.addEventListener('pointermove',e=>{
+  MS={x:e.clientX,y:e.clientY};
+  const w=s2w(e.clientX,e.clientY);
+  if(mode==='pan'&&panFrom){
+    camT.x=panFrom.cx-(e.clientX-panFrom.sx)/cam.z;
+    camT.y=panFrom.cy-(e.clientY-panFrom.sy)/cam.z;
+    cam.x=camT.x;cam.y=camT.y;return;
+  }
+  if(mode==='ink'&&inking){inking.push([w.x,w.y]);return}
+  if(mode==='drag'&&dragOff){
+    dragOff.list.forEach(d=>{
+      const n=byId(d.id);if(!n)return;
+      const nx=w.x+d.dx, ny=w.y+d.dy, ddx=nx-n.x, ddy=ny-n.y;
+      n.x=nx;n.y=ny;n.hx=nx;n.hy=ny;                       /* 手摆的位置 = 家 */
+      N().forEach(m=>{if(m.host===n.id&&!sel.has(m.id)){   /* 卫星跟着中心走 */
+        m.x+=ddx;m.y+=ddy;m.hx=m.x;m.hy=m.y}});
+    });
+    save();return;
+  }
+  if(mode==='marq'&&marq){marq.x1=e.clientX;marq.y1=e.clientY;return}
+  if(mode==='link'){const t=hit(w.x,w.y);linkTo=(t&&t.id!==linkFrom.id)?t:null;hov=linkTo;
+    cv.style.cursor='crosshair';return}
+  plusHot=!!hitPlus(e.clientX,e.clientY);
+  hov=plusHot?hov:hit(w.x,w.y);
+  cv.style.cursor= inkMode?'crosshair' : (hov? (onRim(hov,w)?'crosshair':'grab')
+                 : (spaceDown?'grabbing':'default'));
+});
+
+let MS0={x:0,y:0};
+cv.addEventListener('pointerdown',e=>{
+  MS0={x:e.clientX,y:e.clientY};
+  if(e.button===2)return;
+  if(e.button===1||spaceDown||e.altKey){
+    hideRing();
+    mode='pan';panFrom={sx:e.clientX,sy:e.clientY,cx:cam.x,cy:cam.y};
+    cv.setPointerCapture(e.pointerId);return;
+  }
+  const pn=hitPlus(e.clientX,e.clientY);          /* ＋ 优先 */
+  if(pn){hideRing();growChild(pn);return}
+  const w=s2w(e.clientX,e.clientY), n=hit(w.x,w.y);
+  hideRing();
+  if(!N().length&&Math.hypot(e.clientX-Wd/2,e.clientY-Hd/2)<150&&!inkMode){
+    const m=addNode('',P().mode2==='prove'?'concl':'unknown',w.x,w.y,{w:5,dof:1});
+    sel.clear();sel.add(m.id);startEdit(m);
+    setTimeout(()=>teach('目标立住了。接下来：双击空白 = 再来一颗；从星体边缘拖出去 = 拉一条线',
+      '拉出去松在空白处，会直接长出一颗连好的新星'),900);
+    return;
+  }
+  if(inkMode){mode='ink';inking=[[w.x,w.y]];cv.setPointerCapture(e.pointerId);return}
+  if(mode==='link'){                     /* 已经在连线：点谁就连谁 */
+    if(n&&n.id!==linkFrom.id)makeEdge(linkFrom.id,n.id,pendingRel||'bind');
+    linkFrom=null;linkTo=null;pendingRel=null;mode='idle';return;
+  }
+  if(n&&onRim(n,w)&&!e.shiftKey){        /* 从星体边缘直接拖出一条线 —— 一个手势 */
+    linkFrom=n;linkTo=null;pendingRel=pendingRel||'bind';mode='link';
+    cv.setPointerCapture(e.pointerId);return;
+  }
+  if(n){
+    if(e.shiftKey){sel.has(n.id)?sel.delete(n.id):sel.add(n.id)}
+    else if(!sel.has(n.id)){sel.clear();sel.add(n.id)}
+    mode='drag';
+    dragOff={list:[...sel].map(id=>{const m=byId(id);return{id,dx:m.x-w.x,dy:m.y-w.y}})};
+    cv.setPointerCapture(e.pointerId);
+  }else{
+    const ed=hitEdge(e.clientX,e.clientY);
+    if(ed){                                   /* 点到了一条线 */
+      if(!e.shiftKey){sel.clear();selE.clear()}
+      selE.has(ed.id)?selE.delete(ed.id):selE.add(ed.id);
+      diag();return;
+    }
+    if(!e.shiftKey){sel.clear();selE.clear()}
+    mode='marq';marq={x0:e.clientX,y0:e.clientY,x1:e.clientX,y1:e.clientY};
+    cv.setPointerCapture(e.pointerId);
+  }
+  diag();
+});
+
+cv.addEventListener('pointerup',e=>{
+  if(mode==='ink'){
+    if(inking&&inking.length>2){P().ink=P().ink||[];P().ink.push(inking);save()}
+    inking=null;mode='idle';return;
+  }
+  if(mode==='link'&&linkFrom){
+    const w=s2w(e.clientX,e.clientY), t=hit(w.x,w.y);
+    if(t&&t.id!==linkFrom.id){makeEdge(linkFrom.id,t.id,pendingRel||'bind');linkFrom=null;pendingRel=null;mode='idle';return}
+    if(!t&&Math.hypot(e.clientX-MS0.x,e.clientY-MS0.y)>26){   /* 松在空白 = 顺着关系往外长一颗 */
+      const m=addNode('',curKind==='unknown'?'idea':curKind,w.x,w.y);
+      makeEdge(linkFrom.id,m.id,pendingRel||'bind');
+      linkFrom=null;pendingRel=null;mode='idle';sel.clear();sel.add(m.id);startEdit(m);return;
+    }
+    toast('还在连线中 —— 点一个目标完成，Esc 取消','从边缘拖到另一颗星上松手最快');
+    return;
+  }
+  if(mode==='marq'&&marq){
+    const a=s2w(Math.min(marq.x0,marq.x1),Math.min(marq.y0,marq.y1));
+    const b=s2w(Math.max(marq.x0,marq.x1),Math.max(marq.y0,marq.y1));
+    if(Math.abs(marq.x1-marq.x0)>4||Math.abs(marq.y1-marq.y0)>4)
+      N().forEach(n=>{const r=nodeBox(n);
+        if(r.x+r.w/2>a.x&&r.x-r.w/2<b.x&&r.y+r.h/2>a.y&&r.y-r.h/2<b.y)sel.add(n.id)});
+    marq=null;
+  }
+  if(mode==='drag')save();
+  if(mode!=='link')mode='idle';
+  diag();
+});
+
+cv.addEventListener('dblclick',e=>{
+  const w=s2w(e.clientX,e.clientY), n=hit(w.x,w.y);
+  if(n)startEdit(n);
+  else{
+    const k=N().length===0?(P().mode2==='prove'?'concl':'unknown'):curKind;
+    const m=addNode('',k,w.x,w.y);sel.clear();sel.add(m.id);startEdit(m);
+  }
+});
+cv.addEventListener('contextmenu',e=>{
+  e.preventDefault();
+  const w=s2w(e.clientX,e.clientY), n=hit(w.x,w.y);
+  if(n){if(!sel.has(n.id)){sel.clear();sel.add(n.id)}}else sel.clear();
+  showRing(e.clientX,e.clientY);
+});
+cv.addEventListener('wheel',e=>{
+  e.preventDefault();
+  const unit=e.deltaMode===1?16:(e.deltaMode===2?innerHeight:1);
+  if(e.ctrlKey||e.metaKey){                 /* 触控板捏合 / ⌘+滚轮 = 缩放 */
+    zoomAt(e.clientX,e.clientY,Math.exp(-e.deltaY*unit*0.0022));
+  }else{                                    /* 其余一律平移 —— 在宇宙里漂 */
+    const dx=(e.shiftKey?e.deltaY:e.deltaX)*unit, dy=(e.shiftKey?0:e.deltaY)*unit;
+    cam.x+=dx/cam.z; cam.y+=dy/cam.z; camT.x=cam.x; camT.y=cam.y;
+  }
+},{passive:false});
+
+/* ---------- 就地编辑 ---------- */
+const ED=document.getElementById('edit');
+let editing=null;
+function startEdit(n){
+  editing=n;
+  const b=nodeBox(n),S=w2s(n.x,n.y);
+  ED.value=n.t;
+  ED.style.width=Math.max(160,b.w*cam.z)+'px';
+  ED.style.height=Math.max(44,b.h*cam.z)+'px';
+  ED.style.left=(S.x-Math.max(160,b.w*cam.z)/2)+'px';
+  ED.style.top=(S.y-Math.max(44,b.h*cam.z)/2)+'px';
+  ED.style.fontSize=Math.max(12,Math.min(22,FS[n.w]*cam.z))+'px';
+  ED.classList.add('on');ED.focus();ED.select();
+}
+function endEdit(keep){
+  if(!editing)return;
+  if(keep===false&&!editing.t){removeNode(editing.id)}
+  if(keep!==false){
+    const v=ED.value.trim();
+    if(v)editing.t=v;
+    else if(!editing.t){removeNode(editing.id)}
+  }
+  editing=null;ED.classList.remove('on');ghostDirty=true;save();diag();cv.focus();
+}
+ED.addEventListener('keydown',e=>{
+  e.stopPropagation();
+  if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();endEdit(true)}
+  if(e.key==='Escape'){e.preventDefault();endEdit(false)}
+});
+ED.addEventListener('blur',()=>endEdit(true));
+
+/* ---------- 节点 / 连线 ---------- */
+let curKind='cond', pendingRel=null;
+function addNode(t,k,x,y,extra){
+  const n=Object.assign({id:P().seq++,t:t||'',k:k||'idea',w:k==='unknown'?4:3,
+    x:x,y:y,hx:x,hy:y,z:0,cut:false,ms:[]},extra||{});
+  N().push(n);
+  if(!(extra&&extra.noNudge))nudge(n);      /* 别落在别人身上 */
+  mutated();save();return n;
+}
+function makeEdge(a,b,k,label){
+  if(a===b)return;
+  if(E().some(e=>(e.a===a&&e.b===b)||(e.a===b&&e.b===a)))return;
+  E().push({id:P().seq++,a,b,k:k||'bind',label:label||''});mutated();save();diag();sigDirty=true;
+}
+function startLink(rel){
+  const s=selNodes(); if(!s.length){toast('先选一个星体');return}
+  linkFrom=s[0];pendingRel=rel||'bind';mode='link';
+  toast('从「'+linkFrom.t+'」拉一条【'+(RELS[pendingRel].t)+'】线 —— 点另一个星体完成，Esc 取消');
+}
+function delSel(){
+  if(!sel.size&&!selE.size)return;
+  snap();
+  [...selE].forEach(id=>{const i=E().findIndex(x=>x.id===id);if(i>=0)E().splice(i,1)});
+  selE.clear();
+  [...sel].forEach(removeNode); sel.clear();
+  ghostDirty=true; save(); diag();
+}
+function removeNode(id){
+  const i=N().findIndex(n=>n.id===id); if(i>=0)N().splice(i,1);
+  for(let j=E().length-1;j>=0;j--)if(E()[j].a===id||E()[j].b===id)E().splice(j,1);
+  sel.delete(id); boxCache.delete(id); ghostDirty=true;
+  if(linkFrom&&linkFrom.id===id){linkFrom=null;linkTo=null;if(mode==='link')mode='idle'}
+  if(dragOff)dragOff.list=dragOff.list.filter(d=>d.id!==id);
+}
+function rimW(){return RIM/Math.max(.25,cam.z)}   /* 屏幕上恒定 14px，换算回世界坐标 */
+function onRim(n,w){
+  /* 文字框以内 = 拖动；框外那一圈（就是画出来的那个提示环）= 拉线 */
+  const b=nodeBox(n), zf=1+.09*(n.z||0);
+  const dx=Math.abs(w.x-b.x)/(b.w*zf/2), dy=Math.abs(w.y-b.y)/(b.h*zf/2);
+  return Math.max(dx,dy)>1;
+}
+function selNodes(){return [...sel].map(byId).filter(Boolean)}
+function around(n,i,tot,r){const a=-Math.PI/2+i*2*Math.PI/Math.max(1,tot);
+  return{x:n.x+Math.cos(a)*r, y:n.y+Math.sin(a)*r}}
+</script>
+<script>
+/* ══════════ 波利亚动作 —— 每一条都对应书里的原文 ══════════ */
+
+/* ⑥ 只保留条件的一部分：砍 */
+function cutSel(){
+  const ns=selNodes(); if(!ns.length)return toast('先选中要砍的条件');
+  snap();
+  ns.forEach(n=>{
+    n.cut=!n.cut;
+    if(n.cut){
+      /* 它约束的未知量自由度回升 —— 未知量被松开了 */
+      E().filter(e=>e.k==='bind'&&(e.a===n.id||e.b===n.id)).forEach(e=>{
+        const other=byId(e.a===n.id?e.b:e.a);
+        if(other&&other.k==='unknown')other.loose=(other.loose||0)+1;
+      });
+    }else{
+      E().filter(e=>e.k==='bind'&&(e.a===n.id||e.b===n.id)).forEach(e=>{
+        const other=byId(e.a===n.id?e.b:e.a);
+        if(other&&other.loose)other.loose--;
+      });
+    }
+  });
+  save();diag();
+  const loose=N().find(n=>n.k==='unknown'&&n.loose>0);
+  if(loose&&ns.some(n=>n.cut)){
+    /* 分解和重组 7：只保留一部分条件，我们事实上"建立了一个新的题目" */
+    const nw=addNode('弱化后的新题目：只剩下的那部分条件，把未知量限制成什么？',
+      'aux',loose.x+330,loose.y-180,{w:3});
+    makeEdge(nw.id,loose.id,'reduce','弱化');
+    toast('你刚刚建立了一道新的题目。','按 T 把未知量的活动范围（轨迹）画出来；两条轨迹的交点就是答案');
+  }
+}
+/* ⑥ 轨迹：未知量被松开后能跑到哪儿去 */
+function makeLocus(){
+  const ns=selNodes().filter(n=>n.k==='unknown');
+  const tgt=ns[0]||N().find(n=>n.k==='unknown');
+  if(!tgt)return toast('先要有一个未知量');
+  const l=addNode('轨迹：它能跑到…','locus',tgt.x+230,tgt.y+120);
+  l.k='locus';
+  makeEdge(l.id,tgt.id,'locusof','它只能落在这条线上');
+  startEdit(l);
+  toast('写下：只剩下的那部分条件，把未知量限制在什么范围里？（一条直线？一段圆弧？）');
+}
+/* ④ 将条件的不同部分分开 */
+function splitSel(){
+  const ns=selNodes(); if(!ns.length)return toast('先选中一个条件');
+  snap();
+  let first=null;
+  ns.forEach(n=>{
+    const a=addNode('第一部分：'+(n.t.slice(0,10)||'…'),n.k,n.x-140,n.y+150);
+    const b=addNode('第二部分：'+(n.t.slice(0,10)||'…'),n.k,n.x+140,n.y+150);
+    a.w=b.w=Math.max(1,n.w-1);
+    makeEdge(n.id,a.id,'part','第一部分');
+    makeEdge(n.id,b.id,'part','第二部分');
+    n.w=Math.max(1,n.w-1);
+    first=first||a;
+  });
+  ensureNoOverlap();save();
+  if(first){sel.clear();sel.add(first.id);startEdit(first)}
+  toast('条件的不同部分分开了。分别研究每一部分本身。（分解和重组 2）');
+}
+/* ⑦ 重组成一道辅助题目 */
+function recombine(){
+  const ns=selNodes(); if(ns.length<2)return toast('选中两个以上元素再重组');
+  snap();
+  const cx=ns.reduce((s,n)=>s+n.x,0)/ns.length, cy=ns.reduce((s,n)=>s+n.y,0)/ns.length;
+  const a=addNode('辅助题目：…','aux',cx,cy-260); a.w=4;
+  ns.forEach(n=>makeEdge(n.id,a.id,'imply'));
+  ensureNoOverlap();save();
+  startEdit(a);
+  toast('新的辅助题目。它必须比原题更容易入手 —— 不然就白造了。（分解和重组 3）');
+}
+/* ⑦ 踏脚石：在已知和未知之间造桥 */
+function bridge(){
+  const ns=selNodes();
+  const u=ns.find(n=>n.k==='unknown')||N().find(n=>n.k==='unknown');
+  const d=ns.find(n=>n.k==='data')||N().find(n=>n.k==='data');
+  if(!u||!d)return toast('需要一个未知量和一个已知数据');
+  const s=addNode('踏脚石：…','aux',(u.x+d.x)/2,(u.y+d.y)/2-140);
+  makeEdge(d.id,s.id,'reduce','容易着手？');
+  makeEdge(s.id,u.id,'reduce','有用？');
+  startEdit(s);
+  toast('两件事我们都想要：容易着手、而且有用 —— 但现实中常常只能得其一。',
+    '分解和重组 5：也有理由去试一个与原未知量关系密切的新未知量，即使它初看起来并不容易着手');
+}
+/* ⑤ 倒着干 / 帕普斯分析 */
+function backwards(){
+  /* 从选中的那颗继续往回退 —— 连按 W 就是一条分析链（帕普斯：从前提过渡到前提） */
+  const seed=selNodes()[0]||N().find(n=>n.k==='unknown');
+  if(!seed)return toast('先要有一个目标 —— 倒着干必须从"要求的东西"出发');
+  const chain=E().filter(e=>e.k==='back').length;
+  const b=addNode('再往前一步：从什么状态可以得到它？','idea',seed.x-300,seed.y+70+chain*30);
+  const e=makeEdgeR(seed.id,b.id,'back','从什么前提？');
+  sel.clear();sel.add(b.id);
+  const go=()=>startEdit(b);
+  openList('这一步的推导可逆吗？（辅助题目 6：可逆约简 / 单向约简）',[
+    {nm:'可逆 —— 由它成立就能倒推回目标',de:'最安全：分析完可以原路综合回去',
+     run:()=>{if(e){e.label='可逆';e.rev=1;save()}go()}},
+    {nm:'单向 · 条件变窄了',de:'过渡到更狭窄的条件，会丢掉某些解（辅助题目 7）',
+     run:()=>{if(e){e.label='单向·更窄';e.rk='narrow';save();diag()}go()}},
+    {nm:'单向 · 条件变宽了',de:'过渡到更宽松的条件，会得出多余的、不正确的解（辅助题目 7）',
+     run:()=>{if(e){e.label='单向·更宽';e.rk='wide';save();diag()}go()}},
+    {nm:'先不管',de:'',run:go}
+  ]);
+  toast('假设要求的东西已经找到了。从前面的什么情况可以得出它？',
+    '帕普斯：从前提过渡到前提，直到最后遇到某些已知的或公认正确的东西');
+}
+/* makeEdge 的返回版本 */
+function makeEdgeR(a,b,k,label){
+  if(a===b)return null;
+  if(E().some(e=>(e.a===a&&e.b===b)||(e.a===b&&e.b===a)))return null;
+  const e={id:P().seq++,a,b,k:k||'bind',label:label||''};
+  E().push(e);save();diag();return e;
+}
+/* 综合：把分析链原路翻回去执行（帕普斯：从我们在分析中最后到达的点开始） */
+function synthesize(){
+  const backs=E().filter(e=>e.k==='back');
+  if(!backs.length)return toast('还没有倒推链','先按 W 从目标往回退几步');
+  snap();
+  const bad=backs.filter(e=>!e.rev);
+  backs.forEach(e=>{const t=e.a;e.a=e.b;e.b=t;e.k='imply';e.label='综合';});
+  save();diag();
+  toast('分析链已经翻成综合链 —— 现在从已知那一头往回走一遍',
+    bad.length?('注意：其中 '+bad.length+' 步没标可逆，翻过来不一定成立（帕普斯评注 7）'):'每一步都标了可逆，翻过来是安全的');
+}
+/* ⑤ 类比：降维或升维，造一个更简单的平行题 */
+function analogy(){
+  const ns=selNodes(); if(!ns.length)return toast('选中要类比的部分（可多选整题）');
+  snap();
+  const dy=-460;
+  const map={};
+  ns.forEach(n=>{
+    const c=addNode(n.t,n.k,n.x,n.y+dy,{w:n.w,dof:n.dof});
+    map[n.id]=c.id;
+    makeEdge(n.id,c.id,'analog','类比');
+  });
+  E().slice().forEach(e=>{if(map[e.a]&&map[e.b])makeEdge(map[e.a],map[e.b],e.k,e.label)});
+  ensureNoOverlap();save();
+  /* 类比 3 的要害：两个题目也许比一个更容易 —— 假如能把它们巧妙地联系起来 */
+  const anchor=ns.find(n=>n.k==='unknown')||ns[0];
+  const link=addNode('怎么把这两道题联系起来？','aux',anchor.x+280,anchor.y+dy/2,{w:3});
+  makeEdge(map[anchor.id],link.id,'reduce','用它的…');
+  makeEdge(link.id,anchor.id,'reduce','…来解原题');
+  sel=new Set(Object.values(map));
+  openList('打算怎么用这道类比题？（类比 7）',[
+    {nm:'用它的方法 —— 逐点模仿它的解法',de:'像四面体重心那样，把三角形的解法一步步搬过来',
+     run:()=>{link.t='用它的【方法】：逐点模仿它的解法';save()}},
+    {nm:'用它的结果 —— 不管它怎么来的',de:'直接把它的结论当成已知拿来用',
+     run:()=>{link.t='用它的【结果】：把它的结论当已知用';save()}},
+    {nm:'两个都用',de:'有时可以既用方法又用结果',run:()=>{link.t='方法和结果都用';save()}},
+  ]);
+  toast('降一维试试：四面体→三角形→线段，长方体→长方形。','两个题目也许比一个更容易 —— 假如能把这两个题目巧妙地联系起来的话');
+}
+/* ⑤ 变化题目：把一个已知量推到极端 */
+function limitCase(){
+  const ns=selNodes(); const d=ns[0]||N().find(n=>n.k==='data');
+  if(!d)return toast('选一个已知量，把它推到极端');
+  const a=addNode('它→0 时，题目退化成…','idea',d.x-170,d.y+220),
+        b=addNode('它→最大时，题目退化成…','idea',d.x+170,d.y+220);
+  makeEdge(d.id,a.id,'part','→ 0 会怎样？');
+  makeEdge(d.id,b.id,'part','→ 最大会怎样？');
+  a.predict=1;b.predict=1;
+  startEdit(a);
+  toast('让它连续变到端点：梯形 c→0 变三角形，c→a 变平行四边形。退化后的题目往往你早就会解。（变化题目 5）');
+}
+/* 特殊化 / 普遍化 */
+function specialize(){
+  const n=selNodes()[0]; if(!n)return toast('先选一个');
+  const s=addNode('特例：…','idea',n.x+260,n.y+170);
+  makeEdge(n.id,s.id,'part','特例');
+  openList('这个特例拿来干什么？（特殊化 2 / 5）',[
+    {nm:'当反例用 —— 一旦不符，整条一般命题就被推翻',
+     de:'一个例外就足以无可争辩地驳倒任何自称的规则；极端情况最容易被命题的创造者忽略',
+     run:()=>{s.t='反例候选：…';startEdit(s);
+       toast('先挑最极端的那个试（顶角→0°、→180°、鲸鱼）','预期中的例外能检验规则')}},
+    {nm:'当垫脚石用 —— 先解特例，再回到原题',
+     de:'但必须补上一个"补充性说明"，才能从特例过渡回原题',
+     run:()=>{
+       const add=addNode('补充性说明：靠什么从特例回到原题？','aux',n.x+300,n.y+330,{w:3});
+       makeEdge(s.id,add.id,'reduce');makeEdge(add.id,n.id,'reduce','→ 回到原题');
+       startEdit(s);
+       toast('两船题里，这个补充性说明是「运动是相对的」。','特殊化 5：成功归功于两点 —— 造出有利的特例，以及找到过渡回原题的补充性说明')}},
+  ]);
+}
+async function generalize(){
+  const n=selNodes()[0]; if(!n)return toast('先选一个');
+  const prop=await ask('这次普遍化，剖析出了原题的哪一条性质？\n'+
+    '（波利亚：解第一道题的主要成绩，就是创建了第二道题 —— 因为我们剖析出了"它有对称中心"）\n'+
+    '答不上来的普遍化，往往只是自负，不是洞察。','');
+  if(prop===null)return;
+  const s=addNode('更普遍：…','idea',n.x-260,n.y-170,{reason:prop.trim()});
+  makeEdge(s.id,n.id,'imply','更普遍');
+  startEdit(s);
+  toast(prop.trim()?('剖析出的性质：'+prop.trim()):'先留着，但这条性质迟早得说出来',
+    '越普遍的题目可能越容易解 —— 前提是这次普遍化基于洞察，而不是自负（创造者悖论）');
+}
+/* 辅助元素必须有理由 */
+async function auxReason(){
+  const n=selNodes()[0]; if(!n)return toast('先选一个辅助元素');
+  const r=await ask('为什么要引入它？（辅助元素 2：我们总得有理由，但理由可以是第 3 种）\n'+
+    '1 为了用上某道已解过的题\n'+
+    '2 回到定义上去\n'+
+    '3 说不清楚，只是觉得它会让题目更完整、更有启发性、更眼熟 —— 这也是正当理由',n.reason||'');
+  if(r===null)return; n.reason=r.trim(); save();
+  toast(n.reason?'理由记下了':'先留着，但记得补一个理由',
+    '波利亚：我们可能有这样那样的理由，但总得有理由 —— 不能随心所欲地引入');
+}
+/* 未知量类型 → 波利亚给的现成方案 */
+function unknownType(){
+  const u=selNodes().find(n=>n.k==='unknown')||N().find(n=>n.k==='unknown');
+  if(!u)return toast('先要有一个未知量');
+  openList('未知量是哪一类？',UTYPE.map((t,i)=>({nm:t.k,de:t.plan,run:()=>{
+    u.utype=t.k;
+    const p=addNode('方案：'+t.plan,'idea',u.x+300,u.y-60);
+    makeEdge(u.id,p.id,'imply','观察未知量');
+    toast('（观察未知量 3）'+t.plan);
+  }})));
+}
+/* 自由度 */
+async function setDof(){
+  const u=selNodes()[0]; if(!u)return toast('先选一个未知量');
+  const v=await ask('这个未知量有几个自由度？\n一个数=1，平面上一个点=2，一个三角形=3……\n（条件用几个方程表示，就和自由度比）',u.dof||1);
+  if(v===null)return; const k=parseInt(v,10);
+  if(k>0){u.dof=k;
+    if(u.k!=='unknown'&&u.k!=='concl')u.k=(P().mode2==='prove'?'concl':'unknown');
+    boxCache.delete(u.id);save();diag()}
+}
+function setKind(k){selNodes().forEach(n=>{n.k=k;n.cand=0;if(k==='unknown'&&!n.dof)n.dof=1});curKind=k;mutated();save();diag()}
+function kindByDigit(v){return (KINDKEYS[P().mode2==='prove'?'prove':'solve'])[v-1]}
+function setW(w){selNodes().forEach(n=>n.w=w);save()}
+function bumpW(d){selNodes().forEach(n=>n.w=Math.max(1,Math.min(5,n.w+d)));save()}
+</script>
+<script>
+
+/* ══════════ 页内弹窗：替代被 webview 禁用的 prompt / confirm ══════════ */
+(function(){
+  const css=`
+  #dlg{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;
+    background:rgba(2,4,10,.72);backdrop-filter:blur(10px)}
+  #dlg.on{display:flex}
+  #dlg .box{width:min(560px,92vw);border:1px solid rgba(140,160,210,.22);border-radius:16px;
+    background:#080c18;box-shadow:0 40px 120px -40px #000;padding:22px 24px 18px;
+    font:14px/1.75 -apple-system,"PingFang SC",sans-serif;color:#e4eaf7}
+  #dlg .msg{white-space:pre-wrap;font-size:13.5px;color:#c3ccdf}
+  #dlg input{width:100%;margin-top:14px;padding:9px 12px;border-radius:9px;
+    border:1px solid rgba(140,160,210,.25);background:#04060e;color:#fff;font:inherit;outline:none}
+  #dlg input:focus{border-color:#5fc9e8;box-shadow:0 0 0 3px rgba(95,201,232,.12)}
+  #dlg .row{display:flex;gap:9px;justify-content:flex-end;margin-top:16px}
+  #dlg button{appearance:none;font:inherit;font-size:13px;padding:7px 18px;border-radius:99px;
+    cursor:pointer;border:1px solid rgba(140,160,210,.22);background:none;color:#8d98b6}
+  #dlg button:hover{color:#fff;border-color:rgba(140,160,210,.45)}
+  #dlg button.go{color:#5fc9e8;border-color:rgba(95,201,232,.4)}
+  #dlg button.go:hover{background:rgba(95,201,232,.12)}`;
+  const st=document.createElement('style');st.textContent=css;document.head.appendChild(st);
+  const el=document.createElement('div');el.id='dlg';
+  el.innerHTML=`<div class="box"><div class="msg"></div><input type="text">
+    <div class="row"><button class="no">取消</button><button class="go">好</button></div></div>`;
+  document.body.appendChild(el);
+  const msg=el.querySelector('.msg'),inp=el.querySelector('input'),
+        go=el.querySelector('.go'),no=el.querySelector('.no');
+  let fin=null;
+  const close=v=>{el.classList.remove('on');const f=fin;fin=null;if(f)f(v)};
+  go.onclick=()=>close(inp.hidden?true:inp.value);
+  no.onclick=()=>close(inp.hidden?false:null);
+  el.onclick=e=>{if(e.target===el)no.onclick()};
+  inp.onkeydown=e=>{if(e.key==='Enter'){e.preventDefault();go.onclick()}
+                    if(e.key==='Escape'){e.preventDefault();no.onclick()}};
+  el.addEventListener('keydown',e=>{if(e.key==='Escape'){e.preventDefault();no.onclick()}});
+  function show(text,def,isAsk){
+    return new Promise(res=>{
+      if(fin)close(null);
+      fin=res;msg.textContent=text;inp.hidden=!isAsk;
+      no.textContent=isAsk?'取消':'不要';go.textContent=isAsk?'好':'确定';
+      if(isAsk)inp.value=def==null?'':String(def);
+      el.classList.add('on');
+      setTimeout(()=>{isAsk?(inp.focus(),inp.select()):go.focus()},30);
+    });
+  }
+  window.ask=(t,d='')=>show(t,d,true);
+  window.ok =t=>show(t,null,false);
+})();
+
+/* 检验论证（你能检验这个结果吗 3、4）：避免单纯重复，必须改变次序，且薄弱点优先 */
+function checkArgument(){
+  const steps=N().filter(n=>!n.cut&&E().some(e=>e.k==='imply'&&(e.a===n.id||e.b===n.id)));
+  if(!steps.length)return toast('还没有推导步骤','先用【推出】把步骤连起来');
+  const shuffled=steps.slice().sort((a,b)=>(b.weak?1:0)-(a.weak?1:0)||((a.id*7919)%97)-((b.id*7919)%97));
+  openList('逐条检验（薄弱优先，次序已打乱 —— 不许按原顺序重放）',
+   shuffled.map(n=>({nm:(n.weak?'⚠ ':'')+(n.ok?'✔ ':'')+n.t.slice(0,22),
+     de:'点一次 = 标"看出来了"；再点 = 标"能证明"；⇧点 = 标薄弱',
+     run:()=>{n.ok=n.ok?2:1;if(n.ok===2)n.weak=false;save();
+       toast(n.ok===1?'标记：我能清楚地看出它是对的':'标记：我能证明它',
+         '波利亚每次都是两问并列 —— 看出 ≠ 证明')}})));
+}
+async function writeEq(){
+  const n=selNodes()[0]; if(!n)return toast('先选一个条件');
+  const v=await ask('把这一条写成式子（写不出来，说明还没拆到位）\n'+
+    '波利亚（将条件的不同部分分开）：「你能把它们写出来吗？」', n.eq||'');
+  if(v===null)return; n.eq=v.trim(); boxCache.delete(n.id); save(); diag();
+  toast(n.eq?('记下了：'+n.eq):'先空着，但迟早要写出来',
+    '方程个数和未知量自由度一比，才知道条件是不足、恰好，还是多余');
+}
+function markWeak(){const ns=selNodes();if(!ns.length)return toast('先选一步');
+  ns.forEach(n=>n.weak=!n.weak);save();toast(ns[0].weak?'标成薄弱点了 —— 检验时优先查它':'取消薄弱标记')}
+
+/* 归纳表（归纳与数学归纳 1、2）：把散落的特例排成表，逼出一句精确陈述 */
+function inductionTable(){
+  const ns=selNodes(); if(ns.length<2)return toast('框选两个以上特例，把它们排成表');
+  snap();
+  const cx=ns.reduce((a,n)=>a+n.x,0)/ns.length, cy=Math.max(...ns.map(n=>n.y))+220;
+  const rows=ns.map((n,i)=>(i+1)+'  '+n.t.slice(0,26)).join('\n');
+  const t=addNode('归纳表\n'+rows+'\n────────\n我看到的规律（要精确）：…','result',cx,cy,{w:3});
+  ns.forEach(n=>makeEdge(n.id,t.id,'imply'));
+  ns.forEach((n,i)=>{const a=-Math.PI/2+i*2*Math.PI/ns.length;
+    n.x=n.hx=cx+Math.cos(a)*260; n.y=n.hy=cy-220+Math.sin(a)*130;});
+  sel.clear();sel.add(t.id);startEdit(t);
+  toast('把特例整齐地排列起来，像地质学家排列矿砂标本那样。',
+    '排完之后要做的是：从"不太精确"过渡到一句精确的陈述，再检验 n → n+1');
+}
+
+/* 回到定义上去（定义 3、4 / 辅助元素 2）：把术语换成它的定义，定义里的元素当场变成新星 */
+async function backToDefinition(){
+  const n=selNodes()[0]; if(!n)return toast('先选一颗含术语的星');
+  const term=await ask('哪个术语要回到定义上去？',n.t.slice(0,12));
+  if(term===null)return;
+  const def=await ask('它的定义是什么？（用最原始的词说，别再用别的术语）','');
+  if(def===null||!def.trim())return;
+  const d=addNode(term+' ≝ '+def.trim(),'aux',n.x+260,n.y+150,{w:3,
+    reason:'回到定义上去 —— 定义里的每个元素都该画进图里'});
+  makeEdge(n.id,d.id,'same','回到定义');
+  const parts=def.split(/[，,、；;]/).map(x=>x.trim()).filter(x=>x.length>1).slice(0,4);
+  parts.forEach((t,i)=>{
+    const c=addNode(t,'cond',d.x-150+i*160,d.y+170,{w:2});
+    makeEdge(d.id,c.id,'part','定义里的元素');
+  });
+  save();diag();
+  toast('定义里的每一个元素都已经画进图里了。',
+    '波利亚：叙述一个定义而不作图，它只能停留在嘴皮子上');
+}
+
+/* 互换角色：把未知量当已知（你能应用这个结果吗 3） */
+function swapRoles(){
+  const u=selNodes().find(n=>n.k==='unknown')||N().find(n=>n.k==='unknown');
+  const d=selNodes().find(n=>n.k==='data')||N().find(n=>n.k==='data');
+  if(!u||!d)return toast('需要选一个未知量和一个已知');
+  const np=blank(P().name+'（互换：求 '+d.t.slice(0,8)+'）');
+  np.stmt='把原题的未知量当已知，把一个已知当未知量 —— 两者之间的关系不变。\n原题：'+(P().stmt||'');
+  np.nodes=JSON.parse(JSON.stringify(N())); np.edges=JSON.parse(JSON.stringify(E()));
+  np.seq=P().seq+1000;
+  const nu=np.nodes.find(x=>x.id===u.id), nd=np.nodes.find(x=>x.id===d.id);
+  nu.k='data'; nu.dof=null; nd.k='unknown'; nd.w=5; nd.dof=1;
+  DB.probs.push(np); DB.cur=DB.probs.length-1; save(); loadProb(); fitAll();
+  toast('新题目已生成：'+nd.t+' 变成了未知量',
+    '在新旧两道题里，已知量和未知量之间的关系不变（你能应用这个结果吗 3）');
+}
+
+/* 两条轨迹的交点就是我们想求作的点（分解和重组 7 / 观察未知量 3(4)） */
+function intersectLoci(){
+  const ls=selNodes().filter(n=>n.k==='locus');
+  if(ls.length<2)return toast('选中两条轨迹','各由一半条件画出的两条轨迹，它们的交点就是答案');
+  const cx=(ls[0].x+ls[1].x)/2, cy=(ls[0].y+ls[1].y)/2-160;
+  const r=addNode('交点 = 要求作的对象','result',cx,cy,{w:5});
+  ls.forEach(l=>makeEdge(l.id,r.id,'imply','交'));
+  const u=N().find(n=>n.k==='unknown'); if(u)makeEdge(r.id,u.id,'same','就是它');
+  save();diag();
+  toast('两条轨迹的交点，就是我们想求作的点。','这就是把"作三角形"化简为"作一个点"之后的全部收获');
+}
+
+/* ══════════ 诊断（条件体检 + 你用到所有已知数据了吗） ══════════ */
+
+/* ══════════ 右侧笔记栏 ══════════ */
+let NPID=null, npT=null;
+function npNode(){return NPID==null?null:byId(NPID)}
+function npClose(){NPID=null;document.getElementById('np').classList.remove('on')}
+function npSync(){
+  const el=document.getElementById('np');
+  if(sel.size!==1){if(!NPID)return; }
+  const id=sel.size===1?[...sel][0]:NPID;
+  const n=byId(id);
+  if(!n||sel.size===0){npClose();return}
+  if(sel.size===1)NPID=id;
+  el.classList.add('on');
+  document.getElementById('npk').textContent=(KINDS[n.k]||KINDS.idea).t;
+  document.getElementById('npt').textContent=n.t||'（还没写字）';
+  document.querySelectorAll('#npfs b').forEach(b=>
+    b.classList.toggle('on',+b.dataset.w===(n.w||3)));
+  const cw=document.getElementById('npc');
+  if(!cw.dataset.built){
+    cw.innerHTML=PALETTE.map((c,i)=>c
+      ? `<i data-i="${i}" style="background:rgb(${c})"></i>`
+      : `<i data-i="0" class="auto" title="跟随类型">自</i>`).join('');
+    cw.dataset.built='1';
+    cw.onclick=e=>{const t=e.target.closest('i');if(!t)return;
+      const m=npNode();if(!m)return;
+      const i=+t.dataset.i; m.col=PALETTE[i]?PALETTE[i].slice():null;
+      boxCache.clear();save();npSync();};
+  }
+  const cur=n.col?PALETTE.findIndex(c=>c&&c+''===n.col+''):0;
+  cw.querySelectorAll('i').forEach(i=>i.classList.toggle('on',+i.dataset.i===(cur<0?0:cur)));
+  const ta=document.getElementById('npn');
+  if(document.activeElement!==ta)ta.value=n.note||'';
+}
+document.getElementById('npfs').onclick=e=>{
+  const b=e.target.closest('b');if(!b)return;
+  const n=npNode();if(!n)return;
+  n.w=+b.dataset.w;boxCache.clear();save();npSync();
+};
+(function(){
+  const ta=document.getElementById('npn');
+  ta.addEventListener('keydown',e=>e.stopPropagation());
+  ta.addEventListener('input',()=>{
+    const n=npNode();if(!n)return;
+    n.note=ta.value;
+    clearTimeout(npT);npT=setTimeout(()=>{save();},400);
+  });
+})();
+
+function diag(){
+  npSync();
+  const ns=N().filter(n=>!n.cut);
+  const prove=P().mode2==='prove';
+  const us=ns.filter(n=>n.k==='unknown');
+  const dof=us.reduce((s,n)=>s+(n.dof||1),0);
+  const conds=ns.filter(n=>n.k==='cond');
+  const eqs=conds.filter(n=>n.eq&&n.eq.trim()).length;      /* 唯一能真数的：方程 */
+  const nd=ns.filter(n=>n.k===(prove?'given':'data'));
+  const unused=nd.filter(n=>!n.spare&&!E().some(e=>e.a===n.id||e.b===n.id));
+  const cut=N().filter(n=>n.cut).length;
+  const out=[];
+  /* 开局那次猜测（条件有可能满足吗？）—— 是猜测，不是判决 */
+  const g=P().guess;
+  if(g&&g.suff) out.push(`我当初猜：<b>${g.suff}</b>`+(g.nsol?`，${g.nsol} 个解`:''));
+  if(eqs) out.push(`已经写成式子的条件 <b>${eqs}</b> / 共 ${conds.length} 条`
+     +(dof?` · 未知量 ${us.length} 个`:'')+' —— <span class="w">够不够，你自己判</span>');
+  else if(conds.length) out.push(`${conds.length} 个条件，还没有一条被写成式子 —— <b>你能把它们写出来吗？</b>`);
+  /* A10：这一问是检验阶段的事，摆零件的时候不该报警 */
+  if(unused.length&&P().phase>=2)
+    out.push(`<span class="b">${unused.length} 个${prove?'题设':'已知'}还没连上 —— ${
+      P().ptype==='real'?'你是否用到了所有对解答相当有用的数据？':'你用到所有的'+(prove?'题设':'已知数据')+'了吗？'}</span>`);
+  /* 辅助题目 6：先过渡到更窄、又过渡到更宽，就可能完全脱离原题的轨道 */
+  const risky=N().some(n=>E().some(e=>e.b===n.id&&e.rk==='narrow')&&E().some(e=>e.a===n.id&&e.rk==='wide'));
+  if(risky) out.push('<span class="b">约简链里出现了「先变窄、又变宽」—— 当心已经脱离原题的轨道</span>');
+  const loci=ns.filter(n=>n.k==='locus').length;
+  if(loci>=2&&!ns.some(n=>n.k==='result'))
+    out.push('<span class="w">已经有两条轨迹了 —— 它们的交点就是答案（⌘K → 两条轨迹求交）</span>');
+  if(GHOST.length) out.push(`<span class="w">${GHOST.length} 处「同一个符号两边都有，却没连线」</span>`);
+  if(DEAD.size) out.push(`<span class="b">${DEAD.size} 颗已经和目标断开</span>`);
+  if(selE.size) out.push(`<span class="o">选中了 ${selE.size} 条线 —— Delete 删掉</span>`);
+  if(cut) out.push(`已砍 ${cut}`);
+  out.push(`<b>${N().length}</b> 星体 · <b>${E().length}</b> 关系`+(prove?' · 证明题':''));
+  const head=out.slice(0,3), rest=out.length-3;
+  document.getElementById('diag').innerHTML=head.join(' &nbsp;·&nbsp; ')
+    +(rest>0?` <span style="opacity:.55;cursor:pointer" onclick="this.parentNode.innerHTML='${
+      out.join(' &nbsp;·&nbsp; ').replace(/'/g,"\\'")}'">+${rest}</span>`:'');
+  inferPhase();
+}
+/* 题目类型：数学求解题 / 证明题 / 实际题目 / 谜语（现代探索法 3：都属于探索法的范畴） */
+/* 题面 → 一排暗淡的候选星，拖进宇宙就落地（不用把名词再打一遍） */
+function seedFromStmt(){
+  const txt=(P().stmt||'').trim();
+  if(!txt)return toast('先在上面写题面');
+  const parts=txt.split(/[，,。；;、\n]/).map(x=>x.trim())
+    .filter(x=>x.length>1&&x.length<40).slice(0,10);
+  if(!parts.length)return toast('题面里没切出东西','用逗号、顿号把它断开再试');
+  snap();
+  const c=s2w(innerWidth/2,innerHeight/2);
+  parts.forEach((t,i)=>{
+    const a=-Math.PI/2+i*2*Math.PI/parts.length;
+    addNode('（待定）'+t, 'idea', c.x+Math.cos(a)*330, c.y+Math.sin(a)*230, {w:1,cand:1});
+  });
+  ensureNoOverlap();save();diag();fitAll();
+  toast('题面拆成了 '+parts.length+' 颗候选星','挨个选中，按 1..5 定它是未知量 / 已知 / 条件 —— 定完就不再是候选');
+}
+function setPType(){
+  openList('这是哪一类题目？',[
+   {nm:'求解题（数学）',de:'主要部分：未知量、已知数据、条件',run:()=>applyPType('math')},
+   {nm:'证明题',de:'主要部分换成：题设、结论 —— 整套提问跟着换（求解题、证明题 5、6）',run:()=>applyPType('prove')},
+   {nm:'实际题目',de:'数据常常是多余的：问的是"用到所有相当有用的数据了吗"（实际题目 1）',run:()=>applyPType('real')},
+   {nm:'谜语',de:'条件往往是故意含糊的 —— 先把它的不同部分分开（分解和重组 8）',run:()=>applyPType('riddle')},
+  ]);
+}
+function applyPType(t){
+  P().ptype=t; P().mode2=(t==='prove')?'prove':'solve'; save(); drawPhases(); diag();
+  const msg={math:'求解题：未知量是什么？已知数据是什么？条件是什么？',
+    prove:'证明题：题设是什么？结论是什么？—— 数字键 1..5 现在是 结论/题设/条件/辅助定理/念头',
+    real:'实际题目：数据常常是多余的。问题变成「你是否用到了所有对解答相当有用的数据？」',
+    riddle:'谜语：条件通常是故意含糊的。先把条件的不同部分分开，再只保留一部分。'}[t];
+  toast(msg,'波利亚：这些方法绝不仅限于几何题，甚至不仅限于数学题');
+}
+/* 已知数据标成"多余"（实际题目 1：有大量的数据常常是多余的） */
+function markSpare(){
+  const ns=selNodes(); if(!ns.length)return toast('先选一个已知');
+  ns.forEach(n=>n.spare=!n.spare); save(); diag();
+  toast(ns[0].spare?'标成多余了 —— 不再催你去用它':'取消多余标记');
+}
+
+/* 阶段自动推断：结构走到哪儿，阶段就在哪儿（手点仍然可以覆盖） */
+function inferPhase(){
+  const ns=N().filter(n=>!n.cut), prove=P().mode2==='prove';
+  const goalK=prove?'concl':'unknown', dataK=prove?'given':'data';
+  const goal=ns.filter(n=>n.k===goalK);
+  const conds=ns.filter(n=>n.k==='cond');
+  const linked=conds.some(c=>E().some(e=>(e.a===c.id&&goal.some(g=>g.id===e.b))||
+                                          (e.b===c.id&&goal.some(g=>g.id===e.a))));
+  let ph=0;
+  if(P().stmt&&P().stmt.trim())ph=1;
+  if(goal.length&&ns.some(n=>n.k===dataK)&&conds.length)ph=2;
+  if(linked)ph=3;
+  if(conds.some(c=>c.eq&&c.eq.trim()))ph=4;
+  if(N().some(n=>n.cut)||ns.some(n=>n.k==='locus'))ph=5;
+  const goalIds=new Set(goal.map(g=>g.id));
+  if(ns.some(n=>n.k==='aux'&&E().some(e=>(e.a===n.id&&goalIds.has(e.b))||(e.b===n.id&&goalIds.has(e.a)))))ph=6;
+  /* ⑧执行：有辅助题目、而且真的开始往下算了（写了式子或画了轨迹，且推导链够长） */
+  if(ns.some(n=>n.k==='aux')&&E().filter(e=>e.k==='imply').length>=3
+     &&(conds.some(c=>c.eq&&c.eq.trim())||ns.some(n=>n.k==='locus')))ph=7;
+  if(ns.some(n=>n.k==='result'))ph=8;
+  P().autoPhase=ph;
+  /* 波利亚：四阶段只是把问题归类的镜头，可以跳过、可以回头。手点过就完全交给他 */
+  if(P().manualPhase==null&&ph!==P().phase){P().phase=ph;drawPhases();save()}
+  return ph;
+}
+/* 卡住检测：150 秒没有任何结构变化，才浮出一句提问 —— 顺利时绝不打扰 */
+let lastMut=Date.now(), lastNag=0, lastSignal=Date.now(), STUCK=false;
+function mutated(){lastMut=Date.now();ghostDirty=true}
+function nagTick(){
+  const now=Date.now();
+  /* 波利亚要的是"没有进展"，不是"没有动作" —— 机械地连 20 条无用的线不算进展 */
+  STUCK = (now-lastSignal>150000) && (now-lastMut>45000);
+  if(!STUCK||now-lastNag<150000)return;
+  if(editing||document.querySelector('.sheet.on'))return;
+  lastNag=now;
+  const i=P().phase,p=PHASES[i];
+  const acts=CMDS.filter(c=>c.ph&&c.ph.includes(i)).slice(0,3);
+  const pool=(P().mode2==='prove'&&ASKP[i])?ASKP[i]:p.ask;
+  if(isUse())return;                    /* 使用模式不打扰 */
+  toast(pool[Math.floor(Math.random()*pool.length)],
+        '卡住了？'+(acts.length?('试试：'+acts.map(a=>a.nm).join(' / ')+'（⌘K）'):''));
+}
+setInterval(nagTick,20000);
+
+/* 撤销：破坏性动作之前先拍一张 */
+const UNDO=[];
+function snap(){
+  try{UNDO.push(JSON.stringify({n:N(),e:E(),s:P().seq}));if(UNDO.length>30)UNDO.shift()}catch(err){}
+}
+function undo(){
+  if(!UNDO.length)return toast('没有可撤销的了');
+  try{
+    const v=JSON.parse(UNDO.pop());
+    P().nodes=v.n;P().edges=v.e;P().seq=v.s;
+    sel.clear();boxCache.clear();ghostDirty=true;
+    mode='idle';linkFrom=null;linkTo=null;dragOff=null;marq=null;pendingRel=null;selE.clear();
+    save();diag();inferPhase();
+    toast('撤销了一步','还剩 '+UNDO.length+' 步可撤');
+  }catch(err){toast('撤销失败')}
+}
+
+/* 条件有可能满足吗？—— 开局猜一次，回顾时对账（原文允许"答不上就跳过"） */
+function guessCondition(){
+  openList('条件有可能满足吗？（这只要一个暂时的答案、一个猜测）',
+   ['充分 —— 恰好确定未知量','不充分 —— 还缺条件','多余 —— 有条件白给','矛盾 —— 它们互相打架','说不清，跳过']
+   .map(t=>({nm:t,de:'',run:async()=>{
+     if(t.startsWith('说不清')){toast('跳过。波利亚：回答含糊时就不应坚持。');return}
+     const n=await ask('顺手猜一下：这道题有几个解？（可留空）','');
+     P().guess={suff:t.split(' ')[0],nsol:n?n.trim():''};save();diag();
+     toast('记下了：'+t,'回顾阶段会把它和真实结果并排给你看');
+   }})));
+}
+/* 回顾时对账 */
+/* 变化题目 4 / 诊断：能预见到结果的性质是有好处的 —— 回顾时逐条对账 */
+function reviewPredictions(){
+  const ps=N().filter(n=>n.predict&&n.t&&n.t.indexOf('…')<0);
+  if(!ps.length)return toast('还没有预言','按 V 把某个已知推到端点，写下"它→0 时题目该退化成什么"');
+  openList('当初的预言，现在对得上吗？（得到公式后，正是用它来检验）',
+    ps.map(n=>({nm:n.t.slice(0,34),de:n.checked?'已核对':'点一下标记核对结果',
+      run:async()=>{const r=await ask('实际是？（对得上就写"对"）',n.checked||'');
+        if(r===null)return;n.checked=r.trim();save();
+        toast(r.trim()==='对'?'对上了 —— 这条公式又多一层实验性证据':'对不上：'+r.trim(),
+          '第一部分 14：公式通过了这么多检验，你对它的确信来自另一条途径')}})));
+}
+async function reviewGuess(){
+  const g=P().guess;
+  if(!g||!g.suff)return toast('开局没猜过','下次一开始就按 ⌘K →「条件有可能满足吗」猜一次，回顾时才有得对');
+  const real=await ask('实际上是？（充分/不充分/多余/矛盾）',g.suff);
+  if(real===null)return;
+  const n=await ask('实际有几个解？',g.nsol||'');
+  toast(g.suff===real.trim()?'猜对了':'猜错了：当初猜「'+g.suff+'」，实际是「'+real.trim()+'」',
+        (g.nsol||n)?('解的个数：猜 '+(g.nsol||'?')+' / 实际 '+(n||'?')):'');
+}
+
+/* ══════════ 提示条 ══════════ */
+let toastT=null;
+const isUse=()=>DB.ui&&DB.ui.mode==='use';
+/* 引导性的话（不是你自己按出来的）在使用模式下一律不出声 */
+function teach(msg,sub){ if(isUse())return; toast(msg,sub) }
+function toast(msg,sub){
+  if(typeof demoI!=='undefined'&&demoI>=0)return;   /* 演示时只留旁白，不叠字 */
+  if(typeof coachI!=='undefined'&&coachI>=0)return; /* 手把手时也只留一块字 */
+  const a=document.getElementById('askbox');
+  document.getElementById('askq').textContent=msg;
+  document.getElementById('asks').textContent=sub||'';
+  a.classList.add('on');
+  clearTimeout(toastT);toastT=setTimeout(()=>a.classList.remove('on'),4200);
+}
+/* 波利亚提问：按当前阶段随机给一句 */
+function askOne(){
+  const i=P().phase, p=PHASES[i];
+  const pool=(P().mode2==='prove'&&ASKP[i])?ASKP[i]:p.ask;
+  const q=pool[Math.floor(Math.random()*pool.length)];
+  toast(q, p.n+' '+p.t+' · '+p.p+' · 波利亚 '+p.src);
+}
+/* 进展的标志（进展的标志 3）：又一个数据接上了未知量 / 条件的另一部分被用上了 / 引入了更简单的类似题 */
+let sigDirty=false,sigAt=0;
+function checkSignals(){
+  const goal=N().find(n=>n.k==='unknown'||n.k==='concl'); if(!goal)return;
+  const adj={};E().forEach(e=>{(adj[e.a]=adj[e.a]||[]).push(e.b);(adj[e.b]=adj[e.b]||[]).push(e.a)});
+  const seen=new Set([goal.id]),q=[goal.id];
+  while(q.length){const x=q.pop();(adj[x]||[]).forEach(y=>{if(!seen.has(y)){seen.add(y);q.push(y)}})}
+  const reached=N().filter(n=>(n.k==='data'||n.k==='given')&&seen.has(n.id)).length;
+  const parts=E().filter(e=>e.k==='part').length;          /* 条件的另一部分被分出来 */
+  const anas=E().filter(e=>e.k==='analog').length;         /* 引入了更简单的类似题 */
+  const eqs=N().filter(n=>n.eq&&n.eq.trim()).length;       /* 条件被写成了式子 */
+  const cur={r:reached,p:parts,a:anas,e:eqs};
+  const old=P().sig||{r:0,p:0,a:0,e:0};
+  const msg=cur.r>old.r?'又一个'+(P().mode2==='prove'?'题设':'数据')+'接上了目标'
+      :cur.p>old.p?'条件的另一部分被分出来了'
+      :cur.a>old.a?'引入了一道更简单的类似题'
+      :cur.e>old.e?'又一条条件被写成了式子':null;
+  P().sig=cur;save();
+  if(msg&&typeof lastSignal!=='undefined'){lastSignal=Date.now();STUCK=false;
+    teach('进展的标志：'+msg,
+      '进展的标志 2：最重要的那些标志是探索式的 —— 要遵循，但也要留一点怀疑')}
+}
+
+/* ══════════ 阶段条 ══════════ */
+function drawPhases(){
+  const box=document.getElementById('phases');box.innerHTML='';
+  PHASES.forEach((p,i)=>{
+    const d=document.createElement('div');
+    d.className='ph'+(i===P().phase?' on':'');
+    d.textContent=p.t;
+    d.onclick=()=>{
+      if(P().manualPhase===i){P().manualPhase=null;save();drawPhases();
+        toast('解锁了 —— 阶段重新跟着图自己走');return}
+      P().phase=i;P().manualPhase=i;save();drawPhases();
+      openList(p.n+' '+p.t+' · '+p.p+'（已锁定，再点当前这个可解锁）',
+        CMDS.filter(c=>c.ph&&c.ph.includes(i)).concat([{nm:'—— 全部动作',de:'',run:()=>openSheet('pal')}]));
+      toast(p.g,'波利亚 '+p.src)};
+    box.appendChild(d);
+  });
+}
+
+/* ══════════ 命令面板 ══════════ */
+const CMDS=[
+ {nm:'新建星体', ph:[0,1],      ky:'N', de:'在屏幕中心放一个新的星体', run:()=>{const w=s2w(innerWidth/2,innerHeight/2);const n=addNode('',curKind,w.x,w.y);sel.clear();sel.add(n.id);startEdit(n)}},
+ {nm:'长出一颗子星', ph:[1,2], ky:'⇧N', de:'从选中的星长一根线，外面接一颗新的小星，直接打字',
+  run:()=>{const n=selNodes()[0];if(!n)return toast('先选一颗星');growChild(n)}},
+ {nm:'改成 · 未知量', ph:[1], ky:'1', de:'目标。观察未知量！盯住它。', run:()=>setKind('unknown')},
+ {nm:'改成 · 已知', ph:[1],   ky:'2', de:'给了什么', run:()=>setKind('data')},
+ {nm:'改成 · 条件', ph:[1],   ky:'3', de:'未知量通过什么条件与已知数据相联系', run:()=>setKind('cond')},
+ {nm:'改成 · 辅助',   ky:'4', de:'引入的新元素（必须有理由）', run:()=>setKind('aux')},
+ {nm:'改成 · 念头',   ky:'5', de:'一个不完整的念头也值得留着', run:()=>setKind('idea')},
+ {nm:'连线 · 约束',   ky:'L', de:'条件约束未知量', run:()=>startLink('bind')},
+ {nm:'连线 · 推出',   ky:'',  de:'由此得出', run:()=>startLink('imply')},
+ {nm:'连线 · 等价',   ky:'',  de:'重新叙述后是同一回事', run:()=>startLink('same')},
+ {nm:'连线 · 类比',   ky:'',  de:'相似的题目', run:()=>startLink('analog')},
+ {nm:'连线 · 矛盾',   ky:'',  de:'这两条打架', run:()=>startLink('clash')},
+ {nm:'砍 —— 只保留条件的一部分', ph:[5], ky:'X', de:'⑥ 丢掉其他部分，看未知量被松开成什么样（分解和重组 7）', run:cutSel},
+ {nm:'画轨迹', ph:[5],        ky:'T', de:'⑥ 被松开的未知量能跑到哪里去？一条直线？一段圆弧？', run:makeLocus},
+ {nm:'裂开 —— 将条件的不同部分分开', ph:[3], ky:'D', de:'④ 分别研究每一部分本身（分解和重组 2）', run:splitSel},
+ {nm:'重组 —— 造一道辅助题目', ph:[6], ky:'R', de:'⑦ 把元素拼成更容易入手的新题（分解和重组 3）', run:recombine},
+ {nm:'造桥 —— 踏脚石未知量', ph:[6], ky:'B', de:'⑦ 必须既容易着手、又有用（分解和重组 5）', run:bridge},
+ {nm:'倒着干 —— 从目标往回问', ph:[4], ky:'W', de:'⑤ 假设要找的已经找到了，从什么前提可以得到它？（帕普斯）', run:backwards},
+ {nm:'类比 —— 降一维造平行题', ph:[4], ky:'A', de:'⑤ 四面体→三角形→线段。两个题目也许比一个更容易（类比 3）', run:analogy},
+ {nm:'极限 —— 把已知量推到端点', ph:[4], ky:'V', de:'⑤ 梯形 c→0 变三角形，c→a 变平行四边形（变化题目 5）', run:limitCase},
+ {nm:'特殊化 —— 取一个极端特例', ph:[4], ky:'S', de:'极端情况特别具有启发性（特殊化 1）', run:specialize},
+ {nm:'普遍化 —— 反而可能更容易', ph:[4], ky:'P', de:'越普遍的题目可能越容易解（普遍化 2 / 创造者悖论）', run:generalize},
+ {nm:'未知量是哪一类？', ph:[2],ky:'U', de:'长度／角／体积／点／数 —— 每一类都有现成方案（观察未知量 3）', run:unknownType},
+ {nm:'设自由度',      ky:'',  de:'点=2，三角形=3。条件数要和它比', run:setDof},
+ {nm:'为什么引入它？', ky:'',  de:'必须有理由：用上已解过的题／回到定义／说不清但直觉上是好主意（辅助元素 2）', run:auxReason},
+ {nm:'挂一个思维模型', ky:'M', de:'把 136 个模型里的任意一个挂到这颗星上', run:()=>openSheet('pick')},
+ {nm:'把题面拆成星体', ky:'', ph:[0], de:'按标点切开题面，撒成一圈候选星，选中后按 1..5 定类型', run:seedFromStmt},
+ {nm:'撤销',        ky:'⌘Z', de:'砍 / 删 / 裂开 / 重组 都能撤，最多 30 步', run:undo},
+ {nm:'放一个通用骨架', ky:'', de:'目标 / 我手上有什么 / 必须满足什么 / 先干哪一步 —— 空宇宙时用', run:()=>{if(!putSkeleton())toast('先清空再放','⌘K 搜「清空」')}},
+ {nm:'清空重来',     ky:'', de:'把这道题的图全清掉，题面保留（可 ⌘Z 撤销）', run:wipe},
+ {nm:'导入一个空模板', ky:'', de:'求解题 / 证明题 / 商业决策 / 写作论证 —— 骨架先摆好', run:loadTemplate},
+ {nm:'换一道训练题',  ky:'', de:'波利亚原书第四部分的真题', run:()=>{setMode('train');trainPick()}},
+ {nm:'要一句提示',    ky:'', de:'训练模式下，波利亚本人给的那一句', run:trainHint},
+ {nm:'切换模式',      ky:'', de:'新手 / 训练 / 使用', run:()=>openList('切到哪个模式？',
+    MODES.map(m=>({nm:m.t+'模式',de:m.d,run:()=>setMode(m.k)})))},
+ {nm:'新画布',        ky:'', de:'开一张新的，命名后保存；空的会自动摆好骨架', run:newCanvas},
+ {nm:'保存当前（命名）',ky:'', de:'给这张图起名字，右上角 ☰ 里能看到，带日期', run:saveAs},
+ {nm:'我保存的思维导图',ky:'', de:'右上角 ☰ —— 按时间排，带日期和星体数', run:filesOpen},
+ {nm:'看一遍讲解演示', ky:'', de:'实战 3 套（换工作 / 砍业务线 / 学透一门课）+ 解题 6 套（波利亚）', run:demoPick},
+ {nm:'带我走一遍（手把手）', ky:'', de:'用屏幕上这道题，一句一句教你把它解出来 —— 只用三个动作', run:()=>coachStart(0)},
+ {nm:'这是哪一类题目？', ph:[0], ky:'',  de:'求解题 / 证明题 / 实际题目 / 谜语 —— 换题型，整套提问跟着换', run:setPType},
+ {nm:'条件有可能满足吗？', ph:[1],ky:'', de:'开局猜一次：充分 / 不充分 / 多余 / 矛盾，回顾时对账', run:guessCondition},
+ {nm:'回顾：预言对上了吗？',ky:'', ph:[8], de:'把"它→0 时该退化成什么"逐条和真结果对账（变化题目 4）', run:reviewPredictions},
+ {nm:'这次至少弄清了哪一点？',ky:'',de:'搁置之前先封盘 —— 不要轻视那些小的成功（潜意识活动）', run:closeOut},
+ {nm:'回顾：当初猜得对吗？', ph:[8],ky:'',de:'把开局的猜测和实际结果并排看', run:reviewGuess},
+ {nm:'把这个条件写成式子', ph:[3],ky:'E', de:'条件的不同部分分开后，能写出来吗？—— 方程数才是能真数的东西', run:writeEq},
+ {nm:'回到定义上去', ph:[3],   ky:'',  de:'把术语换成定义，定义里的元素当场变成新星（定义 3、4）', run:backToDefinition},
+ {nm:'两条轨迹求交', ph:[5],   ky:'',  de:'各由一半条件画出的两条轨迹，交点就是要求作的对象', run:intersectLoci},
+ {nm:'把分析翻过来执行', ph:[7],ky:'',  de:'帕普斯：从分析最后到达的点开始，沿着步骤回溯上去（综合）', run:synthesize},
+ {nm:'互换角色 —— 未知量当已知', ph:[8],ky:'',de:'凭空造出一道新题；两题之间的关系不变（你能应用这个结果吗 3）', run:swapRoles},
+ {nm:'检验这个论证', ph:[7],   ky:'',  de:'薄弱优先、次序打乱 —— 避免单纯的重复（你能检验这个结果吗 3）', run:checkArgument},
+ {nm:'标成薄弱点', ph:[7],     ky:'',  de:'挑出论证中最薄弱的点，检验时先查它', run:markWeak},
+ {nm:'排成归纳表', ph:[8],     ky:'',  de:'把散落的特例整齐排列，逼出一句精确的陈述（归纳 1、2）', run:inductionTable},
+ {nm:'这个已知是多余的',ky:'', de:'实际题目里，大量数据常常是多余的 —— 标了就不再催你用它', run:markSpare},
+ {nm:'改成 · 结论',    ky:'',  de:'已经得到的结果', run:()=>setKind('result')},
+ {nm:'波利亚问我一句', ky:'?', de:'按当前阶段随机给一个提问', run:askOne},
+ {nm:'对称性检查',    ky:'',  de:'你的构造对可互换的量对称吗？破坏对称的构造通常是坏构造（辅助元素 3）', run:()=>toast('题目对 b 和 c 是对称的吗？如果是，你的图和你的构造也必须对称。','辅助元素 3：图9、图10之所以笨拙，就是因为它们破坏了对称性')},
+ {nm:'检验这个结果', ph:[8],  ky:'',  de:'⑨ 用到全部数据了吗？量纲对吗？推到极端还对吗？对称吗？', run:()=>toast('把数据推到极端：c→0 时公式该退化成什么？单位换成英寸还成立吗？a、b、c 互换后表达式变了吗？','第一部分 14 / 你能检验这个结果吗？')},
+ {nm:'拉到前面',      ky:']', de:'当前最该想的那颗，放到最前面来', run:()=>pushZ(1)},
+ {nm:'压到后面',      ky:'[', de:'暂时不管它 —— 变小变暗，但还在，随时捞回来', run:()=>pushZ(-1)},
+ {nm:'焦平面 —— 只剩这条链', ph:[2], ky:'\\', de:'选中的 + 直接连着它的留下，其余全部退远', run:toggleFocus},
+ {nm:'只看某一类关系', ph:[2], ky:';', de:'把不是这一类的线全部压暗 —— 换一个当主角', run:cycleSpot},
+ {nm:'让它自己长开（按住 G）', ky:'G', de:'力导向呼吸：松手就回到你手摆的位置，绝不破坏你的构图', run:()=>{RELAX=true;returning=0;setTimeout(()=>{RELAX=false;returning=1},2600);toast('松开后会自己回位')}},
+ {nm:'收成卫星',      ky:'O', de:'选中的第一颗当中心，其余排成一圈轨道；再按一次散开', run:orbit},
+ {nm:'画笔',          ky:'I', de:'随手圈一圈、划个箭头、打个问号 —— 纯颜料，不参与逻辑', run:toggleInk},
+ {nm:'擦掉全部墨迹',  ky:'',  de:'', run:()=>{P().ink=[];save();toast('墨迹擦干净了')}},
+ {nm:'删除',          ky:'⌫', de:'删掉选中的星体和它们的连线', run:delSel},
+ {nm:'清掉没用上的候选星', ky:'', de:'题面拆出来但一直没定类型的那些「（待定）」，一次删干净', run:()=>{
+    const c=N().filter(n=>n.cand); if(!c.length)return toast('没有候选星');
+    snap();c.forEach(n=>removeNode(n.id));save();diag();toast('清掉了 '+c.length+' 颗候选星')}},
+ {nm:'整理布局',      ky:'⇧T', de:'横着排：已知 → 条件 → 目标 → 辅助/轨迹 → 结论，互不重叠', run:tidy},
+ {nm:'把跑远的星体收回来', ky:'', de:'整张图等比收回正常范围，相对位置不变', run:()=>{
+    compact(true);deoverlap();save();fitAll();toast('收回来并排开了')}},
+ {nm:'全景',          ky:'F', de:'拉远看全局', run:fitAll},
+ {nm:'聚焦到选中',    ky:'⇧F',de:'拉近看细节', run:()=>{const n=selNodes()[0];if(n)flyTo(n,1.6)}},
+ {nm:'新题目',        ky:'',  de:'开一道新题', run:async()=>{await closeOut();const s=await ask('题目名字','题目 '+(DB.probs.length+1));if(s===null)return;DB.probs.push(blank(s||'未命名'));DB.cur=DB.probs.length-1;save();loadProb();if(isUse())putSkeleton()}},
+ {nm:'切换题目',      ky:'',  de:'在已有的题目之间切换', run:()=>openList('切换到哪道题？',DB.probs.map((p,i)=>({nm:p.name,de:(p.nodes.length+' 个星体'),run:()=>{DB.cur=i;save();loadProb()}})))},
+ {nm:'删掉这道题',    ky:'',  de:'', run:async()=>{if(DB.probs.length<2)return toast('至少留一道');if(!await ok('删掉「'+P().name+'」？'))return;DB.probs.splice(DB.cur,1);DB.cur=0;save();loadProb()}},
+ {nm:'导出为文字', ph:[8],    ky:'',  de:'把整张图变成一段可粘贴的文字', run:exportText},
+];
+let listMode=null;
+function openSheet(id){
+  const el=document.getElementById(id);el.classList.add('on');
+  const q=el.querySelector('input');q.value='';q.focus();
+  if(id==='pal'){listMode=null;q.placeholder='做点什么…（波利亚的动作全在这里）';palRender('')}
+  if(id==='pick')pkRender('');
+}
+function closeSheets(){document.querySelectorAll('.sheet').forEach(s=>s.classList.remove('on'));listMode=null}
+function openList(title,items){
+  listMode=items;
+  const el=document.getElementById('pal');el.classList.add('on');
+  const q=el.querySelector('input');q.value='';q.placeholder=title;q.focus();
+  palRender('');
+}
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+function palRender(q){
+  q=q.trim().toLowerCase();
+  const src=listMode||CMDS;
+  let list=src.filter(c=>!q||(c.nm+(c.de||'')+(c.ky||'')).toLowerCase().includes(q));
+  if(!listMode){                       /* 此刻该做的排最前 */
+    const ph=P().phase;
+    list=list.map((c,i)=>({c,i,hot:c.ph&&c.ph.includes(ph)?0:1}))
+             .sort((a,b)=>a.hot-b.hot||a.i-b.i).map(x=>x.c);
+  }
+  const box=document.getElementById('pall');
+  box.innerHTML=list.map((c,i)=>
+    `<div class="it${i===0?' k':''}" data-i="${src.indexOf(c)}">
+       <span class="ky">${esc(c.ky||'')}</span><span class="nm">${esc(c.nm)}</span>
+       <span class="de">${esc(c.de||'')}</span>${
+         (!listMode&&c.ph&&c.ph.includes(P().phase))?'<span class="tg">此刻</span>':''}</div>`).join('')
+   ||'<div class="it"><span class="de">没有匹配</span></div>';
+  [...box.children].forEach(el=>{
+    el.onclick=()=>{const c=src[+el.dataset.i];closeSheets();if(c&&c.run)c.run()};
+  });
+}
+document.getElementById('palq').addEventListener('input',e=>palRender(e.target.value));
+document.getElementById('palq').addEventListener('keydown',e=>{
+  e.stopPropagation();
+  if(e.key==='Escape'){closeSheets()}
+  if(e.key==='Enter'){const f=document.querySelector('#pall .it');if(f)f.click()}
+});
+document.querySelectorAll('.sheet').forEach(s=>s.onclick=e=>{if(e.target===s)closeSheets()});
+
+/* ══════════ 模型挂载 ══════════ */
+const MI=n=>MODELS.find(m=>m.n===n);
+function pkRender(q){
+  q=q.trim().toLowerCase();
+  const L=MODELS.filter(m=>!q||(m.zh+m.core+m.c+m.n).toLowerCase().includes(q));
+  const box=document.getElementById('pkl');
+  box.innerHTML=L.slice(0,140).map(m=>
+    `<div class="it" data-n="${m.n}" data-zh="${esc(m.zh)}"><span class="ky">${m.n}</span>
+      <span class="nm">${esc(m.zh)}</span><span class="de">${esc(m.core)}</span>
+      <span class="tg bbgo">▦ 黑板</span>
+      <span class="tg">${MOMT[m.m]||''}</span></div>`).join('')
+   ||'<div class="it"><span class="de">没有匹配</span></div>';
+  [...box.children].forEach(el=>{el.onclick=(ev)=>{
+    if(ev.target.classList.contains('bbgo')){closeSheets();window.BB&&BB.open(el.dataset.zh);return}
+    const ns=selNodes(); if(!ns.length){toast('先选一颗星');closeSheets();return}
+    ns.forEach(n=>{n.ms=n.ms||[];if(!n.ms.includes(el.dataset.n))n.ms.push(el.dataset.n)});
+    const m=MI(el.dataset.n); closeSheets();save();
+    if(m)toast(m.zh+'：'+m.core,'已挂到「'+ns[0].t+'」上');
+  }});
+}
+document.getElementById('pkq').addEventListener('input',e=>pkRender(e.target.value));
+document.getElementById('pkq').addEventListener('keydown',e=>{e.stopPropagation();if(e.key==='Escape')closeSheets()});
+
+/* ══════════ 环形菜单 ══════════ */
+const RING=[
+ {i:'✂',u:'砍',run:cutSel},{i:'⤫',u:'裂开',run:splitSel},{i:'◠',u:'轨迹',run:makeLocus},
+ {i:'⇄',u:'重组',run:recombine},{i:'⌒',u:'造桥',run:bridge},{i:'↩',u:'倒推',run:backwards},
+ {i:'≈',u:'类比',run:analogy},{i:'⇢',u:'连线',run:()=>startLink('bind')},
+ {i:'◈',u:'挂模型',run:()=>openSheet('pick')},{i:'⌘',u:'全部',run:()=>openSheet('pal')}
+];
+const RING_BY={
+ cond:[{i:'✂',u:'砍',run:cutSel},{i:'⤫',u:'裂开',run:splitSel},{i:'=',u:'写式子',run:writeEq},
+       {i:'◠',u:'画轨迹',run:makeLocus},{i:'⇢',u:'连线',run:()=>startLink('bind')},
+       {i:'◈',u:'挂模型',run:()=>openSheet('pick')},{i:'⌘',u:'全部',run:()=>openSheet('pal')}],
+ unknown:[{i:'?',u:'哪一类',run:unknownType},{i:'⚖',u:'自由度',run:setDof},
+       {i:'↩',u:'倒推',run:backwards},{i:'⌒',u:'造桥',run:bridge},{i:'◠',u:'画轨迹',run:makeLocus},
+       {i:'≈',u:'类比',run:analogy},{i:'⌘',u:'全部',run:()=>openSheet('pal')}],
+ aux:[{i:'!',u:'为什么',run:auxReason},{i:'⇄',u:'重组',run:recombine},{i:'≡',u:'对称性',run:()=>runCmd('对称性检查')},
+       {i:'⇢',u:'连线',run:()=>startLink('reduce')},{i:'⌘',u:'全部',run:()=>openSheet('pal')}],
+ locus:[{i:'✕',u:'求交',run:intersectLoci},{i:'⇢',u:'连线',run:()=>startLink('bind')},
+       {i:'⌘',u:'全部',run:()=>openSheet('pal')}],
+ data:[{i:'⇢',u:'连线',run:()=>startLink('imply')},{i:'∞',u:'推到极端',run:limitCase},
+       {i:'⇄',u:'互换角色',run:swapRoles},{i:'∅',u:'多余',run:markSpare},
+       {i:'◈',u:'挂模型',run:()=>openSheet('pick')},{i:'⌘',u:'全部',run:()=>openSheet('pal')}],
+ idea:[{i:'▣',u:'特例',run:specialize},{i:'▤',u:'普遍化',run:generalize},{i:'⊞',u:'归纳表',run:inductionTable},
+       {i:'⚠',u:'薄弱',run:markWeak},{i:'⌘',u:'全部',run:()=>openSheet('pal')}]
+};
+function runCmd(nm){const c=CMDS.find(x=>x.nm.indexOf(nm)===0);if(c)c.run()}
+function showRing(x,y){
+  const r=document.getElementById('ring');r.innerHTML='';r.classList.add('on');
+  const R=96;
+  const s0=selNodes()[0];
+  const set = s0 ? (RING_BY[s0.k]||RING)
+    : [{i:'✦',u:'新建星',run:()=>CMDS[0].run()},
+       {i:'❊',u:'题面拆星',run:seedFromStmt},
+       {i:'✎',u:'画笔',run:toggleInk},
+       {i:'⊙',u:'全景',run:fitAll},
+       {i:'?',u:'问我一句',run:askOne},
+       {i:'⌘',u:'全部',run:()=>openSheet('pal')}];
+  set.forEach((b,i)=>{
+    const a=-Math.PI/2+i*2*Math.PI/set.length;
+    const d=document.createElement('div');d.className='rb';
+    const cx=Math.max(R+34,Math.min(innerWidth-R-34,x));
+    const cy=Math.max(R+34,Math.min(innerHeight-R-34,y));
+    d.style.left=(cx+Math.cos(a)*R)+'px';d.style.top=(cy+Math.sin(a)*R)+'px';
+    d.style.animationDelay=(i*14)+'ms';
+    d.innerHTML=`<i>${b.i}</i><u>${b.u}</u>`;
+    d.onclick=ev=>{ev.stopPropagation();hideRing();b.run()};
+    r.appendChild(d);
+  });
+}
+function hideRing(){document.getElementById('ring').classList.remove('on')}
+
+/* ══════════ 键盘 ══════════ */
+addEventListener('keydown',e=>{
+  if(document.querySelector('.sheet.on'))return;
+  if(editing)return;
+  const k=e.key;
+  if(k===' '){spaceDown=true;cv.style.cursor='grabbing';e.preventDefault();return}
+  if(e.metaKey||e.ctrlKey){
+    if(k.toLowerCase()==='z'){e.preventDefault();undo();return}
+    if(k.toLowerCase()==='k'){e.preventDefault();openSheet('pal')}
+    return;                      /* ⌘S ⌘R ⌘A ⌘F 等一律还给浏览器 */
+  }
+  if(k==='Escape'){sel.clear();selE.clear();linkFrom=null;linkTo=null;pendingRel=null;mode='idle';SPOT=null;FOCUS=false;
+    inkMode=false;hideRing();closeSheets();return}
+  if(k==='Delete'||k==='Backspace'){e.preventDefault();delSel();return}
+  if(k==='Enter'){const n=selNodes()[0];if(n)startEdit(n);return}
+  if(k==='T'&&e.shiftKey){tidy();return}
+  if(k==='['){pushZ(-1);return}
+  if(k===']'){pushZ(1);return}
+  if(k==='\\'){toggleFocus();return}
+  if(k===';'){cycleSpot();return}
+  if(k.toLowerCase()==='g'&&!RELAX){RELAX=true;returning=0;
+    toast('松开 G 就回到你摆的位置','让它自己长开，看看结构本来想长成什么样');return}
+  const map={n:()=>CMDS[0].run(),l:()=>startLink('bind'),x:cutSel,t:makeLocus,d:splitSel,
+    r:recombine,b:bridge,w:backwards,a:analogy,v:limitCase,s:specialize,p:generalize,
+    o:orbit,i:toggleInk,e:writeEq,
+    u:unknownType,m:()=>openSheet('pick'),'?':askOne,'/':()=>openSheet('pal')};
+  const lk=k.toLowerCase();
+  if(lk==='n'&&e.shiftKey){                       /* ⇧N = 从选中的星长出一颗子星 */
+    const n0=selNodes()[0];
+    if(!n0)return toast('先选一颗星','选中后它右边会浮出一个 ＋，点它也一样');
+    e.preventDefault();growChild(n0);return;
+  }
+  if(lk==='f'){
+    if(e.shiftKey){const n=selNodes()[0];if(n)flyTo(n,1.6)}
+    else{if(compact()){deoverlap();save();toast('顺手把跑远的星体收回来并排开了')}fitAll()}
+    return;
+  }
+  const dg=/^Digit([1-5])$/.exec(e.code);
+  if(dg){
+    const v=+dg[1];
+    if(e.shiftKey)setW(v); else setKind(kindByDigit(v));
+    return;
+  }
+  if(k==='='||k==='+'){bumpW(1);return}
+  if(k==='-'||k==='_'){bumpW(-1);return}
+  if(map[lk]){e.preventDefault();map[lk]();}
+});
+function resetTransient(){
+  spaceDown=false;if(RELAX){RELAX=false;returning=1}
+  if(mode==='drag'||mode==='pan'||mode==='marq'||mode==='ink'){mode='idle'}
+  dragOff=null;marq=null;panFrom=null;inking=null;cv.style.cursor='default';
+}
+addEventListener('blur',resetTransient);
+cv.addEventListener('pointercancel',resetTransient);
+addEventListener('keyup',e=>{
+  if(e.key===' '){spaceDown=false;cv.style.cursor='default'}
+  if(e.key.toLowerCase()==='g'&&RELAX){RELAX=false;returning=1}
+});
+function toggleInk(){inkMode=!inkMode;
+  toast(inkMode?'画笔打开 —— 随手圈、画箭头、打问号':'画笔关了',
+        inkMode?'再按一次 I 关掉；墨迹不参与任何逻辑，纯颜料':'')}
+
+/* ══════════ 导出 ══════════ */
+function exportText(){
+  const p=P();
+  let s='# '+p.name+'\n\n'+(p.stmt||'')+'\n\n'
+    +(p.ptype?('题型：'+{math:'求解题',prove:'证明题',real:'实际题目',riddle:'谜语'}[p.ptype]+'\n'):'')
+    +(p.guess&&p.guess.suff?('开局猜测：条件'+p.guess.suff+(p.guess.nsol?('，'+p.guess.nsol+' 个解'):'')+'\n\n'):'\n');
+  const grp={unknown:'未知量',concl:'要证的结论',data:'已知数据',given:'题设',cond:'条件',
+    aux:'辅助 / 踏脚石',lemma:'辅助定理',locus:'轨迹',idea:'念头',result:'结论'};
+  Object.keys(grp).forEach(k=>{
+    const ns=N().filter(n=>n.k===k); if(!ns.length)return;
+    s+='## '+grp[k]+'\n';
+    ns.forEach(n=>{s+='- '+(n.cut?'~~':'')+n.t+(n.cut?'~~（已砍）':'')
+      +(n.eq?`　式子：${n.eq}`:'')
+      +(n.dof?`（自由度 ${n.dof}）`:'')
+      +(n.ms&&n.ms.length?'　◈ '+n.ms.map(x=>(MI(x)||{}).zh).filter(Boolean).join('、'):'')
+      +(n.reason?'　理由：'+n.reason:'')+'\n'});
+    s+='\n';
+  });
+  if(E().length){s+='## 关系\n';
+    E().forEach(e=>{const a=byId(e.a),b=byId(e.b);if(a&&b)
+      s+=`- ${a.t} —[${(RELS[e.k]||{}).t}${e.label?'：'+e.label:''}]→ ${b.t}\n`})}
+  if(navigator.clipboard&&navigator.clipboard.writeText){
+    navigator.clipboard.writeText(s)
+      .then(()=>toast('已复制到剪贴板','整张图变成了文字，可以直接粘进笔记'))
+      .catch(()=>fallbackCopy(s));
+  }else fallbackCopy(s);
+}
+
+function fallbackCopy(s){
+  const ta=document.createElement('textarea');ta.value=s;
+  ta.style.cssText='position:fixed;left:-9999px';document.body.appendChild(ta);
+  ta.select();let ok=false;try{ok=document.execCommand('copy')}catch(e){}
+  document.body.removeChild(ta);
+  toast(ok?'已复制到剪贴板':'复制失败，已打印到控制台',ok?'':'按 F12 打开控制台自取');
+  if(!ok)console.log(s);
+}
+
+
+/* ══════════ 三个模式 ══════════ */
+if(!DB.ui)DB.ui={mode:'novice'};
+const MODES=[
+ {k:'novice',t:'新手',d:'左边有零件盒和图例，拖进来就能用；一切都告诉你'},
+ {k:'train', t:'训练',d:'波利亚原书第四部分的真题，卡住了可以要他本人的提示'},
+ {k:'use',   t:'使用',d:'干净的宇宙，什么都不挡你 —— 拿来解真问题'}
+];
+const SKELETON={t:'通用骨架',n:[      /* 横着排：已知 → 条件 → 目标 → 踏脚石 */
+  ['我要的是什么？','unknown',420,0,{w:5,dof:1}],
+  ['我手上有什么 ①','data',-760,-130],
+  ['我手上有什么 ②','data',-760,130],
+  ['必须满足什么 ①','cond',-180,-130],
+  ['必须满足什么 ②','cond',-180,130],
+  ['先干哪一步？（踏脚石）','aux',1000,0,{w:3}]],
+ e:[[3,0,'bind'],[4,0,'bind'],[1,3,'imply'],[2,4,'imply'],[5,0,'reduce']]};
+function putSkeleton(){
+  if(N().length)return false;
+  const c=s2w(innerWidth/2,innerHeight/2), ids=[];
+  SKELETON.n.forEach(([t,k,x,y,ex])=>ids.push(addNode(t,k,c.x+x,c.y+y,ex||{}).id));
+  SKELETON.e.forEach(([a,b,r])=>makeEdge(ids[a],ids[b],r));
+  ensureNoOverlap();
+  P().sig=null;checkSignals();          /* 骨架自带的连线不算"进展" */
+  save();fitAll();diag();return true;
+}
+/* 清空重来：只留题面 */
+async function wipe(){
+  if(!N().length)return putSkeleton()&&0;
+  if(!await ok('把这道题的图全部清空重来？（题面保留，可以 ⌘Z 撤销）'))return;
+  snap();P().nodes=[];P().edges=[];P().ink=[];sel.clear();boxCache.clear();
+  ghostDirty=true;save();diag();
+  toast('清空了','要基础骨架就 ⌘K 搜「骨架」，或者直接从零件盒拖');
+}
+function setMode(k){
+  DB.ui.mode=k;save();drawModes();drawPanel();
+  putSkeleton();          /* 空宇宙就先摆一个骨架，三个模式都给 */
+  document.body.classList.toggle('m-use',k==='use');
+  const m=MODES.find(x=>x.k===k);
+  toast(m.t+'模式',m.d);
+  if(k==='train'&&!P().trainId)trainPick();
+}
+function drawModes(){
+  const b=document.getElementById('modes');b.innerHTML='';
+  MODES.forEach(m=>{const d=document.createElement('span');
+    d.className=(DB.ui.mode===m.k?'on':'');d.textContent=m.t;d.title=m.d;
+    d.onclick=()=>setMode(m.k);b.appendChild(d)});
+}
+
+/* ---------- 新手面板：零件盒 + 图例 + 快捷键 ---------- */
+const PARTS=[
+ {k:'unknown',t:'未知量',key:'1',w:'要什么'},
+ {k:'data',   t:'已知',  key:'2',w:'给了什么'},
+ {k:'cond',   t:'条件',  key:'3',w:'把两者拴在一起的'},
+ {k:'aux',    t:'辅助 / 踏脚石',key:'4',w:'自己引进来的'},
+ {k:'idea',   t:'念头',  key:'5',w:'还没想清的'},
+ {k:'locus',  t:'轨迹',  key:'T',w:'它能跑到哪儿'},
+ {k:'result', t:'结论',  key:'',w:'已经得到的'},
+];
+const STEPS9=[
+ ['扫整体', '一句话说清「给了什么、要什么」。说不出就别动手。'],
+ ['摊零件', '拖出三样：未知量、已知、条件。先摆出来，不深究。'],
+ ['筛关键', '哪条条件直接碰到未知量？其余的先压到后面（[）。'],
+ ['挖细节', '选中条件按 E，把它写成式子。写不出说明还没拆到位。'],
+ ['再循环', '按 U 问：未知量是哪一类？每一类都有现成的下手方式。'],
+ ['拆 + 砍', '按 X 砍掉一半条件，按 T 画出未知量还能跑到哪儿（轨迹）。'],
+ ['重组',   '两条轨迹求交；够不着就造一块踏脚石（B）。'],
+ ['执行',   '每一步问自己：我是看出来的，还是能证明的？'],
+ ['回顾',   '什么时候无解？把数据推到极端还对吗？留下「这题教了我什么」。'],
+];
+const LEGEND=[
+ {i:'◎',t:'一圈圈往外扩的光环 = 未知量。<b>环有几圈就是几个自由度</b>（点=2）'},
+ {i:'○',t:'条件下面的小圆点：<b>空心 = 还没写成式子，实心 = 写了</b>（按 E 写）'},
+ {i:'—',t:'星体上划一道线 = <b>被你暂时砍掉了</b>（按 X），随时按 X 恢复'},
+ {i:'⋯',t:'两颗星之间极淡的虚线 = <b>同一个符号两边都有，却没连线</b>'},
+ {i:'·',t:'线上流动的小光点 = <b>方向</b>（谁推出谁）'},
+ {i:'⤫',t:'整颗星变暗 = <b>它已经和目标断开了</b>，或者被你压到后面了'},
+ {i:'◈',t:'紫色小字 = <b>挂在这颗星上的思维模型</b>'},
+];
+const KEYS=[
+ ['双击空白','造一颗星'],['从星边缘拖出去','拉一条线'],['松在空白处','直接长出新星'],
+ ['1 . . 5','改类型'],['⇧1..5','改大小'],['] / [','拉到前面 / 压到后面'],
+ ['X','砍掉这条条件'],['T','画轨迹'],['D','把条件裂成两半'],['E','写成式子'],
+ ['M','挂一个思维模型'],['\\\\','焦平面：只剩这条链'],['按住 G','让图自己长开'],
+ ['滚轮 / ⌘滚轮','漂 / 缩放'],['F','全景'],['⌘Z','撤销'],['⌘K','全部动作'],
+];
+function drawPanel(){
+  const el=document.getElementById('panel');
+  const md=DB.ui.mode;
+  if(md==='use'){el.classList.remove('on');el.innerHTML='';return}
+  el.classList.add('on');
+  if(md==='train'){
+    const t=TRAIN.find(x=>x.id===P().trainId);
+    el.innerHTML=`<div class="close" onclick="setMode('use')">✕</div>
+      <h4>训练 · 波利亚第四部分</h4>
+      <div class="sec">
+        ${t?`<div style="font-size:12.5px;color:var(--ink);line-height:1.7">${esc(t.q)}</div>
+        <div style="margin-top:12px;display:flex;gap:8px;flex-wrap:wrap">
+          <b onclick="trainHint()" style="font-size:11.5px;color:var(--gd);cursor:pointer;font-weight:400">要一句提示</b>
+          <b onclick="trainPick()" style="font-size:11.5px;color:var(--cy);cursor:pointer;font-weight:400">换一道</b>
+          <b onclick="trainDone()" style="font-size:11.5px;color:var(--gr);cursor:pointer;font-weight:400">我解出来了</b>
+        </div>
+        <div style="font-size:10.5px;color:var(--far);margin-top:10px">已解 ${(DB.ui.solved||[]).length} / ${TRAIN.length}</div>`
+        :'<div style="font-size:12px;color:var(--far)">点「换一道」开始</div>'}
+      </div>
+      <h4>零件盒 · 拖进宇宙</h4><div class="sec" id="parts"></div>`;
+  }else{
+    el.innerHTML=`<div class="close" onclick="setMode('use')">✕</div>
+      <h4>九步 · 照着做</h4>
+      <div class="sec" id="steps9"></div>
+      <h4>零件盒 · 拖进宇宙</h4><div class="sec" id="parts"></div>
+      <h4>图上这些东西是什么意思</h4>
+      <div class="sec">${LEGEND.map(l=>`<div class="lg"><em>${l.i}</em><span>${l.t}</span></div>`).join('')}</div>
+      <h4>怎么给一个点挂模型</h4>
+      <div class="sec"><div class="lg"><em>◈</em><span>选中那颗星 → 按 <b>M</b> → 搜一个模型 → 点它。
+        136 个模型全在里面，挂上去会显示成紫色小字。</span></div></div>
+      <h4>导入一个空模板</h4>
+      <div class="sec"><div class="lg"><em>⌘K</em><span>搜「模板」 —— 求解题 / 证明题 / 商业决策 / 写作论证，
+        骨架先摆好，你只管填字。</span></div></div>
+      <h4>手势与快捷键</h4>
+      <div class="sec">${KEYS.map(k=>`<div class="kb"><span>${k[1]}</span><u>${k[0]}</u></div>`).join('')}</div>`;
+  }
+  const sb=document.getElementById('steps9');
+  if(sb)STEPS9.forEach((st,i)=>{
+    const d=document.createElement('div');
+    d.className='lg';d.style.cursor='pointer';
+    d.innerHTML=`<em style="color:${i===P().phase?'var(--cy)':'var(--far)'}">${'①②③④⑤⑥⑦⑧⑨'[i]}</em>`+
+      `<span><b style="color:${i===P().phase?'var(--ink)':'var(--dim)'}">${st[0]}</b><br>${st[1]}</span>`;
+    d.onclick=()=>{
+      P().phase=i;P().manualPhase=i;save();drawPhases();drawPanel();
+      const acts=CMDS.filter(c=>c.ph&&c.ph.includes(i));
+      if(acts.length)openList('①②③④⑤⑥⑦⑧⑨'[i]+' '+st[0]+' —— 这一步能用的动作',acts);
+      else toast(st[1],'①②③④⑤⑥⑦⑧⑨'[i]+' '+st[0]);
+    };
+    sb.appendChild(d);
+  });
+  const pb=document.getElementById('parts');
+  if(pb)PARTS.forEach(pt=>{
+    const c=(KINDS[pt.k]||KINDS.idea).c;
+    const d=document.createElement('div');d.className='chip2';
+    d.innerHTML=`<u style="background:rgb(${c});box-shadow:0 0 10px rgba(${c},.9)"></u>
+      <b>${pt.t}</b><i>${pt.key}</i>`;
+    d.title=pt.w+' —— 拖进宇宙';
+    d.addEventListener('pointerdown',e=>startSpawn(e,pt));
+    pb.appendChild(d);
+  });
+}
+/* 从零件盒拖到宇宙里 */
+let spawning=null;
+function startSpawn(e,pt){
+  e.preventDefault();
+  spawning=pt;
+  const g=document.getElementById('drag');
+  const c=(KINDS[pt.k]||KINDS.idea).c;
+  g.style.display='block';g.style.color=`rgb(${lighten(c)})`;g.textContent=pt.t;
+  const mv=ev=>{g.style.left=(ev.clientX+14)+'px';g.style.top=(ev.clientY-14)+'px'};
+  const up=ev=>{
+    document.removeEventListener('pointermove',mv);document.removeEventListener('pointerup',up);
+    g.style.display='none';
+    const el=document.getElementById('panel');
+    const r=el.getBoundingClientRect();
+    if(!(ev.clientX>r.left&&ev.clientX<r.right&&ev.clientY>r.top&&ev.clientY<r.bottom)){
+      const w=s2w(ev.clientX,ev.clientY);
+      const n=addNode('',pt.k,w.x,w.y,pt.k==='unknown'?{w:5,dof:1}:{});
+      sel.clear();sel.add(n.id);curKind=pt.k;startEdit(n);
+    }
+    spawning=null;
+  };
+  mv(e);
+  document.addEventListener('pointermove',mv);document.addEventListener('pointerup',up);
+}
+
+/* ---------- 训练题库：波利亚《怎样解题》第四部分 ---------- */
+const TRAIN=[
+ {id:1,q:'一只熊从 P 点出发，向正南走一英里，然后向正东走一英里，然后再向左转往正北走一英里，此时它正好回到出发的 P 点。这只熊是什么颜色的？',
+  h:'未知量是什么？一只熊的颜色 —— 但我们怎么能从数学数据里得出熊的颜色？已知的是什么？一种几何状况 —— 可这看起来自相矛盾：走了三英里怎么可能回到出发点？'},
+ {id:2,q:'鲍勃想要一块完全平坦的土地，有四条边界线，其中两条正南北走向、两条正东西走向，每条边界线长度恰好 100 英尺。他能在美国买到这样一块地吗？',
+  h:'你知道一道与它有关的题目吗？（上一题。）'},
+ {id:3,q:'鲍勃有 10 个口袋和 44 枚银币。他想把银币分到口袋里，使每个口袋里的枚数都不相同。他能做到吗？',
+  h:'如果银币很多，当然不成问题。你能重新叙述这道题目吗 —— 能装进 10 个口袋且每袋数目都不同的【最小】银币数是多少？'},
+ {id:4,q:'为了给一本厚书标页码，印刷工人用了 2989 个数字。这本书总共有多少页？',
+  h:'这里有一道和你有关的题：如果这本书恰有 9 页，印刷工人用到多少数字？（9 个。）再来一道：恰有 99 页呢？'},
+ {id:5,q:'祖父的文件里有一张账单：72 只火鸡 $_67.9_，总价的第一位和最后一位数码已经褪色。这两个数码是什么？每只火鸡多少钱？',
+  h:'你能重新叙述这道题目吗？如果整个价格用美分表示、并且能被 72 整除，那两个褪色的数字会是什么？'},
+ {id:6,q:'已知一个正六边形和它所在平面上的一点，过此点作一直线，把这个六边形分成面积相等的两部分。',
+  h:'你能否想到一道更容易着手的相关题目？一道更为普遍化的题目？（见普遍化 2：给定一条直线和一个有对称中心的立体……）'},
+ {id:7,q:'已知一个正方形，从某一点观察它时张角为 (a) 90°、(b) 45°，求这些点的轨迹。',
+  h:'你知道一道与它有关的题目吗？—— 以已知张角观察一条已知线段的点，其轨迹是两段圆弧，端点在线段两端、关于线段对称。'},
+ {id:8,q:'联结立体表面上两点的直线，若该立体绕它转过一个大于 0° 小于 360° 的角后能与自身重合，就称为一根「轴」。求一个立方体的所有轴，描述每根轴的位置和对应的转角。',
+  h:'你大概一眼就能看出几根轴 —— 但它们是全部吗？你能证明你列出的已经穷尽？你的表是不是基于一个清晰的分类原则？'},
+ {id:9,q:'一个四面体的两条对边长度都是 a，且互相垂直；它们又都垂直于联结它们中点的、长度为 b 的线段。用 a 和 b 表示这个四面体的体积，并证明你的答案。',
+  h:'观察未知量！未知量是一个四面体的体积 —— 只要底面和高已知就能算。但本例两者都不知道。你能否想到一道更容易着手的相关题目？（你没看到一个更好着手的四面体吗？它是已知四面体的一个等分部分。）'},
+ {id:10,q:'如果一个棱锥的顶点到底面各角顶点的距离相等，就称它是「等腰的」。证明此时底面内接于一个圆，圆心即棱锥高的垂足。',
+  h:'你知道一条与它有关的、更简单的、类似的定理吗？—— 在等腰三角形中，高的垂足即底边中点。那条定理是通过两个直角三角形全等证明的，它们的公共边就是高。你能利用它的【方法】吗？'},
+ {id:11,q:'三位朋友要一起从 A 到 B，只有一辆自行车（只能载两人）。鲍勃和保罗先骑车走，鲍勃把保罗放下后骑回来接彼得……把条件的不同部分分开，求他们同时到达的时间安排。',
+  h:'将条件的不同部分分开。你能把它们写出来吗？出发到再次相遇之间有三个阶段：(1) 鲍勃和保罗乘车 (2) 鲍勃独自乘车 (3) 鲍勃和彼得乘车。把这三段时间分别命名。'},
+ {id:12,q:'用一分币、五分币、一角币、二角五分币和五角币，有多少种方式可以支付 100 分？',
+  h:'这道题既一般又「孤立」。你能想到一道更容易着手的类似题目吗？—— 只用一分币支付 n 分钱有几种方式？（1 种。）先把 n 很小的情形一个个列出来，观察。'},
+];
+function trainPick(){
+  const done=new Set(DB.ui.solved||[]);
+  const pool=TRAIN.filter(t=>!done.has(t.id));
+  const t=(pool.length?pool:TRAIN)[Math.floor(Math.random()*(pool.length||TRAIN.length))];
+  const np=blank('训练 '+t.id);
+  np.stmt=t.q; np.trainId=t.id; np.ptype='math';
+  DB.probs.push(np);DB.cur=DB.probs.length-1;save();loadProb();putSkeleton();drawPanel();
+  toast('骨架先给你摆好了 —— 逐个双击改成这道题的话','第一步永远是：未知量是什么？');
+}
+function trainHint(){
+  const t=TRAIN.find(x=>x.id===P().trainId);
+  if(!t)return toast('先换一道题');
+  toast(t.h,'波利亚给你的提示 —— 只有一句，剩下的靠你');
+}
+function trainDone(){
+  const id=P().trainId; if(!id)return;
+  DB.ui.solved=DB.ui.solved||[];
+  if(!DB.ui.solved.includes(id))DB.ui.solved.push(id);
+  save();drawPanel();closeOut();
+  toast('记下了。这题教了我什么？','回顾是波利亚四阶段里最被忽略的一个 —— 别跳过它');
+}
+
+/* ---------- 空模板 ---------- */
+const TPL={
+ solve:{t:'求解题骨架',n:[['要求的是什么？','unknown',420,0,{w:5,dof:1}],
+   ['已知 ①','data',-780,-130],['已知 ②','data',-780,130],
+   ['条件 ①：把已知和未知拴在一起','cond',-180,-130],['条件 ②','cond',-180,130]],
+   e:[[3,0,'bind'],[4,0,'bind'],[1,3,'imply'],[2,4,'imply']]},
+ prove:{t:'证明题骨架',n:[['要证的结论','concl',420,0,{w:5}],
+   ['题设 ①','given',-700,-130],['题设 ②','given',-700,130],
+   ['打算用哪条已知定理？','lemma',-120,0]],
+   e:[[1,3,'imply'],[2,3,'imply'],[3,0,'imply']]},
+ biz:{t:'商业决策骨架',n:[['该不该做这件事？','unknown',480,0,{w:5,dof:1}],
+   ['手上有什么（钱/人/时间/渠道）','data',-900,-140],
+   ['市场给的事实（数据）','data',-900,140],
+   ['硬约束：不能碰的红线','cond',-200,-140],
+   ['成功的判据：怎样算赢','cond',-200,140],
+   ['最小可行的第一步（踏脚石）','aux',1080,0]],
+   e:[[3,0,'bind'],[4,0,'bind'],[1,3,'imply'],[2,4,'imply'],[0,5,'reduce']]},
+ write:{t:'写作论证骨架',n:[['我要立的那个论点','concl',480,0,{w:5}],
+   ['证据 ①','given',-820,-140],['证据 ②','given',-820,140],
+   ['反方最强的一击','cond',-160,140],['我怎么接住它','aux',-160,-140]],
+   e:[[1,0,'imply'],[2,0,'imply'],[3,0,'clash'],[4,3,'imply'],[4,0,'imply']]},
+};
+function loadTemplate(){
+  openList('导入一个空模板（骨架先摆好，你只管填字）',
+    Object.keys(TPL).map(k=>({nm:TPL[k].t,de:TPL[k].n.length+' 颗星，已经连好',run:()=>{
+      snap();
+      const T=TPL[k], c=s2w(innerWidth/2,innerHeight/2), ids=[];
+      T.n.forEach(([t,kind,x,y,ex])=>{ids.push(addNode(t,kind,c.x+x,c.y+y,ex||{}).id)});
+      T.e.forEach(([a,b,r])=>makeEdge(ids[a],ids[b],r));
+      ensureNoOverlap();
+      if(k==='prove'){P().mode2='prove';P().ptype='prove'}
+      save();fitAll();diag();
+      toast(T.t+' 已经放进来了','逐个双击改成你自己的话');
+    }})));
+}
+
+
+/* ══════════ 讲解演示：从空宇宙一步步搭出来 ══════════ */
+let D={};
+const DEMOS=[
+{k:'locus',cat:'解题',name:'两条轨迹求交',desc:'几何作图 · 砍掉一半条件，看未知量还能跑到哪儿（分解和重组 7）',steps:[
+ {s:'什么都没有。<b>先问一句：要什么？</b>',f:()=>{}},
+ {s:'<i>① 扫整体</i> —— 一句话说清「给了什么、要什么」',
+  f:()=>{P().stmt='已知三角形的一边 a、a 边上的高 h、以及 a 的对角 α，作这个三角形。'}},
+ {s:'<i>② 摊零件</i> —— 先立目标。BC 能先作出来，所以真正的未知量<b>是一个点</b>',
+  f:()=>{D.A=addNode('第三个顶点 A','unknown',0,-40,{w:5,dof:2,noNudge:1}).id}},
+ {s:'平面上一个点 = <b>2 个自由度</b>。所以它有两圈光环 —— 需要两个条件才锁得住',f:()=>{}},
+ {s:'<i>② 摊零件</i> —— 给了什么？三样：一条边、一条高、一个角',
+  f:()=>{D.a=addNode('先作出 BC，长度 = a','data',-560,-230,{noNudge:1}).id;
+         D.h=addNode('高 h','data',-620,10,{noNudge:1}).id;
+         D.al=addNode('角 α','data',-580,250,{noNudge:1}).id}},
+ {s:'<i>② 摊零件</i> —— 条件是什么？<b>条件就是把已知和未知拴在一起的东西</b>',
+  f:()=>{D.c1=addNode('A 到 BC 的距离 = h','cond',-120,330,{w:4,noNudge:1}).id;
+         D.c2=addNode('∠BAC = α，两边过 B、C','cond',430,300,{w:4,noNudge:1}).id}},
+ {s:'把条件连到目标上 —— <b>金线 = 约束</b>。只有这两条直接碰到 A',
+  f:()=>{makeEdge(D.c1,D.A,'bind');makeEdge(D.c2,D.A,'bind');
+         makeEdge(D.h,D.c1,'imply');makeEdge(D.al,D.c2,'imply');
+         makeEdge(D.a,D.c1,'imply');makeEdge(D.a,D.c2,'imply')}},
+ {s:'<i>③ 筛关键</i> —— 绿色的只是原料，<b>关键全在这两条金线上</b>',f:()=>{}},
+ {s:'<i>④ 挖细节</i> —— 把条件写成式子。<b>写不出，说明还没拆到位</b>',
+  f:()=>{byId(D.c1).eq='dist(A, BC) = h';byId(D.c2).eq='∠BAC = α';boxCache.clear()}},
+ {s:'<i>⑤ 再循环</i> —— 观察未知量：它是<b>平面上一个点</b>。波利亚给了这一类的现成方案',
+  f:()=>{D.aux=addNode('把「作三角形」化简为「作一个点」','aux',520,-260,{w:4,noNudge:1,
+          reason:'点 = 两条轨迹的交点（观察未知量 3）'}).id;
+         makeEdge(D.aux,D.A,'same','就是求这个点')}},
+ {s:'<i>⑥ 拆 + 砍</i> —— <b>只保留一半条件，丢掉另一半</b>',
+  f:()=>{byId(D.c1).cut=true}},
+ {s:'A 被松开了。<b>只剩「∠BAC = α」的话，A 能跑到哪儿？</b>',
+  f:()=>{D.l1=addNode('轨迹①：以 BC 为弦、张角 α 的一段圆弧','locus',560,120,{w:3,noNudge:1}).id;
+         makeEdge(D.l1,D.A,'locusof','它只能落在这条弧上')}},
+ {s:'<b>反过来再来一次</b> —— 恢复这条，改砍另一条',
+  f:()=>{byId(D.c1).cut=false;byId(D.c2).cut=true}},
+ {s:'只剩「到 BC 的距离 = h」的话，A 只能在<b>一条平行于 BC 的直线</b>上',
+  f:()=>{D.l2=addNode('轨迹②：平行于 BC、距离为 h 的直线','locus',-560,-460,{w:3,noNudge:1}).id;
+         makeEdge(D.l2,D.A,'locusof','它只能落在这条线上')}},
+ {s:'两条条件都恢复。现在图上有<b>两条轨迹</b>',f:()=>{byId(D.c2).cut=false}},
+ {s:'<i>⑦ 重组</i> —— <b>两条轨迹的交点，就是要作的那个点 A</b>',
+  f:()=>{D.r=addNode('交点 = 点 A，三角形作完','result',0,470,{w:5,noNudge:1}).id;
+         makeEdge(D.l1,D.r,'imply','交');makeEdge(D.l2,D.r,'imply','交');
+         makeEdge(D.r,D.A,'same','就是它')}},
+ {s:'<i>⑧ 执行</i> —— 作 BC → 作平行线 → 作含角 α 的弧 → 交点即 A → 连 AB、AC',f:()=>{}},
+ {s:'<i>⑨ 回顾</i> —— <b>什么时候无解？什么时候两解？</b>（直线和弧的位置关系）',f:()=>{}},
+ {s:'这题教了我什么：<b>把「作一个图形」化简为「作一个点」，再用两条轨迹交出它</b>',f:()=>{}},
+]},
+
+{k:'analogy',cat:'解题',name:'类比 —— 降一维',desc:'卡住了？造一道更简单的平行题，再把它的方法搬回来（类比 3、5、7）',steps:[
+ {s:'题目：<b>求一个均匀四面体的重心。</b>不懂积分的话，这题在阿基米德时代是个大问题',
+  f:()=>{P().stmt='求一个均匀四面体的重心。'}},
+ {s:'<i>② 摊零件</i> —— 立目标',
+  f:()=>{D.A=addNode('四面体的重心','unknown',420,0,{w:5,dof:3,noNudge:1}).id;
+         D.d1=addNode('它是均匀的','data',-760,-130,{noNudge:1}).id;
+         D.d2=addNode('四个顶点的位置','data',-760,130,{noNudge:1}).id}},
+ {s:'<i>③④</i> 想了半天没头绪 —— <b>这时候不要硬顶</b>',
+  f:()=>{D.st=addNode('卡住了：既不知道它的底，也不知道它的高','idea',-180,300,{noNudge:1}).id;
+         makeEdge(D.st,D.A,'bind')}},
+ {s:'<i>⑤ 类比</i> —— <b>降一维</b>：四面体 → 三角形。造一道更简单的平行题',
+  f:()=>{D.B=addNode('三角形的重心（更简单的平行题）','unknown',420,-480,{w:4,dof:2,noNudge:1}).id;
+         makeEdge(D.A,D.B,'analog','类比：降一维')}},
+ {s:'平行题好解：把三角形看成<b>一条条平行细条</b>，每条的重心是它的中点',
+  f:()=>{D.c1=addNode('三角形 = 一堆平行于 AB 的细条','cond',-180,-560,{noNudge:1}).id;
+         makeEdge(D.c1,D.B,'bind')}},
+ {s:'所有中点连起来就是<b>中线</b> —— 重心必在中线上。三条中线交于一点',
+  f:()=>{D.r1=addNode('重心在三条中线的交点上','result',1000,-480,{w:4,noNudge:1}).id;
+         makeEdge(D.B,D.r1,'imply')}},
+ {s:'<i>类比 3 的要害</i> —— <b>两个题目也许比一个更容易，前提是能把它们联系起来</b>',
+  f:()=>{D.br=addNode('怎么把这两道题联系起来？','aux',900,-240,{w:3,noNudge:1}).id;
+         makeEdge(D.r1,D.br,'reduce');makeEdge(D.br,D.A,'reduce')}},
+ {s:'两种用法（类比 7）：<b>用它的方法</b>（逐点模仿）还是<b>用它的结果</b>（直接拿结论）？',
+  f:()=>{byId(D.br).t='用它的【方法】：逐点模仿它的解法'}},
+ {s:'照搬：四面体也看成<b>平行于一条棱的细条</b>，中点全落在一个<b>中面</b>上',
+  f:()=>{D.c2=addNode('四面体 = 一堆平行于 AB 的细条','cond',-180,-40,{noNudge:1}).id;
+         makeEdge(D.c2,D.A,'bind')}},
+ {s:'三角形有 3 条中线 → 四面体有 <b>6 个中面</b>，每个都含重心，所以它们交于一点',
+  f:()=>{D.r2=addNode('重心 = 六个中面的公共点','result',1000,0,{w:5,noNudge:1}).id;
+         makeEdge(D.A,D.r2,'imply');makeEdge(D.br,D.r2,'imply','搬过来')}},
+ {s:'<i>⑨ 回顾</i> —— 还能<b>再降一维</b>验证：线段 → 三角形 → 四面体，1:1 → 2:1 → <b>3:1</b>',
+  f:()=>{D.chk=addNode('线段 1:1，三角形 2:1，四面体 3:1 —— 规律对上了','idea',1000,320,{noNudge:1}).id;
+         makeEdge(D.r2,D.chk,'imply','检验')}},
+ {s:'这题教了我什么：<b>解不动就降一维，先解那道简单的，再把方法搬回来</b>',f:()=>{}},
+]},
+
+{k:'backwards',cat:'解题',name:'倒着干 —— 从目标往回退',desc:'帕普斯的分析法：假设已经做到了，问「从什么状态可以得到它」',steps:[
+ {s:'题目：只有 <b>4 升</b>和 <b>9 升</b>两个桶，怎么从河里取出<b>恰好 6 升</b>水？',
+  f:()=>{P().stmt='只有容积 4 升和 9 升的两个容器，怎样从河里恰好取出 6 升水？'}},
+ {s:'先顺着试：装满大桶、倒进小桶、剩 5 升……<b>试来试去，这是母鸡的做法</b>',
+  f:()=>{D.try=addNode('顺着试：装满、倒出、再来一次……','idea',-900,300,{noNudge:1}).id}},
+ {s:'<i>⑤ 倒着干</i> —— <b>假设要找的已经找到了</b>。最终状态长什么样？',
+  f:()=>{D.A=addNode('大桶里恰好 6 升，小桶空','unknown',900,0,{w:5,dof:1,noNudge:1}).id}},
+ {s:'从<b>前面的什么状态</b>可以得到它？装满 9 升，再倒出恰好 3 升',
+  f:()=>{D.b1=addNode('大桶 9 升，往小桶倒 3 升','idea',420,0,{noNudge:1}).id;
+         makeEdge(D.A,D.b1,'back','从什么前提？')}},
+ {s:'要能只倒 3 升 —— <b>小桶里必须已经有 1 升</b>。这一步是整道题的转折',
+  f:()=>{D.b2=addNode('小桶里正好有 1 升','idea',-60,0,{w:4,noNudge:1}).id;
+         makeEdge(D.b1,D.b2,'back','从什么前提？')}},
+ {s:'怎么造出 1 升？装满 9 升，往小桶倒两次、每次倒空 —— <b>9 − 4 − 4 = 1</b>',
+  f:()=>{D.b3=addNode('装满 9 升，倒满小桶两次并倒掉','idea',-540,0,{noNudge:1}).id;
+         makeEdge(D.b2,D.b3,'back','从什么前提？')}},
+ {s:'退到这里，已经是<b>随手就能做的事</b> —— 帕普斯说的「遇到某些已知的东西」',
+  f:()=>{D.st=addNode('起点：两个空桶 + 一条河','data',-1000,0,{noNudge:1}).id;
+         makeEdge(D.b3,D.st,'back','已知')}},
+ {s:'<i>⑦ 综合</i> —— <b>把整条链翻过来执行</b>（分析在思维里，综合在行动里）',
+  f:()=>{E().filter(e=>e.k==='back').forEach(e=>{const t=e.a;e.a=e.b;e.b=t;e.k='imply';e.label='综合'})}},
+ {s:'方向反过来了：<b>从已知那一头一路走到 6 升</b>。这就是页面里「把分析翻过来执行」那个动作',f:()=>{}},
+ {s:'这题教了我什么：<b>不知道怎么开始，就从终点往回退，一直退到你会做的地方</b>',f:()=>{}},
+]},
+
+{k:'special',cat:'解题',name:'特殊化 —— 极端特例当垫脚石',desc:'先解一个最简单的特例，再补一句说明把它接回原题（特殊化 3、5）',steps:[
+ {s:'题目：两艘船匀速直线行驶，已知初位置和速度，<b>求它们能靠得多近</b>',
+  f:()=>{P().stmt='已知两艘船的速度和某一时刻的位置，两船都沿直线匀速行驶，求两船相距最近时的距离。'}},
+ {s:'<i>② 摊零件</i>',
+  f:()=>{D.A=addNode('两船的最短距离','unknown',480,0,{w:5,dof:1,noNudge:1}).id;
+         D.d1=addNode('两船的初位置 A、B','data',-820,-130,{noNudge:1}).id;
+         D.d2=addNode('两船的速度（大小和方向都不变）','data',-820,130,{noNudge:1}).id}},
+ {s:'<i>③</i> 卡住了：<b>可变的因素太多</b> —— A、B、P、Q 四个点都能随便选',
+  f:()=>{D.st=addNode('变化因素太多，不知道怎么统一处理','idea',-180,300,{noNudge:1}).id;
+         makeEdge(D.st,D.A,'bind')}},
+ {s:'<i>⑤ 特殊化</i> —— <b>取一个极端特例：让其中一艘船停下来</b>',
+  f:()=>{D.sp=addNode('特例：B 船抛锚不动','idea',-180,-300,{w:4,noNudge:1}).id;
+         makeEdge(D.A,D.sp,'part','特例')}},
+ {s:'这个特例太好解了：<b>静止点到运动直线的最短距离 = 垂线段</b>',
+  f:()=>{D.r1=addNode('作垂线，垂足即最近点','result',420,-300,{noNudge:1}).id;
+         makeEdge(D.sp,D.r1,'imply')}},
+ {s:'<i>特殊化 5</i> —— 但特例不等于原题。<b>必须补一句「补充性说明」才能接回去</b>',
+  f:()=>{D.add=addNode('补充性说明：运动是相对的','aux',900,-300,{w:4,noNudge:1,
+           reason:'给整个系统加同一个速度，相对距离不变'}).id;
+         makeEdge(D.r1,D.add,'reduce')}},
+ {s:'给<b>两艘船同时加上</b>一个和 B 反向、等大的速度 —— B 就静止了，而<b>相对距离没变</b>',
+  f:()=>{makeEdge(D.add,D.A,'reduce','→ 回到原题')}},
+ {s:'一般情形<b>被化简成了刚才那个特例</b>，答案照抄',
+  f:()=>{D.r2=addNode('答案 = 加速度变换后的那条垂线段','result',1000,0,{w:5,noNudge:1}).id;
+         makeEdge(D.A,D.r2,'imply')}},
+ {s:'波利亚：成功归功于<b>两件事</b> —— 造出有利的特例，以及找到接回原题的那句说明',f:()=>{}},
+ {s:'这题教了我什么：<b>先解最极端最简单的那个，再想办法把它接回一般情形</b>',f:()=>{}},
+]},
+
+{k:'limit',cat:'解题',name:'变化题目 —— 把已知推到端点',desc:'让一个量连续变到极端，看题目退化成什么你早就会解的东西（变化题目 5）',steps:[
+ {s:'题目：已知梯形四边长 a、b、c、d，<b>作出这个梯形</b>',
+  f:()=>{P().stmt='已知梯形的四边长 a、b、c、d，求作这个梯形。'}},
+ {s:'<i>② 摊零件</i>：a 是下底，c 是上底，a∥c；b、d 是两腰',
+  f:()=>{D.A=addNode('这个梯形','unknown',480,0,{w:5,dof:1,noNudge:1}).id;
+         D.d1=addNode('下底 a、上底 c（平行）','data',-820,-130,{noNudge:1}).id;
+         D.d2=addNode('两腰 b、d','data',-820,130,{noNudge:1}).id}},
+ {s:'想不出主意的时候，<b>先从变化已知数据开始</b>',f:()=>{}},
+ {s:'<i>⑤ 极限</i> —— <b>让 c 一直缩小到 0</b> 会怎样？梯形退化成<b>三角形</b>',
+  f:()=>{D.l1=addNode('c → 0：退化成三角形','idea',-180,-330,{noNudge:1}).id;
+         makeEdge(D.d1,D.l1,'part','→ 0 会怎样？')}},
+ {s:'但一检验就发现<b>没用</b>：只知道 a 和 d 两条边，作三角形要三个数据',
+  f:()=>{byId(D.l1).t='c → 0：退化成三角形 —— 但只有两个数据，没用'}},
+ {s:'<b>第一次尝试失败也是有代表性的</b> —— 反过来试：让 c 一直<b>增大到等于 a</b>',
+  f:()=>{D.l2=addNode('c → a：退化成平行四边形','idea',-180,330,{w:4,noNudge:1}).id;
+         makeEdge(D.d1,D.l2,'part','→ 最大会怎样？')}},
+ {s:'画平行四边形时，原梯形旁边<b>多出一个三角形</b> —— 而它的三条边全都知道！',
+  f:()=>{D.aux=addNode('三边为 b、d、a−c 的三角形（可以直接作）','aux',420,330,{w:4,noNudge:1}).id;
+         makeEdge(D.l2,D.aux,'imply')}},
+ {s:'<i>⑦ 重组</i> —— <b>原题被化简成了一道作三角形的题</b>',
+  f:()=>{makeEdge(D.aux,D.A,'reduce','作完它，梯形补齐即可')}},
+ {s:'先作那个三角形，再把平行四边形补完整，梯形就出来了',
+  f:()=>{D.r=addNode('作出三角形 → 补成平行四边形 → 梯形','result',1020,0,{w:5,noNudge:1}).id;
+         makeEdge(D.A,D.r,'imply')}},
+ {s:'这题教了我什么：<b>把一个已知量推到端点，看它退化成什么你早就会解的图形</b>',f:()=>{}},
+]},
+
+{k:'models',cat:'解题',name:'怎么把 136 个思维模型挂上去',desc:'一个真实的商业决策：在具体的条件上挂具体的模型',steps:[
+ {s:'这次是<b>真问题</b>，不是数学题：<b>该不该做这个产品？</b>',
+  f:()=>{P().stmt='我该不该投入做这个产品？';P().ptype='real'}},
+ {s:'<i>② 摊零件</i> —— 实际题目也是三样：未知量、已知、条件',
+  f:()=>{D.A=addNode('该不该做','unknown',480,0,{w:5,dof:1,noNudge:1}).id;
+         D.d1=addNode('手上有：3 个月、一个人、5 万块','data',-880,-140,{noNudge:1}).id;
+         D.d2=addNode('市场事实：竞品月销 2 万件','data',-880,140,{noNudge:1}).id;
+         D.c1=addNode('硬约束：不碰需要认证的品类','cond',-180,-140,{noNudge:1}).id;
+         D.c2=addNode('赢的判据：单件毛利 ≥ 65%','cond',-180,140,{noNudge:1}).id;
+         makeEdge(D.c1,D.A,'bind');makeEdge(D.c2,D.A,'bind');
+         makeEdge(D.d1,D.c1,'imply');makeEdge(D.d2,D.c2,'imply')}},
+ {s:'现在的关键动作：<b>选中一颗星，按 M</b>，搜一个模型，点它',f:()=>{}},
+ {s:'在<b>「赢的判据」</b>这个条件上挂 <b>◈ 单位经济模型</b> —— 一单赚不赚钱，规模化只会放大结论',
+  f:()=>{const m=MODELS.find(x=>x.zh.indexOf('单位经济')>=0);
+         if(m)byId(D.c2).ms=[m.n];boxCache.clear()}},
+ {s:'在<b>「市场事实」</b>上挂 <b>◈ 幸存者偏差</b> —— 你看到的月销 2 万，是活下来那个',
+  f:()=>{const m=MODELS.find(x=>x.zh.indexOf('幸存者')>=0);
+         if(m)byId(D.d2).ms=[m.n];boxCache.clear()}},
+ {s:'在<b>目标</b>上挂 <b>◈ 可逆 / 不可逆决策</b> —— 可逆的门快进快出，不可逆的才值得慢想',
+  f:()=>{const m=MODELS.find(x=>x.zh.indexOf('可逆')>=0);
+         if(m)byId(D.A).ms=[m.n];boxCache.clear()}},
+ {s:'挂上去会显示成<b>紫色小字</b>。<b>拉近到 180% 以上</b>，它会把这个模型的内核整句吐出来',f:()=>{}},
+ {s:'一颗星可以挂<b>好几个</b>模型 —— 在「手上有什么」上再加 <b>◈ 机会成本</b>',
+  f:()=>{const m=MODELS.find(x=>x.zh.indexOf('机会成本')>=0);
+         if(m)byId(D.d1).ms=[m.n];boxCache.clear()}},
+ {s:'<i>⑦ 重组</i> —— 模型不是装饰，它<b>逼你造出下一步</b>：最小可行的第一步是什么？',
+  f:()=>{D.aux=addNode('先花 2000 块跑一次小批量测试','aux',1020,0,{w:4,noNudge:1,
+           reason:'可逆决策 → 快试快回滚'}).id;
+         makeEdge(D.A,D.aux,'reduce')}},
+ {s:'这就是全部用法：<b>模型挂在具体的条件上，而不是飘在脑子里</b>。⌘K 搜「挂」也能挂',f:()=>{}},
+]},
+];
+
+/* ══════════ 实战演示：把同一套解题法用在商业 / 事业 / 学业上 ══════════ */
+function demoHang(id,kw){
+  const m=MODELS.find(x=>x.zh.indexOf(kw)>=0); if(!m)return;
+  const n=byId(id); if(!n)return;
+  n.ms=(n.ms||[]).concat([m.n]).filter((v,i,a)=>a.indexOf(v)===i);
+  boxCache.clear();
+}
+const DEMOS_REAL=[
+{k:'career',cat:'实战',name:'事业 · 该不该换这份工作',
+ desc:'倒着干：先站到三年后，再往回退。判据必须先写死，否则一定被情绪带走',steps:[
+ {s:'<b>实际题目</b>和数学题一样有三样东西，只是没人替你摆出来',
+  f:()=>{P().stmt='我该不该接这个 offer？';P().ptype='real'}},
+ {s:'<i>② 摊零件</i> —— 未知量不是"换不换"，是<b>"三年后我想成为谁"</b>。目标错了，后面全错',
+  f:()=>{D.A=addNode('三年后我要成为哪种人','unknown',520,0,{w:5,dof:1,noNudge:1}).id;
+         D.now=addNode('现状：钱够、成长停了、没话语权','data',-900,-170,{noNudge:1}).id;
+         D.off=addNode('Offer：涨 30%、行业新、老板未知','data',-900,170,{noNudge:1}).id;
+         makeEdge(D.now,D.A,'imply');makeEdge(D.off,D.A,'imply')}},
+ {s:'<i>③ 筛关键</i> —— <b>先把判据写死</b>：什么情况下算换对了？写不出来就别换',
+  f:()=>{D.c1=addNode('判据一：三年后我的能力能不能被别处买走','cond',-160,-170,{w:4,noNudge:1}).id;
+         D.c2=addNode('判据二：错了能不能退回来','cond',-160,170,{w:4,noNudge:1}).id;
+         makeEdge(D.c1,D.A,'bind');makeEdge(D.c2,D.A,'bind')}},
+ {s:'在<b>判据二</b>上挂 <b>◈ 可逆 / 不可逆决策</b> —— 可逆的门快进快出，不可逆的才值得慢想',
+  f:()=>demoHang(D.c2,'可逆')},
+ {s:'在<b>现状</b>上挂 <b>◈ 机会成本</b> —— 留下的代价，是你没去的那条路里最好的那条',
+  f:()=>demoHang(D.now,'机会成本')},
+ {s:'<b>陷阱</b>：在现状上再挂 <b>◈ 沉没成本谬误</b> —— "我在这待了五年"不是理由，那笔钱已经花了',
+  f:()=>demoHang(D.now,'沉没成本')},
+ {s:'<i>⑤ 再循环 · 倒着干</i> —— 假设三年后已经做到了，问：<b>从什么状态可以得到它</b>',
+  f:()=>{D.b1=addNode('三年后：我有一块别人绕不开的能力','idea',1080,-150,{w:4,noNudge:1}).id;
+         D.b2=addNode('那两年后必须：已经独立交付过完整的一件事','idea',1080,150,{w:4,noNudge:1}).id;
+         makeEdge(D.b1,D.A,'back','倒推');makeEdge(D.b2,D.b1,'back','再倒推')}},
+ {s:'一路退到<b>今天</b> —— 倒着干的终点，永远是一个你这周就能做的动作',
+  f:()=>{D.b3=addNode('那这个月必须：确认新岗位第一年能不能独立交付','idea',1080,420,{w:4,noNudge:1}).id;
+         makeEdge(D.b3,D.b2,'back')}},
+ {s:'<i>⑥ 拆 + 砍</i> —— 别一次赌全部。<b>引入辅助元素</b>：一个成本极低的探针',
+  f:()=>{D.aux=addNode('先约那个老板聊 40 分钟，只问一件事：第一年我独立负责什么','aux',1620,0,
+           {w:5,noNudge:1,reason:'不可逆决策 → 先花小钱买信息'}).id;
+         makeEdge(D.A,D.aux,'reduce')}},
+ {s:'在这一步挂 <b>◈ 期望值思维</b> —— 决策看期望值，别用结果好坏反推决策对错',
+  f:()=>demoHang(D.aux,'期望值')},
+ {s:'<i>⑨ 回顾</i> —— 判据在决策<b>之前</b>写死，事后才有得对账。这就是全部方法',
+  f:()=>{D.r=addNode('两条判据 + 一次低成本探针 → 再决定','result',2160,0,{w:5,noNudge:1}).id;
+         makeEdge(D.aux,D.r,'imply');makeEdge(D.c1,D.r,'imply')}},
+]},
+
+{k:'biz',cat:'实战',name:'商业 · 这条业务线该不该砍',
+ desc:'两条轨迹求交：现金的轨迹 × 精力的轨迹。交点才是答案，单看一条一定砍错',steps:[
+ {s:'<b>真问题</b>：手上三条线，人只有一个。砍哪条？',
+  f:()=>{P().stmt='这条业务线该不该砍？';P().ptype='real'}},
+ {s:'<i>② 摊零件</i> —— 未知量是<b>"该砍哪条"</b>，不是"这条好不好"。对象错了就白算',
+  f:()=>{D.A=addNode('该砍掉哪一条','unknown',520,0,{w:5,dof:1,noNudge:1}).id;
+         D.d1=addNode('A 线：月流水 8 万，毛利 12%','data',-920,-220,{noNudge:1}).id;
+         D.d2=addNode('B 线：月流水 2 万，毛利 61%','data',-920,0,{noNudge:1}).id;
+         D.d3=addNode('C 线：月流水 5 万，毛利 30%，占我 70% 时间','data',-920,220,{w:4,noNudge:1}).id;
+         [D.d1,D.d2,D.d3].forEach(x=>makeEdge(x,D.A,'imply'))}},
+ {s:'在三条数据上挂 <b>◈ 单位经济模型</b> —— <b>一单赚不赚钱，规模化只会放大结论</b>。流水最大的 A 线单件几乎不赚',
+  f:()=>{demoHang(D.d1,'单位经济');demoHang(D.d2,'单位经济');demoHang(D.d3,'单位经济')}},
+ {s:'<i>⑤ 分解和重组 7 · 砍掉一半条件</i> —— <b>只看钱</b>，未知量能跑到哪儿？这是第一条轨迹',
+  f:()=>{D.L1=addNode('轨迹一（只看钱）：砍 B —— 它流水最小','locus',380,-380,{w:4,noNudge:1}).id;
+         makeEdge(D.A,D.L1,'locusof','只保留"钱"这一半')}},
+ {s:'<b>换掉另一半</b> —— <b>只看精力</b>，答案立刻反过来。这是第二条轨迹',
+  f:()=>{D.L2=addNode('轨迹二（只看精力）：砍 C —— 它吃掉我 70% 时间','locus',380,380,{w:4,noNudge:1}).id;
+         makeEdge(D.A,D.L2,'locusof','只保留"精力"这一半')}},
+ {s:'在轨迹二上挂 <b>◈ 机会成本</b> —— C 线真正的代价，是你没时间做 B 线',
+  f:()=>demoHang(D.L2,'机会成本')},
+ {s:'<b>两条轨迹的交点</b> = 同时满足两半条件的那一条。答案是 A：流水好看但既不赚钱又占坑',
+  f:()=>{D.X=addNode('交点：砍 A —— 流水最大，但毛利最薄、还挤占产能','idea',1180,0,
+           {w:5,noNudge:1}).id;
+         makeEdge(D.L1,D.X,'imply');makeEdge(D.L2,D.X,'imply')}},
+ {s:'<b>反手自查</b>：挂 <b>◈ 沉没成本谬误</b> —— "A 线是我第一个做起来的"，这不是留它的理由',
+  f:()=>demoHang(D.X,'沉没成本')},
+ {s:'再挂 <b>◈ 二阶思维</b> —— 砍完<b>然后呢</b>？供应商、老客户、现金流缺口，都要往下多问一句',
+  f:()=>demoHang(D.X,'二阶')},
+ {s:'<i>⑥ 拆 + 砍</i> —— 不可逆的动作先做可逆版本：<b>停投放，不停履约</b>，看一个月',
+  f:()=>{D.aux=addNode('第一步：A 线停止投放，保留老客履约，观察 30 天现金流','aux',1720,0,
+           {w:5,noNudge:1,reason:'把不可逆决策拆成可逆的第一步'}).id;
+         makeEdge(D.X,D.aux,'reduce')}},
+ {s:'<i>⑨ 回顾</i> —— <b>一条轨迹只会给你半个答案。</b>觉得"显而易见"的时候，就是漏了另一半',
+  f:()=>{D.r=addNode('停投放 30 天 → 现金流没掉 → 正式砍','result',2260,0,{w:5,noNudge:1}).id;
+         makeEdge(D.aux,D.r,'imply')}},
+]},
+
+{k:'study',cat:'实战',name:'学业 · 这门课怎么算学透',
+ desc:'回到定义 + 特殊化 + 费曼：把"学完"这个模糊词，换成一条能判真假的判据',steps:[
+ {s:'<b>最常见的失败</b>：未知量是模糊的。"学透"根本没定义，所以永远学不完',
+  f:()=>{P().stmt='这门课怎么才算学透？';P().ptype='real'}},
+ {s:'<i>④ 挖细节 · 回到定义上去</i> —— 先把"学透"换成一句<b>能判真假</b>的话',
+  f:()=>{D.A=addNode('判据：不看书，白纸上给外行讲明白，并当场解一道没见过的题','unknown',560,0,
+           {w:5,dof:1,noNudge:1}).id;
+         D.bad=addNode('"我学完了" —— 无法判真假，废话','idea',-940,-200,{w:4,noNudge:1}).id;
+         makeEdge(D.bad,D.A,'reduce','回到定义')}},
+ {s:'在判据上挂 <b>◈ 费曼学习法</b> —— <b>卡壳的地方就是你的漏洞</b>，讲不出来就是没懂',
+  f:()=>demoHang(D.A,'费曼')},
+ {s:'<i>② 摊零件</i> —— 已知是什么？<b>你的真实起点</b>，不是你希望的起点',
+  f:()=>{D.d1=addNode('已知：每天能挤 90 分钟','data',-940,60,{noNudge:1}).id;
+         D.d2=addNode('已知：前置知识缺一块（线性代数）','data',-940,280,{w:4,noNudge:1}).id;
+         makeEdge(D.d1,D.A,'imply');makeEdge(D.d2,D.A,'imply')}},
+ {s:'在起点上挂 <b>◈ 三区理论</b> —— 成长只发生在学习区。缺前置就是在恐慌区，先补那一块',
+  f:()=>demoHang(D.d2,'三区')},
+ {s:'<i>⑤ 特殊化</i> —— 别从第一页啃。<b>先解一个最小的具体例子</b>，把它彻底解决',
+  f:()=>{D.sp=addNode('先只用 2×2 矩阵，手算一遍全部结论','idea',1120,-200,{w:4,noNudge:1}).id;
+         makeEdge(D.A,D.sp,'reduce','特殊化')}},
+ {s:'<b>再从特例回到原题</b> —— 特殊化成功要靠两点：有利的特例 + 过渡回去的说明',
+  f:()=>{D.gen=addNode('2×2 成立的那条结论，n×n 为什么也成立','idea',1120,200,{w:4,noNudge:1}).id;
+         makeEdge(D.sp,D.gen,'imply','回到原题')}},
+ {s:'<i>⑦ 重组 · 引入辅助元素</i> —— 光看不算数，<b>造一个必须输出的场合</b>',
+  f:()=>{D.aux=addNode('每章结束：写一页纸讲给一个外行，讲不动的地方标红','aux',1700,0,
+           {w:5,noNudge:1,reason:'费曼：输出是唯一诚实的检测'}).id;
+         makeEdge(D.A,D.aux,'reduce')}},
+ {s:'挂 <b>◈ 遗忘曲线</b> —— 标红的地方 <b>1 天 / 7 天 / 30 天</b> 各回来一次，别重头再看一遍',
+  f:()=>demoHang(D.aux,'遗忘曲线')},
+ {s:'再挂 <b>◈ 刻意练习</b> —— 有反馈、有难度、有针对性的那部分才算数，重复读书不算',
+  f:()=>demoHang(D.aux,'刻意练习')},
+ {s:'<i>⑨ 回顾</i> —— <b>先定义判据，再开始学。</b>否则你只是在消费内容，不是在学习',
+  f:()=>{D.r=addNode('能讲 + 能解新题 = 学透。做不到就回到标红处','result',2240,0,{w:5,noNudge:1}).id;
+         makeEdge(D.aux,D.r,'imply')}},
+]},
+];
+DEMOS.push(...DEMOS_REAL);
+
+let DEMO=DEMOS[0].steps, demoK=0;
+let demoI=-1, demoT=null, demoPlaying=false;
+function demoEnsureProblem(){
+  const nm='演示 · '+DEMOS[demoK].name;
+  let i=DB.probs.findIndex(x=>x.name===nm);
+  if(i<0){DB.probs.push(blank(nm));i=DB.probs.length-1}
+  DB.cur=i;
+}
+function demoGoto(i){
+  demoI=Math.max(0,Math.min(DEMO.length-1,i));
+  try{coachStop&&coachStop()}catch(e){}                /* 关掉手把手，别抢位置 */
+  const ab=document.getElementById('askbox'); if(ab)ab.classList.remove('on');
+  demoEnsureProblem();
+  P().nodes=[];P().edges=[];P().ink=[];P().stmt='';P().seq=1;P().phase=0;P().manualPhase=null;
+  sel.clear();selE.clear();boxCache.clear();D={};
+  for(let k=0;k<=demoI;k++){try{DEMO[k].f()}catch(e){}}
+  document.getElementById('stmt').value=P().stmt||'';
+  ensureNoOverlap();
+  diag();fitAll();drawDemo();save();
+}
+function drawDemo(){
+  const el=document.getElementById('demo');
+  if(demoI<0){el.classList.remove('on');return}
+  el.classList.add('on');
+  el.innerHTML=`<div class="say">${DEMO[demoI].s}</div>
+    <div class="pg"><i style="width:${(demoI+1)/DEMO.length*100}%"></i></div>
+    <div class="ctl">
+      <u onclick="demoGoto(demoI-1)">‹ 上一步</u>
+      <b onclick="demoToggle()">${demoPlaying?'暂停':'播放'}</b>
+      <u onclick="demoGoto(demoI+1)">下一步 ›</u>
+      <u onclick="demoGoto(0)">重来</u>
+      <span>${demoI+1} / ${DEMO.length}</span>
+      <u onclick="demoStop()">退出演示</u>
+    </div>`;
+}
+function demoToggle(){
+  demoPlaying=!demoPlaying;
+  clearInterval(demoT);
+  if(demoPlaying)demoT=setInterval(()=>{
+    if(demoI>=DEMO.length-1){demoPlaying=false;clearInterval(demoT);drawDemo();return}
+    demoGoto(demoI+1);
+  },4200);
+  drawDemo();
+}
+function demoPick(){
+  const item=(d,i)=>({nm:'▶ '+d.name,
+    de:'【'+(d.cat||'解题')+'】'+d.desc+'　·　'+d.steps.length+' 步',run:()=>demoStart(i)});
+  const idx=DEMOS.map((d,i)=>[d,i]);
+  const real=idx.filter(([d])=>d.cat==='实战').map(([d,i])=>item(d,i));
+  const math=idx.filter(([d])=>d.cat!=='实战').map(([d,i])=>item(d,i));
+  openList('挑一套演示　—— 实战：商业 / 事业 / 学业　·　解题：波利亚',real.concat(math));
+}
+function demoStart(k){
+  demoK=(k==null?0:k); DEMO=DEMOS[demoK].steps;
+  demoPlaying=false; demoGoto(0);
+}
+function demoStop(){
+  clearInterval(demoT);demoPlaying=false;demoI=-1;
+  document.getElementById('demo').classList.remove('on');
+  const i=DB.probs.findIndex(x=>x.name.indexOf('演示 · ')!==0);
+  if(i>=0){DB.cur=i;save();loadProb()}
+}
+
+/* ══════════ 手把手引导：一次一句，做到了自己往下走 ══════════ */
+const COACH=[
+ {s:'先认一个人：中间那颗<b>「第三个顶点 A」</b>就是<b>未知量</b>。点它一下。',
+  w:'波利亚全书第一句话就是「未知量是什么？」。整张图只为它服务。',
+  ok:()=>selNodes().some(n=>n.k==='unknown')},
+ {s:'现在点下面的<b>「A 到 BC 的距离 = h」</b>，然后按 <b>X</b>。',
+  w:'这叫「砍」。只保留条件的一部分，丢掉其他部分 —— 你刚刚造出了一道新的、更松的题。',
+  ok:()=>N().some(n=>n.k==='cond'&&n.cut)},
+ {s:'条件松了，A 就能动了。按 <b>T</b>，写下：<b>剩下的那条件（∠BAC = α）把 A 限制在哪儿？</b>',
+  w:'答案是一段圆弧（以 BC 为弦、张角为 α 的弧）。写完按回车。',
+  ok:()=>N().filter(n=>n.k==='locus').length>=1},
+ {s:'反过来再来一次：点回刚才被划掉那条按 <b>X</b> 恢复，改砍<b>「∠BAC = α」</b>，再按 <b>T</b>。',
+  w:'这次剩下的是「到 BC 距离 = h」，它把 A 限制在一条<b>平行于 BC 的直线</b>上。',
+  ok:()=>N().filter(n=>n.k==='locus').length>=2},
+ {s:'两条轨迹都有了。<b>框选它们俩</b>，然后 <b>⌘K</b> 搜「求交」。',
+  w:'空白处按住拖一个框就是框选。',
+  ok:()=>N().some(n=>n.k==='result')},
+ {s:'就是这样。<b>两条轨迹的交点，就是要作的那个点 A。</b>',
+  w:'「作一个三角形」被你变成了「作一个点」，而点由两条轨迹交出来 —— 这就是波利亚原书那道题的全部解法。剩下 50 多个动作都可以慢慢来，你已经会用这张图了。',
+  ok:()=>false, last:1},
+];
+let coachI=-1, coachT=null;
+function coachStart(i){
+  coachI=(i==null?0:i);
+  clearTimeout(toastT);                                  /* 把还没消失的提示条清掉，别叠字 */
+  const ab=document.getElementById('askbox'); if(ab)ab.classList.remove('on');
+  drawCoach();
+  clearInterval(coachT);
+  coachT=setInterval(()=>{
+    const c=COACH[coachI]; if(!c||c.last)return;
+    try{ if(c.ok()){coachNext()} }catch(err){}
+  },700);
+}
+function coachNext(){
+  if(coachI>=COACH.length-1){coachStop(true);return}
+  coachI++; drawCoach();
+}
+function coachStop(done){
+  clearInterval(coachT);coachT=null;coachI=-1;
+  document.getElementById('coach').classList.remove('on');
+  try{localStorage.setItem('polya.coached','1')}catch(e){}
+  if(done)toast('随时可以再来一遍：⌘K 搜「带我走一遍」');
+}
+function drawCoach(){
+  const c=COACH[coachI], el=document.getElementById('coach');
+  if(!c){el.classList.remove('on');return}
+  el.innerHTML=`<div class="st">${c.s}</div><div class="why">${c.w}</div>
+    <div class="bar">${c.last?'<b onclick="coachStop(true)">走完了</b>':
+      '<b onclick="coachNext()">下一步 ›</b><i onclick="coachStop()">不用了</i>'}</div>
+    <div class="dots">${COACH.map((_,i)=>`<u class="${i===coachI?'on':''}"></u>`).join('')}</div>`;
+  el.classList.add('on');
+}
+
+
+/* ══════════ 保存的思维导图（☰） ══════════ */
+function stamp(t){
+  const d=new Date(t||Date.now()), z=n=>String(n).padStart(2,'0');
+  return `${d.getFullYear()}-${z(d.getMonth()+1)}-${z(d.getDate())} ${z(d.getHours())}:${z(d.getMinutes())}`;
+}
+function touch(){const p=P();if(p){p.updatedAt=Date.now();if(!p.createdAt)p.createdAt=p.updatedAt}}
+function filesOpen(){document.getElementById('files').classList.add('on');drawFiles()}
+function filesClose(){document.getElementById('files').classList.remove('on')}
+function filesToggle(){
+  const el=document.getElementById('files');
+  el.classList.contains('on')?filesClose():filesOpen();
+}
+async function newCanvas(){
+  const nm=await ask('新画布叫什么？','思维导图 '+stamp().slice(5,16));
+  if(nm===null)return;
+  await closeOut();                /* 先命名，再问上一张要不要封盘 */
+  const np=blank(nm||('未命名 '+stamp().slice(5,16)));
+  np.createdAt=np.updatedAt=Date.now();
+  DB.probs.push(np);DB.cur=DB.probs.length-1;save();
+  loadProb();putSkeleton();drawFiles();
+  toast('新画布：'+P().name,'骨架已经摆好，双击任意一颗改成你自己的话');
+}
+async function saveAs(){
+  const cur=P();
+  const nm=await ask('保存成什么名字？',cur.name==='未命名'?('思维导图 '+stamp().slice(5,16)):cur.name);
+  if(nm===null)return;
+  cur.name=nm||cur.name; touch(); save();
+  document.getElementById('title').textContent=cur.name;
+  drawFiles();
+  toast('已保存：'+cur.name, stamp(cur.updatedAt));
+}
+async function openCanvas(i){
+  if(i===DB.cur){filesClose();return}
+  await closeOut(); DB.cur=i; save(); loadProb();
+  if(!N().length)putSkeleton(); else{if(ensureNoOverlap())save();fitAll()}
+  drawFiles();filesClose();
+}
+async function renameCanvas(i,ev){
+  ev&&ev.stopPropagation();
+  const nm=await ask('改个名字',DB.probs[i].name); if(nm===null)return;
+  DB.probs[i].name=nm||DB.probs[i].name; DB.probs[i].updatedAt=Date.now(); save();
+  if(i===DB.cur)document.getElementById('title').textContent=DB.probs[i].name;
+  drawFiles();
+}
+async function delCanvas(i,ev){
+  ev&&ev.stopPropagation();
+  if(DB.probs.length<2)return toast('至少留一张');
+  if(!await ok('删掉「'+DB.probs[i].name+'」？删了就没了。'))return;
+  DB.probs.splice(i,1);
+  if(DB.cur>=DB.probs.length)DB.cur=DB.probs.length-1;
+  else if(DB.cur>i)DB.cur--;
+  save();loadProb();drawFiles();
+}
+function drawFiles(){
+  const el=document.getElementById('files');
+  if(!el.classList.contains('on'))return;
+  const rows=DB.probs.map((p,i)=>({p,i}))
+    .sort((a,b)=>(b.i===DB.cur)-(a.i===DB.cur)        /* 正在看的那张永远置顶 */
+              || (b.p.updatedAt||0)-(a.p.updatedAt||0));
+  el.innerHTML=
+   `<h4>画布</h4>
+    <div class="act" onclick="newCanvas()"><em>＋</em>新画布</div>
+    <div class="act" onclick="saveAs()"><em>💾</em>保存当前（命名）</div>
+    <div class="act" onclick="exportText()"><em>↧</em>导出为文字</div>
+    <div class="sp"></div>
+    <h4>已保存 ${DB.probs.length} 张</h4>`
+   + rows.map(({p,i})=>
+    `<div class="row${i===DB.cur?' cur':''}" onclick="openCanvas(${i})">
+       <div style="flex:1;min-width:0">
+         <div class="nm">${esc(p.name)}</div>
+         <div class="dt">${p.updatedAt?stamp(p.updatedAt):'还没保存过'} · ${(p.nodes||[]).length} 星体</div>
+       </div>
+       <div class="ops"><b onclick="renameCanvas(${i},event)">改名</b><b onclick="delCanvas(${i},event)">删</b></div>
+     </div>`).join('');
+}
+document.getElementById('burger').onclick=e=>{e.stopPropagation();filesToggle()};
+document.addEventListener('pointerdown',e=>{
+  const f=document.getElementById('files');
+  if(f.classList.contains('on')&&!f.contains(e.target)&&e.target.id!=='burger'
+     &&!(e.target.parentNode&&e.target.parentNode.id==='burger'))filesClose();
+},true);
+
+/* ══════════ 装载 ══════════ */
+/* 潜意识活动：在停止工作以前，题目至少应该已经解决了一点 */
+async function closeOut(){
+  const p=P();
+  if(!p||!p.nodes||!p.nodes.length)return;
+  if(p.nodes.some(n=>n.k==='result'))return;
+  if(p.closedAt&&Date.now()-p.closedAt<600000)return;
+  const v=await ask('先别急着走 —— 这次至少弄清了哪一点？\n'+
+    '（波利亚：把题目在毫无成就的情况下搁置一边是不可取的；不要轻视那些小的成功）',p.learn||'');
+  if(v===null)return; p.learn=v.trim(); p.closedAt=Date.now(); save();
+}
+function loadProb(){
+  N().forEach(n=>{if(n.z==null)n.z=0;if(n.hx==null){n.hx=n.x;n.hy=n.y}if(!n.ms)n.ms=[]});
+  if(!P().ink)P().ink=[];
+  boxCache.clear();UNDO.length=0;
+  mode='idle';linkFrom=null;linkTo=null;dragOff=null;hov=null;marq=null;inking=null;selE.clear();
+  RELAX=false;returning=0;FOCUS=false;SPOT=null;DEAD=new Set();GHOST=[];ghostDirty=true;
+  curKind=N().length?'cond':(P().mode2==='prove'?'concl':'unknown');
+  document.getElementById('title').textContent=P().name;
+  document.getElementById('stmt').value=P().stmt||'';
+  cam=Object.assign({x:0,y:0,z:1},P().cam||{});camT={...cam};
+  sel.clear();drawPhases();diag();
+}
+document.getElementById('stmt').addEventListener('input',e=>{P().stmt=e.target.value;save()});
+document.getElementById('stmt').addEventListener('keydown',e=>e.stopPropagation());
+document.getElementById('title').onclick=()=>filesToggle();
+const _oldTitleMenu=()=>openList('切换到哪道题？',
+  DB.probs.map((p,i)=>({nm:p.name,de:p.nodes.length+' 个星体',run:()=>{DB.cur=i;save();loadProb()}}))
+  .concat([{nm:'＋ 新题目',de:'',run:async()=>{await closeOut();const s=await ask('题目名字','题目 '+(DB.probs.length+1));
+    if(s===null)return;DB.probs.push(blank(s||'未命名'));DB.cur=DB.probs.length-1;save();loadProb();
+    if(isUse())putSkeleton()}}]));
+
+setInterval(()=>{P().cam={x:cam.x,y:cam.y,z:cam.z};save()},3000);
+
+document.getElementById('tips').innerHTML=
+ `<b>⌘K 全部动作</b>　<span style="opacity:.6">（鼠标移到这里看全部手势）</span><br>
+  <kbd>双击空白</kbd> 造一颗星　<kbd>从星体边缘拖出去</kbd> 拉一条线（松在空白 = 直接长出新星）<br>
+  <kbd>滚轮</kbd> 在宇宙里漂　<kbd>⌘/Ctrl+滚轮</kbd> 缩放　<kbd>F</kbd> 全景　<kbd>⇧F</kbd> 钻进去<br>
+  <kbd>]</kbd> 拉到前面　<kbd>[</kbd> 压到后面　<kbd>\\</kbd> 焦平面　<kbd>;</kbd> 只看一类关系　<kbd>按住G</kbd> 让它自己长开<br>
+  <kbd>O</kbd> 收成卫星　<kbd>I</kbd> 画笔　<kbd>⇧T</kbd> 整理布局　<kbd>点线</kbd> 选中它　<kbd>Delete</kbd> 删星或删线　<kbd>X</kbd> 砍　<kbd>?</kbd> 让波利亚问我一句　<kbd>⌘K</kbd> 全部动作`;
+
+resize();loadProb();drawModes();drawPanel();
+if(!N().length)putSkeleton();      /* 每次打开：空的就给一个骨架，直接在上面建 */
+else{
+  let fixed=compact();
+  if(ensureNoOverlap())fixed=true;
+  if(fixed){save();toast('有星体叠在一起，已经分开','布局大体没动；想彻底重排就按 ⇧T');}
+  fitAll();                        /* 已经有图：一打开就框住，别停在看不见的倍数上 */
+}
+requestAnimationFrame(draw);
+/* 从别的页面带着题面跳进来：解题空间.html?q=题面&n=名字 */
+(function(){
+  try{
+    const u=new URLSearchParams(location.search);
+    const q=u.get('q'); if(!q)return;
+    const nm=u.get('n')||q.slice(0,14);
+    let i=DB.probs.findIndex(x=>x.stmt===q);      /* 同一题不重复建 */
+    if(i<0){
+      const np=blank(nm); np.stmt=q; np.ptype=u.get('t')||'math';
+      if(np.ptype==='prove')np.mode2='prove';
+      DB.probs.push(np); i=DB.probs.length-1;
+    }
+    DB.cur=i; DB.ui.mode=u.get('m')||'use'; save();
+    loadProb(); drawModes(); drawPanel();
+    if(!N().length)putSkeleton();
+    history.replaceState(null,'',location.pathname);   /* 刷新不再重复 */
+  }catch(e){}
+})();
+
+/* ?demo=1 看演示；?demo=1&step=N 定格在第 N 步（导视频用） */
+(function(){
+  try{
+    const u=new URLSearchParams(location.search);
+    if(!u.get('demo'))return;
+    const dk=+(u.get('d')||0);
+    demoK=Math.max(0,Math.min(DEMOS.length-1,dk)); DEMO=DEMOS[demoK].steps;
+    const st=u.get('step');
+    if(st!==null){demoGoto(+st);}
+    else{demoStart(demoK);demoToggle();}   /* 只有带 ?demo=1 才自动播；平时点右上角 ▶ 动画文稿 */
+  }catch(e){}
+})();
+
+/* 第一次打开：自动开始手把手 */
+try{ if(!localStorage.getItem('polya.coached')&&!isUse())
+  setTimeout(()=>{if(N().length&&!isUse())coachStart(0)},1200) }catch(e){}
+
+/* ---------- 首次：装入波利亚原书那道题 ---------- */
+if(!N().length&&!P().stmt){
+  P().stmt='示例（波利亚 分解和重组 7）：已知三角形的一边 a、a 边上的高 h、以及 a 的对角 α，作这个三角形。';
+  document.getElementById('stmt').value=P().stmt;
+  const u=addNode('第三个顶点 A','unknown',0,-40,{w:5,dof:2});
+  const d1=addNode('先作出 BC，长度 = a','data',-420,-190,{w:3});
+  const d2=addNode('高 h','data',-460,20,{w:3});
+  const d3=addNode('角 α','data',-430,220,{w:3});
+  const c1=addNode('A 到 BC 的距离 = h','cond',-70,250,{w:4});
+  const c2=addNode('∠BAC = α，两边过 B、C','cond',300,240,{w:4});
+  const a1=addNode('把「作三角形」化简为「作一个点」','aux',330,-230,{w:4,reason:'把题目简化为作一个点，再用两条轨迹的交点作出它'});
+  makeEdge(c1.id,u.id,'bind');makeEdge(c2.id,u.id,'bind');
+  makeEdge(d2.id,c1.id,'imply');makeEdge(d3.id,c2.id,'imply');
+  makeEdge(d1.id,c1.id,'imply');makeEdge(d1.id,c2.id,'imply');
+  makeEdge(a1.id,u.id,'same','就是求这个点');
+  sel.clear();fitAll();diag();save();
+}
+
+/* ══════════ iPad / Apple Pencil ══════════
+   分工：Pencil = 选 / 拖 / 编辑 / 画；手指 = 只平移缩放（天然防误触）
+   单击星体 = 直接编辑；空白双击 = 新建；长按 = 环形菜单            */
+const TOUCHDEV = navigator.maxTouchPoints>0 || matchMedia('(pointer:coarse)').matches;
+if(TOUCHDEV){
+  document.documentElement.classList.add('touch');
+  const RING_EL=document.getElementById('ring');
+  const FG=new Map();                      /* 按下的手指 */
+  let pinch=null, tpan=null, lp=null, penDown=null, lastTap=0, lastTX=0, lastTY=0;
+  const clearLP=()=>{ if(lp){clearTimeout(lp);lp=null} };
+  const ringOn=()=>RING_EL.classList.contains('on');
+
+  /* ---------- 手指：捕获阶段全部拦下，只驱动相机 ---------- */
+  cv.addEventListener('pointerdown',e=>{
+    if(e.pointerType!=='touch')return;
+    e.stopImmediatePropagation();
+    FG.set(e.pointerId,{x:e.clientX,y:e.clientY});
+    try{cv.setPointerCapture(e.pointerId)}catch(err){}
+    if(FG.size===1){
+      tpan={sx:e.clientX,sy:e.clientY,cx:cam.x,cy:cam.y};
+      const px=e.clientX, py=e.clientY;
+      clearLP();
+      lp=setTimeout(()=>{                  /* 单指长按 = 环形菜单 */
+        lp=null;tpan=null;
+        const w=s2w(px,py), n=hit(w.x,w.y);
+        if(n){ if(!sel.has(n.id)){sel.clear();sel.add(n.id)} } else sel.clear();
+        diag();showRing(px,py);
+      },520);
+    }else if(FG.size===2){
+      clearLP();tpan=null;
+      const f=[...FG.values()];
+      pinch={d:Math.hypot(f[0].x-f[1].x,f[0].y-f[1].y),
+             mx:(f[0].x+f[1].x)/2,my:(f[0].y+f[1].y)/2};
+    }
+  },true);
+
+  cv.addEventListener('pointermove',e=>{
+    if(e.pointerType!=='touch'){
+      if(lp&&penDown&&Math.hypot(e.clientX-penDown.x,e.clientY-penDown.y)>9)clearLP();
+      return;
+    }
+    const p=FG.get(e.pointerId); if(!p)return;
+    e.stopImmediatePropagation();
+    p.x=e.clientX;p.y=e.clientY;
+    if(FG.size>=2&&pinch){                 /* 双指：捏合缩放 + 跟手平移 */
+      const f=[...FG.values()];
+      const d=Math.hypot(f[0].x-f[1].x,f[0].y-f[1].y);
+      const mx=(f[0].x+f[1].x)/2, my=(f[0].y+f[1].y)/2;
+      if(pinch.d>4&&d>4)zoomAt(mx,my,d/pinch.d);
+      cam.x-=(mx-pinch.mx)/cam.z; cam.y-=(my-pinch.my)/cam.z;
+      camT.x=cam.x; camT.y=cam.y;
+      pinch.d=d;pinch.mx=mx;pinch.my=my;
+    }else if(tpan){                        /* 单指：漂 */
+      if(Math.hypot(e.clientX-tpan.sx,e.clientY-tpan.sy)>9)clearLP();
+      cam.x=tpan.cx-(e.clientX-tpan.sx)/cam.z;
+      cam.y=tpan.cy-(e.clientY-tpan.sy)/cam.z;
+      camT.x=cam.x;camT.y=cam.y;
+    }
+  },true);
+
+  const fingerUp=e=>{
+    if(e.pointerType!=='touch')return;
+    e.stopImmediatePropagation();
+    FG.delete(e.pointerId);
+    clearLP();
+    if(FG.size<2)pinch=null;
+    if(FG.size===1){                       /* 松掉一根，剩下那根接着平移 */
+      const f=[...FG.values()][0];
+      tpan={sx:f.x,sy:f.y,cx:cam.x,cy:cam.y};
+    }
+    if(FG.size===0)tpan=null;
+  };
+  cv.addEventListener('pointerup',fingerUp,true);
+  cv.addEventListener('pointercancel',fingerUp,true);
+
+  /* ---------- Pencil：捕获阶段只起长按计时，不拦逻辑 ---------- */
+  cv.addEventListener('pointerdown',e=>{
+    if(e.pointerType==='touch')return;
+    penDown={x:e.clientX,y:e.clientY,t:e.timeStamp};
+    const px=e.clientX, py=e.clientY;
+    clearLP();
+    lp=setTimeout(()=>{                    /* 长按 = 环形菜单，并撤掉刚起的拖拽 */
+      lp=null;
+      mode='idle';dragOff=null;marq=null;linkFrom=null;linkTo=null;pendingRel=null;
+      showRing(px,py);
+    },520);
+  },true);
+
+  /* 冒泡阶段（排在原生 pointerup 之后）：轻点 = 编辑 */
+  cv.addEventListener('pointerup',e=>{
+    if(e.pointerType==='touch')return;
+    const hadRing=!lp&&ringOn();
+    clearLP();
+    if(!penDown)return;
+    const dist=Math.hypot(e.clientX-penDown.x,e.clientY-penDown.y);
+    const dur=e.timeStamp-penDown.t;
+    penDown=null;
+    if(hadRing||inkMode||editing||dist>11||dur>500)return;
+    const w=s2w(e.clientX,e.clientY), n=hit(w.x,w.y);
+    if(n){                                 /* 点一下星体 → 直接改字（同步调用才弹键盘） */
+      if(mode==='link'){linkFrom=null;linkTo=null;pendingRel=null;mode='idle'}
+      sel.clear();sel.add(n.id);startEdit(n);
+      return;
+    }
+    if(mode==='link')return;
+    const t=e.timeStamp;                   /* 空白双击 = 长一颗新星 */
+    if(t-lastTap<360&&Math.hypot(e.clientX-lastTX,e.clientY-lastTY)<34){
+      lastTap=0;
+      const k=N().length===0?(P().mode2==='prove'?'concl':'unknown'):curKind;
+      const m=addNode('',k,w.x,w.y);sel.clear();sel.add(m.id);startEdit(m);
+    }else{lastTap=t;lastTX=e.clientX;lastTY=e.clientY}
+  });
+
+  /* ---------- 触控条：没键盘也能用 ---------- */
+  const TB=[
+    {i:'✦',u:'新建', run:()=>CMDS[0].run()},
+    {i:'⟋',u:'连线', run:()=>startLink('bind')},
+    {i:'✎',u:'画笔', run:toggleInk, ink:true},
+    {i:'⌫',u:'删除', run:delSel},
+    {i:'↺',u:'撤销', run:undo},
+    {i:'⊙',u:'全景', run:()=>{if(compact()){deoverlap();save()}fitAll()}},
+    {i:'⌘',u:'全部', run:()=>openSheet('pal')}
+  ];
+  const tbar=document.getElementById('tbar');
+  TB.forEach(b=>{
+    const d=document.createElement('b');
+    d.innerHTML='<i>'+b.i+'</i><u>'+b.u+'</u>';
+    d.addEventListener('pointerdown',ev=>{ev.stopPropagation()});
+    d.addEventListener('click',ev=>{
+      ev.stopPropagation();hideRing();b.run();
+      if(b.ink)d.classList.toggle('on',inkMode);
+    });
+    tbar.appendChild(d);
+  });
+
+  /* 右侧详情面板打开时，触控条整体左移让位 */
+  const NP=document.getElementById('np');
+  if(NP){
+    const sync=()=>tbar.classList.toggle('shift',NP.classList.contains('on'));
+    new MutationObserver(sync).observe(NP,{attributes:true,attributeFilter:['class']});
+    sync();
+  }
+  /* 画笔亮灯跟着真实状态走 */
+  const inkBtn=tbar.children[2];
+  setInterval(()=>inkBtn.classList.toggle('on',inkMode),400);
+}
+</script>
