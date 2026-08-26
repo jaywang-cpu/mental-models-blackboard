@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
 <title>思维模型 · 黑板</title>
 <link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#070a12">
-<link rel="apple-touch-icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 180 180'%3E%3Crect width='180' height='180' fill='%23070a12'/%3E%3Ccircle cx='90' cy='90' r='34' fill='none' stroke='%235fc9e8' stroke-width='4'/%3E%3C/svg%3E">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
 <style>
   *{box-sizing:border-box;margin:0;padding:0}
   html,body{height:100%;background:#070a12;color:#e8edf9;
@@ -28,3 +28,8 @@
   <a href="polya.html"><i>✦</i><b>解题宇宙</b><s>波利亚 · 星图</s></a>
 </div>
 <div class="ft">Pencil 写 · 手指两指缩放 · 黑板存在这台设备的浏览器里<br>用同一个网址进，笔记才认得出来</div>
+<script>
+if('serviceWorker' in navigator){
+  addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>

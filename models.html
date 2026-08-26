@@ -2519,3 +2519,8 @@ addEventListener('keydown',e=>{if(e.key==='Escape')document.getElementById('lb')
 
 render();
 </script>
+<script>
+if('serviceWorker' in navigator){
+  addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
