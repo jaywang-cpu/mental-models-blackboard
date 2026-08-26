@@ -259,6 +259,24 @@
   #askbox .q{font-family:"Songti SC",Georgia,serif;font-size:23px;letter-spacing:.06em;color:#fff;
     line-height:1.5;text-shadow:0 0 34px rgba(95,201,232,.6)}
   #askbox .s{font-size:11px;color:var(--far);margin-top:9px}
+
+  /* ---- iPad / 触屏适配 ---- */
+  @media(max-width:1100px){
+    #hTop{padding:14px 16px;gap:12px;flex-wrap:wrap}
+    #hTop h1{font-size:16px;letter-spacing:.1em}
+    #stmt{font-size:14px;height:38px;min-width:180px}
+    .phases{max-width:100%;flex:1 1 100%;justify-content:flex-start;gap:4px}
+    .ph{font-size:12px;padding:6px 10px}
+    #hBot{padding:12px 16px;gap:10px}
+    #diag{font-size:12px}
+    #panel{left:12px;top:96px;width:min(246px,42vw)}
+    #np{width:min(320px,84vw)}
+    #files{right:12px;width:min(308px,84vw)}
+  }
+  @media(pointer:coarse){
+    .ph,.zoomui b{min-height:32px;display:inline-flex;align-items:center}
+    button,.btn{min-height:36px}
+  }
 </style>
 
 <canvas id="sky"></canvas>
