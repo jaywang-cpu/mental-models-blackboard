@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>逻辑符号 · 五个形状读完所有文章</title>
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" sizes="180x180" href="apple-touch-icon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#070a12">
+<style>
+  :root{
+    --bg:#04060e; --card:rgba(7,11,24,.66);
+    --ink:#e4eaf7; --dim:#8d98b6; --far:#66708c;
+    --cy:#5fc9e8; --gd:#e8b84a; --pu:#c78ef0; --gr:#7ee8a2; --rd:#f08e8e;
+    --line:rgba(140,160,210,.16);
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  body{background:var(--bg);color:var(--ink);line-height:1.75;
+    font-family:-apple-system,"PingFang SC","Hiragino Sans GB",sans-serif;
+    -webkit-font-smoothing:antialiased;-webkit-tap-highlight-color:transparent}
+  .page{max-width:1180px;margin:0 auto;padding:0 24px 80px}
+
+  .hero{padding:52px 0 8px}
+  .kicker{font-size:11px;letter-spacing:.3em;color:var(--far);text-transform:uppercase}
+  h1{font-family:"Songti SC","STSong",Georgia,serif;font-size:clamp(28px,5vw,46px);
+     font-weight:600;letter-spacing:.06em;line-height:1.25;margin-top:16px}
+  .lede{font-size:14px;color:var(--dim);margin-top:16px;max-width:760px}
+  .lede b{color:var(--ink)}
+  .back{display:inline-block;margin-top:14px;font-size:12.5px;color:var(--cy);text-decoration:none}
+
+  h2{font-family:"Songti SC",Georgia,serif;font-size:20px;letter-spacing:.1em;
+     font-weight:600;margin-top:52px;display:flex;align-items:center;gap:12px}
+  h2:after{content:'';flex:1;height:1px;background:var(--line)}
+  .sub{font-size:12.5px;color:var(--far);margin-top:8px}
+
+  /* 五张符号卡 */
+  .cards{display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:14px;margin-top:22px}
+  .c{border:1px solid var(--line);border-radius:16px;background:var(--card);overflow:hidden}
+  .c .top{display:flex;align-items:center;gap:18px;padding:20px 20px 14px}
+  .c svg{flex:none}
+  .c .nm{font-size:17px;font-weight:600;letter-spacing:.04em}
+  .c .en{font-size:11px;color:var(--far);letter-spacing:.14em;text-transform:uppercase;margin-top:2px}
+  .c .mo{font-size:11.5px;margin-top:5px;opacity:.9}
+  .c .kw{padding:0 20px 6px;font-size:13px;line-height:2;color:var(--dim);
+    font-family:ui-monospace,SFMono-Regular,Menlo,monospace;word-spacing:2px}
+  .c .kw b{color:var(--ink);font-weight:600}
+  .c .ft{padding:12px 20px 18px;border-top:1px solid var(--line);margin-top:10px;
+    font-size:12.5px;color:var(--dim);line-height:1.7}
+  .c .ft .q{color:var(--ink);font-weight:600}
+  .c .ft .t{color:var(--rd);opacity:.9;display:block;margin-top:5px}
+
+  /* 通用块 */
+  .box{margin-top:20px;border:1px solid var(--line);border-radius:14px;
+    background:rgba(6,9,20,.5);padding:20px 22px}
+  .box p{font-size:13px;color:var(--dim);line-height:1.8}
+  .box p b{color:var(--ink)}
+  .rule{display:grid;grid-template-columns:repeat(auto-fill,minmax(230px,1fr));gap:12px;margin-top:14px}
+  .rule div{font-size:12.5px;color:var(--dim);line-height:1.7;padding:12px 14px;
+    border:1px solid var(--line);border-radius:10px;background:rgba(4,6,14,.5)}
+  .rule div b{color:var(--ink);display:block;margin-bottom:3px}
+  code{font-family:ui-monospace,Menlo,monospace;color:var(--cy);
+    background:rgba(95,201,232,.09);padding:1px 6px;border-radius:5px;font-size:.94em}
+
+  /* 页边骨架 */
+  .marg{display:grid;grid-template-columns:74px 1fr;gap:0;margin-top:16px;
+    border:1px solid var(--line);border-radius:12px;overflow:hidden}
+  .marg .l{background:rgba(232,184,74,.07);border-right:1px solid var(--line);
+    display:flex;flex-direction:column}
+  .marg .r{display:flex;flex-direction:column}
+  .marg .l div,.marg .r div{padding:13px 14px;border-bottom:1px solid var(--line);min-height:52px;
+    display:flex;align-items:center}
+  .marg .l div:last-child,.marg .r div:last-child{border-bottom:0}
+  .marg .l div{justify-content:center;gap:6px;font-size:19px;font-family:ui-monospace,Menlo,monospace}
+  .marg .r div{font-size:13px;color:var(--dim)}
+  .marg .r div b{color:var(--ink)}
+
+  /* 四种骨架 */
+  .sk{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:12px;margin-top:16px}
+  .sk div{border:1px solid var(--line);border-radius:12px;padding:15px 16px;background:rgba(4,6,14,.5)}
+  .sk .g{font-family:ui-monospace,Menlo,monospace;font-size:22px;letter-spacing:.22em;
+    color:var(--gd);margin:6px 0 8px}
+  .sk b{font-size:14px}
+  .sk s{text-decoration:none;display:block;font-size:12px;color:var(--far);line-height:1.7}
+
+  /* 实例 */
+  .demo{margin-top:16px;border:1px solid rgba(95,201,232,.26);border-radius:14px;
+    background:rgba(95,201,232,.04);padding:20px 22px}
+  .demo .ln{font-size:13.5px;line-height:2.5;color:var(--dim);
+    font-family:ui-monospace,Menlo,monospace}
+  .demo .ln .s{color:var(--gd);font-size:17px;font-weight:600}
+  .demo .ln .o{border:1.5px solid var(--pu);border-radius:20px;padding:1px 8px;color:var(--pu)}
+  .demo .ln u{text-decoration:none;color:var(--ink)}
+
+  footer{margin-top:56px;padding-top:24px;border-top:1px solid var(--line);
+    font-size:12px;color:var(--far);line-height:2}
+
+  @media(max-width:760px){
+    .page{padding:0 15px 60px}
+    .cards{grid-template-columns:1fr}
+    .c .top{gap:14px;padding:16px 16px 12px}
+    .box{padding:16px}
+    .marg{grid-template-columns:60px 1fr}
+  }
+  @media(pointer:coarse){ a{min-height:44px} }
+</style>
+<div class="page">
+
+<div class="hero">
+  <div class="kicker">Reading · Relation Glyphs</div>
+  <h1>五个形状<br>读完所有文章</h1>
+  <p class="lede">词千变万化,<b>关系只有五种</b>。<br>
+    不背连接词,画形状 —— 眼睛认得出形状,认不出意思。<br>
+    <span style="color:var(--far)">雅思阅读 · GRE 填空与阅读 · 读论文,同一套。</span></p>
+  <a class="back" href="models.html">← 回 100 个思维模型</a>
+</div>
+
+<h2>五个符号</h2>
+<p class="sub">写在连接词正上方 · 每个一笔画完 · 不准加第六个</p>
+
+<div class="cards">
+
+  <!-- 1 同向叠加 -->
+  <div class="c">
+    <div class="top">
+      <svg width="70" height="70" viewBox="0 0 70 70">
+        <rect x="14" y="42" width="42" height="9" rx="2" fill="#7ee8a2" opacity=".35"/>
+        <rect x="14" y="30" width="42" height="9" rx="2" fill="#7ee8a2" opacity=".6"/>
+        <rect x="14" y="18" width="42" height="9" rx="2" fill="#7ee8a2" opacity=".95"/>
+        <path d="M35 13 L35 5 M31 9 L39 9" stroke="#7ee8a2" stroke-width="2.4" stroke-linecap="round"/>
+      </svg>
+      <div>
+        <div class="nm">同向叠加</div>
+        <div class="en">Addition</div>
+        <div class="mo" style="color:#7ee8a2">符号 <b style="font-family:Menlo,monospace">+</b> · 母图：分层堆栈</div>
+      </div>
+    </div>
+    <div class="kw"><b>and</b> · <b>also</b> · moreover · furthermore · in addition ·
+      additionally · similarly · likewise · what is more · not only…but also</div>
+    <div class="ft"><span class="q">考什么</span>：漏项。多选题少选一个就零分。<br>
+      <span class="t">坑：看到一个就以为完了。叠加句往往还有下一个。</span></div>
+  </div>
+
+  <!-- 2 平等对比 -->
+  <div class="c">
+    <div class="top">
+      <svg width="70" height="70" viewBox="0 0 70 70">
+        <path d="M35 12 L35 24" stroke="#e8b84a" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M13 24 L57 24" stroke="#e8b84a" stroke-width="2.4" stroke-linecap="round"/>
+        <path d="M13 24 L13 34 M57 24 L57 34" stroke="#e8b84a" stroke-width="1.8" opacity=".7"/>
+        <rect x="3" y="34" width="20" height="9" rx="2" fill="#e8b84a" opacity=".8"/>
+        <rect x="47" y="34" width="20" height="9" rx="2" fill="#e8b84a" opacity=".8"/>
+        <circle cx="35" cy="10" r="3.2" fill="#e8b84a"/>
+        <path d="M25 56 L45 56 M28 52 L24 56 L28 60 M42 52 L46 56 L42 60"
+              stroke="#e8b84a" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" fill="none"/>
+      </svg>
+      <div>
+        <div class="nm">平等对比</div>
+        <div class="en">Contrast</div>
+        <div class="mo" style="color:#e8b84a">符号 <b style="font-family:Menlo,monospace">↔</b> · 母图：天平权衡</div>
+      </div>
+    </div>
+    <div class="kw"><b>whereas</b> · <b>unlike</b> · <b>while</b> · compared with · in contrast ·
+      by contrast · on the other hand · versus · differ from · rather than</div>
+    <div class="ft"><span class="q">考什么</span>：谁是谁。两边属性配错就错。<br>
+      <span class="t">坑：两边都记住了,但记反了。画天平时先标左右。</span></div>
+  </div>
+
+  <!-- 3 转折让步 -->
+  <div class="c">
+    <div class="top">
+      <svg width="70" height="70" viewBox="0 0 70 70">
+        <rect x="8" y="16" width="26" height="8" rx="2" fill="#f08e8e" opacity=".25"/>
+        <rect x="8" y="28" width="20" height="8" rx="2" fill="#f08e8e" opacity=".18"/>
+        <path d="M14 44 L14 54 L46 54" stroke="#f08e8e" stroke-width="2.6"
+              fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <path d="M40 48 L48 54 L40 60" stroke="#f08e8e" stroke-width="2.6"
+              fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <rect x="40" y="14" width="24" height="20" rx="3" fill="#f08e8e" opacity=".9"/>
+        <path d="M46 24 L50 28 L58 20" stroke="#04060e" stroke-width="2.4"
+              fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+      </svg>
+      <div>
+        <div class="nm">转折让步</div>
+        <div class="en">Concession</div>
+        <div class="mo" style="color:#f08e8e">符号 <b style="font-family:Menlo,monospace">↳</b> · 重点永远在后</div>
+      </div>
+    </div>
+    <div class="kw"><b>but</b> · <b>however</b> · <b>despite</b> · <b>although</b> · yet ·
+      nevertheless · nonetheless · even though · in spite of · still · that said</div>
+    <div class="ft"><span class="q">考什么</span>：把前半句当答案。<br>
+      <span class="t">坑：<code>Despite</code> 前面是垫背的。<b>符号的拐弯就是在提醒你:落点在后面。</b></span></div>
+  </div>
+
+  <!-- 4 因果 -->
+  <div class="c">
+    <div class="top">
+      <svg width="70" height="70" viewBox="0 0 70 70">
+        <circle cx="16" cy="35" r="11" fill="none" stroke="#5fc9e8" stroke-width="2.4"/>
+        <text x="16" y="40" font-size="12" fill="#5fc9e8" text-anchor="middle"
+              font-family="Menlo,monospace">因</text>
+        <path d="M31 35 L47 35" stroke="#5fc9e8" stroke-width="2.6" stroke-linecap="round"/>
+        <path d="M42 30 L48 35 L42 40" stroke="#5fc9e8" stroke-width="2.6"
+              fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+        <circle cx="58" cy="35" r="11" fill="#5fc9e8" opacity=".9"/>
+        <text x="58" y="40" font-size="12" fill="#04060e" text-anchor="middle"
+              font-family="Menlo,monospace">果</text>
+      </svg>
+      <div>
+        <div class="nm">因果</div>
+        <div class="en">Causation</div>
+        <div class="mo" style="color:#5fc9e8">符号 <b style="font-family:Menlo,monospace">→</b> · 母图：流程链</div>
+      </div>
+    </div>
+    <div class="kw"><b>because</b> · <b>since</b> · <b>thus</b> · therefore · hence · so ·
+      lead to · result in · result from · give rise to · owing to · due to · consequently</div>
+    <div class="ft"><span class="q">考什么</span>：因果倒置。<br>
+      <span class="t">硬规矩：箭头<b>从因指向果</b>,不是从左指向右。<code>B because A</code> 要反着画。</span></div>
+  </div>
+
+  <!-- 5 范围限定 -->
+  <div class="c">
+    <div class="top">
+      <svg width="70" height="70" viewBox="0 0 70 70">
+        <circle cx="35" cy="35" r="26" fill="none" stroke="#c78ef0" stroke-width="1.6" opacity=".4"/>
+        <circle cx="35" cy="35" r="13" fill="none" stroke="#c78ef0" stroke-width="2.6"/>
+        <circle cx="35" cy="35" r="4" fill="#c78ef0"/>
+        <circle cx="16" cy="20" r="2.6" fill="#c78ef0" opacity=".35"/>
+        <circle cx="54" cy="20" r="2.6" fill="#c78ef0" opacity=".35"/>
+        <circle cx="16" cy="50" r="2.6" fill="#c78ef0" opacity=".35"/>
+        <circle cx="54" cy="50" r="2.6" fill="#c78ef0" opacity=".35"/>
+      </svg>
+      <div>
+        <div class="nm">范围限定</div>
+        <div class="en">Scope</div>
+        <div class="mo" style="color:#c78ef0">动作：<b>把那个词圈起来</b> · 母图：集合交叠</div>
+      </div>
+    </div>
+    <div class="kw"><b>only</b> · <b>all</b> · <b>never</b> · <b>always</b> · <b>except</b> ·
+      unless · some · most · few · rarely · must · entirely · exclusively · provided that</div>
+    <div class="ft"><span class="q">考什么</span>：把 <code>some</code> 说成 <code>all</code>。T/F/NG 头号杀手。<br>
+      <span class="t">你的母图里「集合交叠」只有 3 个模型 —— <b>这是你最空的一块,所以要画圈强制看见。</b></span></div>
+  </div>
+
+</div>
+
+<h2>再加两个记号</h2>
+<p class="sub">不是关系,是属性 · 标在不同位置</p>
+
+<div class="rule">
+  <div><b>极性 ↑ ↓ ｜ 写在动词上方</b>
+    <code>↑</code> helps · improves · boosts · facilitates · enhance<br>
+    <code>↓</code> harms · reduces · undermines · hinders · impair<br>
+    <span style="color:var(--rd)">极性翻转 = T/F/NG 和 GRE 填空最大的坑。</span></div>
+  <div><b>抽象名词 ｜ 旁边写两个具体词</b>
+    抽象词在原文<b>一定</b>被具体化,原样不会出现。<br>
+    <code>social relations</code> → 婚姻 · 谁跟谁来往<br>
+    <code>economic relations</code> → 贸易 · 换东西<br>
+    <span style="color:var(--far)">雾抓不住东西,钩子才行。</span></div>
+</div>
+
+<h2>页边骨架</h2>
+<p class="sub">这一步才是真正解决重读的 · 每读完一段,页边写一个主导符号</p>
+
+<div class="marg">
+  <div class="l">
+    <div style="color:#f08e8e">↳</div>
+    <div style="color:#5fc9e8">→</div>
+    <div style="color:#e8b84a">↔ <span style="color:#7ee8a2">+</span></div>
+    <div style="color:#e8b84a">↔</div>
+    <div style="color:#5fc9e8">→</div>
+  </div>
+  <div class="r">
+    <div><b>¶1</b>　现状很好 —— <b>但</b>有缺口</div>
+    <div><b>¶2</b>　所以提出方法</div>
+    <div><b>¶3</b>　对比验证 A ↔ B,<b>并且</b>追加一组</div>
+    <div><b>¶4</b>　再一组对比,新法赢</div>
+    <div><b>¶5</b>　结论</div>
+  </div>
+</div>
+
+<div class="box">
+  <p><b>为什么这一步能治「读过头」</b><br>
+  你重读,是因为脑子里没有全文地图,只能从头再走一遍。<br>
+  页边符号把地图<b>画在纸上</b> —— 不占工作记忆,回头找答案时看一眼就知道去第几段。<br>
+  <span style="color:var(--far)">一段一秒 · 一篇 8 段 = 8 秒 · 换掉 5 分钟重读。</span></p>
+</div>
+
+<h2>文章骨架只有四种</h2>
+<p class="sub">页边符号连起来,一定是这四种之一 —— 读到第二段就能判断,然后预测后面</p>
+
+<div class="sk">
+  <div><b>缺口型</b><div class="g">↳ → ↔ →</div>
+    <s>现状 → 但有不足 → 提方法 → 对比验证 → 结论。<br>论文摘要、科学类文章的默认形状。</s></div>
+  <div><b>对比型</b><div class="g">↔ ↔ ↔ →</div>
+    <s>两种理论 / 两个时代 / 两个物种反复对照。<br>题目必考「谁是谁」。</s></div>
+  <div><b>因果链</b><div class="g">→ → → →</div>
+    <s>一环扣一环。历史、机制、过程类。<br>题目必考「顺序」和「倒置」。</s></div>
+  <div><b>分类型</b><div class="g">+ + + →</div>
+    <s>列举几种类型,最后总结。<br>题目必考「漏项」和「配错」。</s></div>
+</div>
+
+<h2>实例 · 一段论文摘要</h2>
+<p class="sub">四个符号读完</p>
+
+<div class="demo">
+  <div class="ln">
+    <span class="s" style="color:#f08e8e">↳</span><br>
+    <u>Despite</u> a dramatic increase in TCR sequencing, there are
+    <span class="o">few</span> approaches to parse the data…<br><br>
+
+    <span class="s" style="color:#5fc9e8">→</span><br>
+    To address this issue we <u>developed</u> ImmunoMap…<br><br>
+
+    <span class="s" style="color:#e8b84a">↔</span>
+    <span class="s" style="color:#7ee8a2">&nbsp;+</span><br>
+    …self-antigen <u>or</u> foreign-antigen… showed differences…
+    <u>and also</u> detected organ-specific differences…<br><br>
+
+    <span class="s" style="color:#e8b84a">↔</span><br>
+    …revealed a predictive signature that were
+    <span class="o">not</span> seen using standard analyses.
+  </div>
+</div>
+
+<div class="box">
+  <p>页边：<code>↳</code> 缺口　<code>→</code> 方法　<code>↔+</code> 小鼠验证　<code>↔</code> 临床验证<br>
+  现在问「ImmunoMap 相比标准方法怎么样」—— <b>不用重读,直接去最后一段。</b></p>
+</div>
+
+<h2>四条硬规矩</h2>
+<div class="rule">
+  <div><b>只有这五个</b>不准加第六个。符号一多,它自己就变成新的记忆负担,那就白做了。</div>
+  <div><b>不准做成电子版</b>就用铅笔画在题纸上。手的动作参与编码,这是生成效应。</div>
+  <div><b>不理解也要标</b>符号靠连接词识别,不靠理解。这是<b>眼睛的动作,不是脑子的动作</b>。</div>
+  <div><b>画不出来就跳过</b>想 3 秒还落不进这五个,直接走。别卡住 —— 卡住就又开始重读了。</div>
+</div>
+
+<h2>怎么练</h2>
+<div class="marg">
+  <div class="l">
+    <div style="color:var(--far);font-size:14px">D1</div>
+    <div style="color:var(--far);font-size:14px">D2</div>
+    <div style="color:var(--far);font-size:14px">D3</div>
+  </div>
+  <div class="r">
+    <div><b>只标符号,不读懂</b>　一篇 2 分钟 · 3 篇</div>
+    <div><b>标完画页边骨架</b>　一篇 5 分钟 · 2 篇</div>
+    <div><b>先画骨架再读全文</b>　只看首尾句 + 连接词,预测结构,再验证</div>
+  </div>
+</div>
+
+<div class="box">
+  <p><b>只记一个数：重读次数。</b><br>
+  正确率会因话题波动,重读次数不会 —— 它直接测量读法有没有改。<br>
+  <span style="color:var(--far)">目标：第 1 天 5-8 次 → 第 7 天 2-3 次 → 第 14 天 0-1 次。</span></p>
+</div>
+
+<footer>
+  词千变万化,关系只有五种。<br>
+  你缺的不是读得更懂,是让眼睛在正确的地方自动停下来。<br>
+  <span style="opacity:.7">雅思阅读 · GRE 填空与阅读 · 读论文 —— 同一套形状。</span>
+</footer>
+
+</div>
+<script>
+if('serviceWorker' in navigator){
+  addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+}
+</script>
