@@ -283,6 +283,46 @@
     .utac .tb{padding-left:26px}
   }
   @media(max-width:430px){ .u9{grid-template-columns:1fr} }
+
+  /* 符号系统 · 三格宽大卡 */
+  .sigcard{grid-column:1/-1;border:1px solid rgba(232,184,74,.3);border-radius:16px;
+    background:linear-gradient(180deg,rgba(232,184,74,.055),rgba(7,11,24,.72));
+    padding:22px 22px 20px}
+  .sigcard .sh{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap}
+  .sigcard .sh h3{font-family:"Songti SC",Georgia,serif;font-size:19px;letter-spacing:.08em;font-weight:600}
+  .sigcard .sh .tg{font-size:10px;letter-spacing:.15em;color:var(--gd);
+    border:1px solid rgba(232,184,74,.34);border-radius:20px;padding:2px 10px}
+  .sigcard .sh .ln{font-size:12.5px;color:var(--dim);flex:1;min-width:220px}
+  .sigrow{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:9px;margin-top:16px}
+  .sg{border:1px solid var(--line);border-radius:11px;background:rgba(5,8,18,.6);padding:11px 13px}
+  .sg .t{display:flex;align-items:center;gap:9px}
+  .sg .gy{font-family:ui-monospace,Menlo,monospace;font-size:21px;line-height:1;
+    font-variant-emoji:text;width:24px;text-align:center}
+  .sg .nm{font-size:13px;font-weight:600}
+  .sg .nm s{text-decoration:none;display:block;font-size:9.5px;color:var(--far);
+    letter-spacing:.1em;text-transform:uppercase}
+  .sg .kw{font-size:10.5px;color:var(--far);margin-top:7px;line-height:1.65;
+    font-family:ui-monospace,Menlo,monospace}
+  .sglb{font-size:10px;letter-spacing:.2em;color:var(--far);margin-top:16px;
+    display:flex;align-items:center;gap:9px}
+  .sglb:after{content:'';flex:1;height:1px;background:var(--line)}
+  .sigmore{display:none;margin-top:18px;border-top:1px solid var(--line);padding-top:16px}
+  .sigcard.open .sigmore{display:block;animation:fade .3s ease}
+  .sigtog{margin-top:16px;width:100%;height:42px;border-radius:11px;cursor:pointer;
+    border:1px solid rgba(232,184,74,.36);background:rgba(232,184,74,.09);color:var(--gd);
+    font-size:13px;font-family:inherit}
+  .sigtog:active{background:rgba(232,184,74,.18)}
+  .sm2{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:10px;margin-top:10px}
+  .sm2 > div{border:1px solid var(--line);border-radius:10px;padding:12px 14px;
+    background:rgba(5,8,18,.5);font-size:12px;color:var(--dim);line-height:1.75}
+  .sm2 b{color:var(--ink);display:block;margin-bottom:3px;font-size:12.5px}
+  .sm2 code,.sigcard code{font-family:ui-monospace,Menlo,monospace;color:var(--cy);
+    background:rgba(95,201,232,.1);padding:1px 5px;border-radius:5px}
+  .skel{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:9px;margin-top:10px}
+  .skel > div{border:1px solid var(--line);border-radius:10px;padding:12px 14px;background:rgba(5,8,18,.5)}
+  .skel .g{font-family:ui-monospace,Menlo,monospace;font-size:19px;letter-spacing:.2em;
+    color:var(--gd);margin:5px 0 6px}
+  .skel b{font-size:13px} .skel s{text-decoration:none;font-size:11.5px;color:var(--far);line-height:1.65;display:block}
 </style>
 
 <canvas id="sky"></canvas>
@@ -296,7 +336,7 @@
     所以这一页不给你一百多张不同的画，只给你 <b>10 个空盒子</b>，再把所有模型挂进去。<br>
     每遇到新东西，只问两句：<b>属于哪张母图？在图上的哪个位置？</b><br>
     <span style="color:var(--far)">两套卡片：100 个实用思维模型 · 36 张来自斯科特·佩奇《模型思维》的形式模型。</span><br>
-    <a href="polya.html" style="color:var(--cy);text-decoration:none;font-size:13px">→ 解题空间 · 波利亚工作台（把条件摊开、排序、砍掉、挂模型）</a><br><a href="signals.html" style="color:var(--gd);text-decoration:none;font-size:13px">→ 五个形状读完所有文章（逻辑符号 · 雅思/GRE/读论文同一套）</a></p>
+    <a href="polya.html" style="color:var(--cy);text-decoration:none;font-size:13px">→ 解题空间 · 波利亚工作台（把条件摊开、排序、砍掉、挂模型）</a><br><a href="drill.html" style="color:var(--gd);text-decoration:none;font-size:13px">→ 符号黑板（贴 PDF 真题 · 拖符号 · Pencil 直接标）<span style="color:var(--far)">　符号系统在下面「形式模型」里</span></a></p>
 </div>
 
 <div class="ul">
@@ -2600,6 +2640,112 @@ function card(x){
   return d;
 }
 
+
+/* ═══ 符号系统 · 形式模型里的三格宽大卡 ═══ */
+const SIG_REL=[
+ {g:'+',n:'同向叠加',e:'Addition',k:'and · also · moreover · furthermore · in addition',c:'#7ee8a2'},
+ {g:'↔',n:'平等对比',e:'Contrast',k:'whereas · unlike · while · compared with · in contrast',c:'#e8b84a'},
+ {g:'↳',n:'转折让步',e:'Concession',k:'but · however · despite · although · yet',c:'#f08e8e'},
+ {g:'→',n:'因果',e:'Causation',k:'because · since · thus · therefore · lead to',c:'#5fc9e8'},
+ {g:'○',n:'范围限定',e:'Scope',k:'only · all · never · except · unless · most',c:'#c78ef0'}
+];
+const SIG_ROLE=[
+ {g:'⌖',n:'靶 目的',e:'Purpose',k:'to address · aim to · the problem is',c:'#e8b84a'},
+ {g:'□',n:'路 方法',e:'Method',k:'by · using · through · we developed · based on',c:'#5fc9e8'},
+ {g:'▶',n:'果 结果',e:'Result',k:'showed · revealed · found · demonstrate',c:'#7ee8a2'},
+ {g:'●',n:'用 落地',e:'Application',k:'this suggests · implications · can be used to',c:'#c78ef0'},
+ {g:'·',n:'例 例子',e:'Example',k:'for example · such as · a case in point',c:'#8d98b6'},
+ {g:'"',n:'引 他说',e:"Others' view",k:'argues · claims · according to · critics say',c:'#f08e8e'}
+];
+const sgCell=x=>'<div class="sg"><div class="t"><span class="gy" style="color:'+x.c+'">'+
+  (x.g==='"'?'&quot;':x.g)+'</span><span class="nm">'+x.n+'<s>'+x.e+'</s></span></div>'+
+  '<div class="kw">'+x.k+'</div></div>';
+
+function sigCard(){
+  const d=document.createElement('div');
+  d.className='sigcard';
+  d.innerHTML=
+  '<div class="sh"><h3>逻辑符号系统</h3>'+
+    '<span class="tg">RELATION GLYPHS</span>'+
+    '<span class="ln">词千变万化，<b style="color:var(--ink)">关系只有五种</b>。'+
+    '不背连接词，画形状 —— 眼睛认得出形状，认不出意思。</span></div>'+
+
+  '<div class="sglb">线 · 关系（怎么连）　写在连接词正上方</div>'+
+  '<div class="sigrow">'+SIG_REL.map(sgCell).join('')+'</div>'+
+
+  '<div class="sglb">点 · 角色（担任什么职务）　写在句首或页边</div>'+
+  '<div class="sigrow">'+SIG_ROLE.map(sgCell).join('')+'</div>'+
+
+  '<div class="sm2" style="margin-top:14px"><div><b>四个功能位走完，一段论述才完整</b>'+
+    '<span style="font-family:ui-monospace,Menlo,monospace;font-size:17px;letter-spacing:.18em;color:var(--gd)">⌖ → □ → ▶ → ●</span><br>'+
+    '要解决什么 → 怎么达成 → 得到什么 → 所以呢</div>'+
+    '<div><b>细节怎么标？不标。</b>有符号的是骨架，没符号的地方就是细节。'+
+    '什么都标 = 什么都没标。</div></div>'+
+
+  '<button class="sigtog">展开 · 骨架 / 三档 / 缺位诊断 / 听人说话</button>'+
+
+  '<div class="sigmore">'+
+    '<div class="sglb">文章骨架只有四种　页边符号连起来一定是其中之一</div>'+
+    '<div class="skel">'+
+      '<div><b>缺口型</b><div class="g">↳ → ↔ →</div><s>现状 → 但有不足 → 提方法 → 对比验证。论文摘要、科学类文章的默认形状。</s></div>'+
+      '<div><b>对比型</b><div class="g">↔ ↔ ↔ →</div><s>两种理论 / 两个时代反复对照。必考「谁是谁」。</s></div>'+
+      '<div><b>因果链</b><div class="g">→ → → →</div><s>一环扣一环。历史、机制、过程类。必考顺序与倒置。</s></div>'+
+      '<div><b>分类型</b><div class="g">+ + + →</div><s>列举几种类型再总结。必考漏项与配错。</s></div>'+
+    '</div>'+
+
+    '<div class="sglb">页边骨架　治「读过头要重读」</div>'+
+    '<div class="sm2"><div><b>每读完一段，页边写一个主导符号</b>'+
+      '<code>↳</code> ¶1 缺口　<code>→</code> ¶2 方法　<code>↔</code> ¶3 对比　<code>→</code> ¶4 结论<br>'+
+      '回头找答案时看页边，不用从头重读。一段一秒，一篇八秒。</div>'+
+      '<div><b>为什么重读</b>脑子里没有全文地图，只能从头再走一遍。'+
+      '页边把地图<b style="display:inline">画在纸上</b>，不占工作记忆。</div></div>'+
+
+    '<div class="sglb">三档　累不是方法的问题，是档位用错了</div>'+
+    '<div class="sm2">'+
+      '<div><b>全标 · 练习期 3-5 天</b>每个连接词都标。这是 drill，不是阅读 —— <span style="color:var(--rd)">应该累</span>。</div>'+
+      '<div><b>页边 · 考试用这档</b>手只动两次：每段末尾写一个符号、看到极端词画圈。'+
+      '一篇约 <span style="color:var(--gr)">10 秒</span>手部动作。</div>'+
+      '<div><b>报警 · 熟练后</b>平时不标，只在读丢了才回头标一段。符号变成救援工具。</div>'+
+      '<div><b>认得 ≠ 写下来</b>看到 <code>however</code> 心里响一下就继续读，不写。'+
+      '只在句号处标，绝不在句中标 —— 手一动眼就停。</div>'+
+    '</div>'+
+
+    '<div class="sglb">缺位诊断　图能找出漏洞，文字不能</div>'+
+    '<div class="sm2">'+
+      '<div><b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:.15em">⌖ □ ▶ __</b>'+
+      '有结果没意义 → 「所以呢？跟我有什么关系？」</div>'+
+      '<div><b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:.15em">⌖ __ ▶ ●</b>'+
+      '有结果没方法 → 「你怎么知道的？数据哪来的？」</div>'+
+      '<div><b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:.15em">__ □ ▶ ●</b>'+
+      '有方法没目的 → 「你到底在解决什么问题？」</div>'+
+      '<div><b style="font-family:ui-monospace,Menlo,monospace;letter-spacing:.15em">⌖ □ __ ●</b>'+
+      '有意义没结果 → 「证据在哪？还是只是承诺？」</div>'+
+    '</div>'+
+    '<div class="sm2"><div style="grid-column:1/-1"><b>为什么</b>'+
+      '文字是线性的 —— 缺一段只觉得「好像少了点什么」，说不出少了什么。'+
+      '图是空间的 —— <b style="display:inline">缺位是一个可见的空格</b>。看论文、开会、听推销全用这个查。</div></div>'+
+
+    '<div class="sglb">听人说话　同一套</div>'+
+    '<div class="sm2">'+
+      '<div><b>符号数量 = 信息量</b>讲三分钟你只画出两个符号 —— 他真的在重复，不是你没听懂。</div>'+
+      '<div><b><code>↳</code> 是潜台词开关</b>「虽然 A 但是 B」，他真正想说的永远是 B。A 只是礼貌。</div>'+
+      '<div><b>吵架 90% 死在 <code>○</code> 上</b>多数争论不是观点分歧，是范围没对齐 —— 一个说「有些」，一个听成「所有」。</div>'+
+      '<div><b>四问</b><code>⌖</code>你的目标是什么　<code>□</code>具体怎么做　<code>▶</code>凭什么会这样　<code>●</code>跟我有什么关系</div>'+
+    '</div>'+
+
+    '<div class="sm2" style="margin-top:14px"><div style="grid-column:1/-1;'+
+      'border-color:rgba(95,201,232,.3);background:rgba(95,201,232,.05)">'+
+      '<b>拿去练</b>符号黑板可以贴 PDF 真题、拖符号、Pencil 直接标 —— '+
+      '<a href="drill.html" style="color:var(--cy);text-decoration:none">打开符号黑板 →</a></div></div>'+
+  '</div>';
+  d.querySelector('.sigtog').onclick=e=>{
+    d.classList.toggle('open');
+    e.target.textContent=d.classList.contains('open')
+      ? '收起' : '展开 · 骨架 / 三档 / 缺位诊断 / 听人说话';
+  };
+  return d;
+}
+
 function render(){
   G.innerHTML='';
   const list=M.filter(x=>{
@@ -2609,6 +2755,7 @@ function render(){
     if(fq){const hay=(x.zh+x.en+x.core+x.when+x.eg+(x.trap||'')+MOM[x.m].t+x.c).toLowerCase();
       if(!hay.includes(fq))return false}
     return true});
+  if(fc==='形式模型' && !fq) G.appendChild(sigCard());
   list.forEach(x=>G.appendChild(card(x)));
   document.getElementById('none').style.display=list.length?'none':'block';
   count();
