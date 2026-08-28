@@ -1,5 +1,5 @@
-const V = 'mmb-v7';
-const FILES = ['./', './index.html', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './models.html', './polya.html', './signals.html', './drill.html',
+const V = 'mmb-v8';
+const FILES = ['./', './index.html', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './models.html', './polya.html', './signals.html', './drill.html', './vendor/pdf.min.mjs', './vendor/pdf.worker.min.mjs',
                './icon.svg', './manifest.webmanifest'];
 
 self.addEventListener('install', e => {
