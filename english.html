@@ -1,0 +1,656 @@
+<!doctype html>
+<html lang="zh"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#000308">
+<title>英语星图</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+html,body{width:100%;height:100%;overflow:hidden;overscroll-behavior:none;background:#000;
+ font-family:-apple-system,"PingFang SC",system-ui,sans-serif;
+ -webkit-user-select:none;user-select:none;-webkit-tap-highlight-color:transparent}
+#sky{position:fixed;inset:0;display:block}
+#map{position:fixed;inset:0;width:100%;height:100%;display:block;cursor:grab;
+ touch-action:none;-webkit-user-select:none}
+#map.drag{cursor:grabbing}
+text{pointer-events:none}
+.node{cursor:pointer}
+.node:active{opacity:.75}
+
+#hud{position:fixed;left:0;right:0;bottom:0;padding:14px 18px max(18px,env(safe-area-inset-bottom));
+ background:linear-gradient(to top,rgba(0,0,0,.94) 60%,transparent);
+ color:#fff;text-align:center;pointer-events:none}
+#hudCn{font-size:17px;color:#9fb0c0;letter-spacing:.5px}
+#hudEn{font-size:26px;font-weight:600;margin-top:3px;letter-spacing:.2px}
+#hudTip{font-size:12px;color:#5a6a78;margin-top:7px}
+
+#bar{position:fixed;top:0;left:0;right:0;padding:max(12px,env(safe-area-inset-top)) 16px 12px;display:flex;gap:8px;
+ align-items:center;background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent);z-index:5}
+#bar b{color:#e8eef4;font-size:14px;font-weight:600;letter-spacing:2px;margin-right:auto}
+.btn{pointer-events:auto;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
+ color:#c8d4de;font-size:12px;padding:6px 12px;border-radius:20px;cursor:pointer}
+.btn:active{background:rgba(255,255,255,.18)}
+@media(max-width:520px){#hudEn{font-size:20px}#hudCn{font-size:15px}}
+</style></head><body>
+<canvas id="sky"></canvas>
+<svg id="map"></svg>
+<div id="bar"><a class="btn" href="./" style="text-decoration:none;margin-right:10px">←</a><b>英 语 星 图</b>
+ <button class="btn" id="bFit">回到全图</button>
+ <button class="btn" id="bRand">随机换词</button></div>
+<div id="hud"><div id="hudCn">—</div><div id="hudEn">—</div>
+ <div id="hudTip">点星球选中 · 再点一次炸开一圈 · 点空白收起</div></div>
+<script>
+
+/* ================= 数据 ================= */
+var PERSON=[
+ {cn:'我',en:'I',n:'1s'},{cn:'你',en:'you',n:'2'},
+ {cn:'他',en:'he',n:'3s'},{cn:'我们',en:'we',n:'1p'}];
+
+var VERB=[
+ {cn:'吃',base:'eat',s:'eats',past:'ate',pp:'eaten',ing:'eating'},
+ {cn:'去',base:'go',s:'goes',past:'went',pp:'gone',ing:'going'},
+ {cn:'知道',base:'know',s:'knows',past:'knew',pp:'known',ing:'knowing'},
+ {cn:'喜欢',base:'like',s:'likes',past:'liked',pp:'liked',ing:'liking'}];
+
+var OBJ=[{cn:'面',en:'noodles'},{cn:'这个',en:'it'},
+ {cn:'那儿',en:'there'},{cn:'咖啡',en:'coffee'}];
+
+var TENSE=[
+ {k:'now', cn:'现在',  hint:'…吗 / 平时'},
+ {k:'past',cn:'过去',  hint:'…了(昨天)'},
+ {k:'fut', cn:'将来',  hint:'回头…'},
+ {k:'perf',cn:'已经…了',hint:'到现在为止'},
+ {k:'prog',cn:'正…着', hint:'此刻正在'},
+ {k:'pperf',cn:'早就…了',hint:'过去的过去'}];
+
+var MODE=[
+ {k:'say',cn:'说',  sub:'陈述'},
+ {k:'ask',cn:'问',  sub:'…吗?'},
+ {k:'no', cn:'否',  sub:'不 / 没'},
+ {k:'wh', cn:'啥',  sub:'疑问词'}];
+
+var WH=[{cn:'啥',en:'What'},{cn:'哪儿',en:'Where'},{cn:'为啥',en:'Why'},
+ {cn:'咋',en:'How'},{cn:'啥时候',en:'When'}];
+
+/* 助动词行：一整排,按时间+人称自动点亮 */
+var MODAL=[
+ {w:'can',   cn:'能不能',       neg:"can't",         z:'能',   q:'能不能'},
+ {w:'should',cn:'该不该',       neg:"shouldn't",     z:'该',   q:'该不该'},
+ {w:'must',  cn:'必须 / 得',    neg:"don't have to", z:'必须', q:'非得',    qm:1},
+ {w:'may',   cn:'可不可以',     neg:"may not",       z:'可以', q:'可不可以'},
+ {w:'would', cn:'会不会(客气)', neg:"wouldn't",      z:'会',   q:'会不会'}];
+var AUXES=['do','does','did','will','have','has','had','am','is','are'];
+var AUXCN={do:'…吗 / 不…',does:'他…吗',did:'…了吗(过去)',will:'会…吗',
+ have:'已经…了',has:'他已经…了',had:'早就…了',
+ am:'我是 / 我在',is:'他是 / 他在',are:'你们是 / 在'};
+var ISMODAL={};
+for(var _i=0;_i<MODAL.length;_i++){AUXES.push(MODAL[_i].w);AUXCN[MODAL[_i].w]=MODAL[_i].cn;ISMODAL[MODAL[_i].w]=1;}
+function modalOf(){ if(!S.modal)return null;
+ for(var i=0;i<MODAL.length;i++) if(MODAL[i].w===S.modal) return MODAL[i];
+ return null;}
+
+var CONN=[
+ {cn:'但是',  en:'but',      ord:'AB',sep:', '},
+ {cn:'所以',  en:'so',       ord:'AB',sep:', '},
+ {cn:'因为',  en:'because',  ord:'AB',sep:' '},
+ {cn:'而且',  en:'and',      ord:'AB',sep:' '},
+ {cn:'虽然',  en:'although', ord:'BA',sep:', '},
+ {cn:'如果',  en:'if',       ord:'BA',sep:', '},
+ {cn:'当…时', en:'when',     ord:'BA',sep:', '},
+ {cn:'除非',  en:'unless',   ord:'BA',sep:', '}];
+
+var BLOCKB=[
+ {cn:'我不饿',   en:"I'm not hungry"},
+ {cn:'外面下雨', en:"it's raining"},
+ {cn:'他走了',   en:'he left'},
+ {cn:'我没钱',   en:"I don't have money"}];
+
+var HOOK=[
+ {cn:'(中文不说)',en:'that', use:'他走了',  ub:'he left'},
+ {cn:'那个人…',   en:'who',  use:'那个人走了',ub:'the guy left'},
+ {cn:'那个东西…', en:'which',use:'那个东西没了',ub:'the thing is gone'},
+ {cn:'…啥',       en:'what', use:'你要啥',   ub:'you want'},
+ {cn:'…啥时候',   en:'when', use:'他走的',   ub:'he left'}];
+
+/* ================= 状态 ================= */
+var S={mode:0,tense:0,person:0,verb:0,obj:0,wh:0,conn:0,bIdx:0,hook:0,ring:null,modal:null};
+
+/* ================= 语法引擎 ================= */
+function is3s(){return PERSON[S.person].n==='3s';}
+function is1s(){return PERSON[S.person].n==='1s';}
+
+function auxWord(){
+ var md=modalOf(); if(md)return md.w;
+ var t=TENSE[S.tense].k;
+ if(t==='now') return is3s()?'does':'do';
+ if(t==='past')return 'did';
+ if(t==='fut') return 'will';
+ if(t==='perf')return is3s()?'has':'have';
+ if(t==='pperf')return 'had';
+ return is1s()?'am':(is3s()?'is':'are');
+}
+/* 陈述句里 do/does/did 是藏在动词里的 */
+function auxHidden(){
+ if(S.modal)return false;
+ var t=TENSE[S.tense].k;
+ return S.mode===0 && (t==='now'||t==='past');
+}
+function auxNeg(){
+ var md=modalOf(); if(md)return md.neg;
+ var t=TENSE[S.tense].k;
+ if(t==='now') return is3s()?"doesn't":"don't";
+ if(t==='past')return "didn't";
+ if(t==='fut') return "won't";
+ if(t==='perf')return is3s()?"hasn't":"haven't";
+ if(t==='pperf')return "hadn't";
+ return is1s()?"'m not":(is3s()?"isn't":"aren't");
+}
+function verbForm(){
+ var v=VERB[S.verb],t=TENSE[S.tense].k,m=MODE[S.mode].k;
+ if(S.modal)return v.base;
+ if(t==='perf'||t==='pperf')return v.pp;
+ if(t==='prog')return v.ing;
+ if(t==='fut') return v.base;
+ if(m==='say') return t==='past'?v.past:(is3s()?v.s:v.base);
+ return v.base;              /* 助动词出场了,动词退回原形 */
+}
+function verbFormKey(){
+ var v=VERB[S.verb],f=verbForm();
+ if(f===v.s)return 's'; if(f===v.past)return 'past';
+ if(f===v.pp)return 'pp'; if(f===v.ing)return 'ing'; return 'base';
+}
+function cap(s){return s.charAt(0).toUpperCase()+s.slice(1);}
+
+/* 主句英文 */
+function sentEN(){
+ var p=PERSON[S.person].en,o=OBJ[S.obj].en,f=verbForm(),m=MODE[S.mode].k;
+ if(m==='say'){
+  if(auxHidden()) return cap(p)+' '+f+' '+o+'.';
+  return cap(p)+' '+auxWord()+' '+f+' '+o+'.';
+ }
+ if(m==='ask') return cap(auxWord())+' '+p+' '+f+' '+o+'?';
+ if(m==='no'){
+  var a=auxNeg();
+  if(a.charAt(0)==="'") return cap(p)+a+' '+f+' '+o+'.';
+  return cap(p)+' '+a+' '+f+' '+o+'.';
+ }
+ return WH[S.wh].en+' '+auxWord()+' '+p+' '+f+'?';
+}
+/* 主句中文 */
+function sentCN(){
+ var p=PERSON[S.person].cn,v=VERB[S.verb].cn,o=OBJ[S.obj].cn,
+     t=TENSE[S.tense].k,m=MODE[S.mode].k,w=WH[S.wh].cn;
+ var core,tail='',md=modalOf();
+ if(md){
+  if(m==='say') return p+md.z+v+o;
+  if(m==='ask') return p+md.q+v+o+(md.qm?'吗?':'?');
+  if(m==='no')  return p+(md.w==='must'?'不用':'不'+md.z)+v+o;
+  return p+md.z+v+w+'?';
+ }
+ if(t==='now') core=v+o;
+ else if(t==='past'){core='昨天'+v+'了'+o;}
+ else if(t==='fut'){core='回头'+v+o;}
+ else if(t==='perf'){core='已经'+v+'过'+o+'了';}
+ else if(t==='pperf'){core='早就'+v+'过'+o+'了';}
+ else {core='正'+v+'着'+o;}
+ if(m==='say') return p+core;
+ if(m==='ask') return p+core+'吗?';
+ if(m==='no'){
+  if(t==='now') return p+'不'+v+o;
+  if(t==='past')return p+'昨天没'+v+o;
+  if(t==='fut') return p+'回头不'+v+o;
+  if(t==='perf')return p+'没'+v+'过'+o;
+  if(t==='pperf')return p+'那时还没'+v+'过'+o;
+  return p+'没在'+v+o;
+ }
+ if(t==='past') return p+'昨天'+v+w+'?';
+ if(t==='fut')  return p+'回头'+v+w+'?';
+ if(t==='perf') return p+v+'过'+w+'了?';
+ if(t==='pperf')return p+'早就'+v+'过'+w+'了?';
+ if(t==='prog') return p+'正'+v+'着'+w+'?';
+ return p+v+w+'?';
+}
+
+var CONN2=[{"rel": "转折", "word": "but", "zh": "但是", "tone": "口语转折的默认键", "spoken": 31133.2, "pos": "句中", "ord": "AB"}, {"rel": "因果", "word": "so", "zh": "所以", "tone": "口语因果默认键", "spoken": 26563.5, "pos": "句首/句中", "ord": "AB"}, {"rel": "条件", "word": "if", "zh": "如果", "tone": "默认键", "spoken": 23970.0, "pos": "句首", "ord": "BA"}, {"rel": "让步", "word": "anyway", "zh": "反正/不管怎样", "tone": "句尾=反正,句首=总之", "spoken": 1691.5, "pos": "句尾/句首", "ord": "AB"}, {"rel": "递进", "word": "also", "zh": "也/还", "tone": "中性", "spoken": 1737.0, "pos": "句中", "ord": "AB"}, {"rel": "对比", "word": "rather", "zh": "而是", "tone": "rather than", "spoken": 1024.5, "pos": "句中", "ord": "AB"}, {"rel": "补充", "word": "I mean", "zh": "我是说", "tone": "口语最高频补救", "spoken": 3418.2, "pos": "句首", "ord": "AB"}, {"rel": "举例", "word": "like", "zh": "比如", "tone": "口语举例(也是口头禅)", "spoken": 25517.0, "pos": "句中", "ord": "AB"}, {"rel": "总结", "word": "in the end", "zh": "到头来", "tone": "叙事收束", "spoken": 129.7, "pos": "句首", "ord": "AB"}];
+/* ================= 布局 ================= */
+var W=2600, H=3180, L=330, R=2270;
+var Y={mode:120, packA:1900, conn:2180, packB:2450, hook:2840, out:3090};
+var ROWY=[430,710,990,1270,1550];
+
+var C={mode:'#f0a04b', tense:'#5ec8e5', person:'#9be37d', aux:'#ffd166',
+       verb:'#ff8fa3', obj:'#c39bff', pack:'#8ab4ff', conn:'#f0783c', hook:'#5fe0b0'};
+
+var RW=null;
+function spread(n,i){ var l=RW?RW[0]:L, r=RW?RW[1]:R;
+ if(n===1) return (l+r)/2; return l+(r-l)*i/(n-1); }
+
+/* 当前模式的四行槽位 */
+function order(){
+ var m=MODE[S.mode].k, base;
+ if(m==='ask')      base=['aux','person','verb','obj'];
+ else if(m==='wh')  base=['wh','aux','person','verb'];
+ else               base=['person','aux','verb','obj'];
+ /* 时间由谁扛,就贴着谁:陈述的现在/过去藏在动词里,其余都由助动词扛 */
+ var carrier = auxHidden() ? 'verb' : 'aux';
+ var out=[];
+ for(var i=0;i<base.length;i++){ if(base[i]===carrier) out.push('tense'); out.push(base[i]); }
+ return out;
+}
+function rowOf(key){ var o=order(); for(var i=0;i<4;i++) if(o[i]===key) return i; return -1; }
+
+/* 每一槽的星星列表 */
+function stars(key){
+ var a=[],i;
+ if(key==='person'){for(i=0;i<PERSON.length;i++)a.push({en:PERSON[i].en,cn:PERSON[i].cn,on:i===S.person,i:i});}
+ else if(key==='obj'){for(i=0;i<OBJ.length;i++)a.push({en:OBJ[i].en,cn:OBJ[i].cn,on:i===S.obj,i:i});}
+ else if(key==='wh'){for(i=0;i<WH.length;i++)a.push({en:WH[i].en,cn:WH[i].cn,on:i===S.wh,i:i});}
+ else if(key==='aux'){
+  var w=(MODE[S.mode].k==='no')?auxNeg().replace(/^'/,"n'"):auxWord();
+  var base=auxWord();
+  for(i=0;i<AUXES.length;i++){
+   var on=AUXES[i]===base;
+   a.push({en:on?w:AUXES[i], cn:(on&&auxHidden())?'藏在动词里':AUXCN[AUXES[i]],
+    on:on, i:i, lock:1, modal:ISMODAL[AUXES[i]]?AUXES[i]:0, ghost:on&&auxHidden()});
+  }
+ }
+ else if(key==='verb'){
+  var v=VERB[S.verb], k=verbFormKey();
+  var fs=[['base',v.base,'原形·助动词后'],['s',v.s,'他/她/它'],['past',v.past,'昨天'],
+          ['pp',v.pp,'配 have'],['ing',v.ing,'配 be']];
+  for(i=0;i<fs.length;i++) a.push({en:fs[i][1],cn:fs[i][2],on:fs[i][0]===k,i:i,lock:1});
+ }
+ return a;
+}
+
+/* ================= SVG 画图 ================= */
+var NS='http://www.w3.org/2000/svg';
+function el(t,at){var e=document.createElementNS(NS,t);for(var k in at)e.setAttribute(k,at[k]);return e;}
+var world;
+
+function txt(x,y,s,size,fill,weight,anchor){
+ return el('text',{x:x,y:y,'font-size':size,fill:fill,
+  'font-weight':weight||400,'text-anchor':anchor||'middle',
+  'font-family':'-apple-system,"PingFang SC",system-ui,sans-serif'});
+}
+function put(p,x,y,s,size,fill,weight){var t=txt(x,y,s,size,fill,weight);t.textContent=s;p.appendChild(t);return t;}
+
+function railLine(y,label,color,rw){
+ var g=el('g',{}), x1=(rw?rw[0]:L)-190, x2=(rw?rw[1]:R)+190;
+ g.appendChild(el('line',{x1:x1,y1:y,x2:x2,y2:y,stroke:color,
+  'stroke-width':1.2,opacity:.22}));
+ var t=txt(L-215,y-26,label,20,color,600,'end');t.textContent=label;
+ t.setAttribute('opacity','.75');g.appendChild(t);
+ world.appendChild(g);
+}
+
+function star(x,y,r,main,sub,color,on,opt){
+ opt=opt||{};
+ if(opt.rid){POSMAP[opt.rid+':t']=[main,sub,r];}
+ var g=el('g',{class:'node',transform:'translate('+x+','+y+')'});
+ if(on&&!opt.ghost){
+  g.appendChild(el('circle',{r:r+22,fill:color,opacity:.13,filter:'url(#gl)'}));
+  g.appendChild(el('circle',{r:r,fill:color,opacity:.92}));
+ }else{
+  g.appendChild(el('circle',{r:r,fill:'#0a0e16',stroke:color,
+   'stroke-width':opt.ghost?1.6:1.3,opacity:opt.ghost?.55:.42,
+   'stroke-dasharray':opt.ghost?'5 5':''}));
+ }
+ var mc = on&&!opt.ghost ? '#06090f' : (opt.dim?'#5d6b7a':'#cfe0ee');
+ var t=txt(0,(sub?-2:8),main,opt.fs||25,mc,on?700:500);t.textContent=main;g.appendChild(t);
+ if(sub){var s=txt(0,20,sub,13,on&&!opt.ghost?'#0d1420':'#6f8296',500);
+  s.textContent=sub;s.setAttribute('opacity',on?.85:.7);g.appendChild(s);}
+ if(opt.click) g.addEventListener('click',function(e){e.stopPropagation();if(moved>6)return;opt.click();});
+ world.appendChild(g);
+ return g;
+}
+
+function pill(x,y,w,h,main,sub,color,click){
+ var g=el('g',{class:click?'node':'',transform:'translate('+x+','+y+')'});
+ g.appendChild(el('rect',{x:-w/2,y:-h/2,width:w,height:h,rx:h/2,
+  fill:color,opacity:.16,filter:'url(#gl)'}));
+ g.appendChild(el('rect',{x:-w/2,y:-h/2,width:w,height:h,rx:h/2,
+  fill:'#070b12',stroke:color,'stroke-width':2,opacity:.95}));
+ var t=txt(0,sub?-2:9,main,28,'#eaf3fb',600);t.textContent=main;g.appendChild(t);
+ if(sub){var s=txt(0,26,sub,15,'#7f93a6',500);s.textContent=sub;g.appendChild(s);}
+ if(click) g.addEventListener('click',function(e){e.stopPropagation();if(moved>6)return;click();});
+ world.appendChild(g);
+}
+
+function curve(pts,color,wid,dash){
+ if(pts.length<2) return;
+ var d='M'+pts[0][0]+' '+pts[0][1];
+ for(var i=1;i<pts.length;i++){
+  var a=pts[i-1],b=pts[i],m=(a[1]+b[1])/2;
+  d+=' C'+a[0]+' '+m+' '+b[0]+' '+m+' '+b[0]+' '+b[1];
+ }
+ var p=el('path',{d:d,fill:'none',stroke:color,'stroke-width':wid||3,
+  'stroke-linecap':'round',opacity:.9});
+ if(dash) p.setAttribute('stroke-dasharray',dash);
+ p.setAttribute('filter','url(#gl)');
+ world.insertBefore(p,world.firstChild);
+ var p2=el('path',{d:d,fill:'none',stroke:color,'stroke-width':(wid||3)*.5,
+  'stroke-linecap':'round',opacity:1});
+ if(dash) p2.setAttribute('stroke-dasharray',dash);
+ world.insertBefore(p2,world.firstChild);
+}
+
+var RING={"mode:0": [["I want to", "我想"], ["I think", "我觉得"], ["I'm gonna", "我打算"], ["I gotta go", "我得走了"], ["And then?", "然后呢"], ["What's up?", "怎么了"], ["I like it.", "我喜欢它(不加do)"], ["What do you mean?", "什么意思"], ["What's the difference?", "有啥区别"], ["What happened?", "咋回事"], ["I don't know how to say it", "我不知道咋说"]], "mode:1": [["D'you…", "…吗? 啾"], ["Didja…", "…了吗? 滴啧"], ["Have you…", "…过吗?"], ["Are you…", "…是/在…吗?"], ["Can you…", "…能…吗?"], ["Will you…", "…会…吗?"], ["Should I…", "…该…吗?"], ["Does he…", "他…吗? 达贼"], ["Whaddya…", "啥…? 哇哒"], ["How d'you…", "咋…?"], ["Why'd you…", "为啥…?"]], "mode:2": [["I don't", "我不…"], ["I didn't", "我没…(过去)"], ["I haven't", "我没…过"], ["I can't", "我不能"], ["I won't", "我不会"], ["I'm not", "我不是/没在"], ["doesn't have to", "不用"]], "mode:3": [["what", "啥"], ["who", "谁"], ["which", "哪个"], ["where", "哪儿"], ["when", "啥时候"], ["why", "为啥"], ["how", "咋"], ["whose", "谁的"], ["how much", "多少钱"], ["how many", "多少个"], ["how long", "多久"], ["how far", "多远"], ["how old", "多大"], ["how often", "几回"]], "tense:0": [["every day", "每天"], ["always", "总是"], ["usually", "一般"], ["I eat", "我吃(平时)"]], "tense:1": [["yesterday", "昨天"], ["just now", "刚才"], ["last night", "昨晚"], ["I ate", "我吃了"]], "tense:2": [["tomorrow", "明天"], ["later", "回头"], ["I will eat", "我会吃"], ["would have", "早知道…就"]], "tense:3": [["already", "已经"], ["yet", "还(没)"], ["ever", "有没有过"], ["since", "从…起"], ["have been doing", "这几年一直在"]], "tense:4": [["right now", "现在"], ["at the moment", "此刻"], ["I am eating", "我正吃着"]], "aux:0": [["does", "他/她/它"], ["did", "过去"], ["don't", "不…"], ["Do you…?", "…吗"], ["do have", "强调:真的有"]], "aux:1": [["do", "我/你/我们"], ["did", "过去"], ["doesn't", "他不…"], ["Does he…?", "他…吗"]], "aux:2": [["do", "现在"], ["didn't", "没…"], ["Did you…?", "…了吗"], ["后面回原形", "Did you go? 不是 went"]], "aux:3": [["would", "客气 / 假设"], ["won't", "不会"], ["Will you…?", "会…吗"], ["'ll", "缩写 I'll"]], "aux:4": [["has", "他/她/它"], ["had", "早就…了"], ["haven't", "还没…"], ["Have you…?", "…过吗"]], "aux:5": [["have", "我/你/我们"], ["had", "早就…了"], ["hasn't", "他还没"], ["Has he…?", "他…过吗"]], "person:0": [["am", "我 + be"], ["do", "我 + 现在"], ["have", "我 + 完成"], ["was", "我 + 过去be"]], "person:1": [["are", "你 + be"], ["do", "你 + 现在"], ["have", "你 + 完成"], ["were", "你 + 过去be"]], "person:2": [["is", "他 + be"], ["does", "他 + 现在"], ["has", "他 + 完成"], ["was", "他 + 过去be"]], "person:3": [["are", "我们 + be"], ["do", "我们 + 现在"], ["have", "我们 + 完成"], ["were", "我们 + 过去be"]], "verb:0": [["Does he do?", "助动词一露面就用原形"], ["Did you go?", "did 后面回原形"], ["I will eat.", "will 后面回原形"], ["I don't go.", "否定也回原形"]], "verb:1": [["he / she / it", "只给他她它"], ["does · has · is", "三个特殊的"], ["He eats.", "他吃"]], "verb:2": [["yesterday", "昨天"], ["ate · went · knew", "不规则要背"], ["I ate.", "我吃了"]], "verb:3": [["have / has / had", "必须配 have"], ["I have eaten.", "已经吃了"], ["been · gone · done", "最常用三个"]], "verb:4": [["am / is / are", "必须配 be"], ["I am eating.", "正吃着"], ["was doing", "那时正做着"]], "wh:0": [["What did you say?", "你说啥"], ["What do you mean?", "什么意思"], ["What happened?", "咋回事"], ["What should I do?", "我该咋办"], ["What's up?", "你怎么了(问状况)"], ["What do you think?", "你觉得呢"]], "wh:1": [["Where are you?", "你在哪儿"], ["Where do you live?", "你住哪"], ["Where to?", "去哪"]], "wh:2": [["Why didn't you come?", "你为啥不来"], ["Why not?", "咋不呢"], ["Why'd you say that?", "你干嘛这么说"]], "wh:3": [["How d'you do it?", "咋弄(能接办/做)"], ["how much", "多少钱"], ["how many", "多少个"], ["how long", "多久"], ["how far", "多远"], ["how old", "多大"], ["how often", "几回"], ["How are you?", "你咋样"]], "wh:4": [["When can I go?", "我啥时候能走"], ["When d'you leave?", "你啥时候走"], ["Since when?", "从啥时候起"]], "hook:0": [["I think that he's right.", "我觉得他对"], ["塞进 [啥] 槽", "宾语位置"], ["中文不说这个词", "英文必须挂"], ["不能倒装", "要用陈述语序"]], "hook:1": [["The guy who called me.", "给我打电话的那个人"], ["贴在人后面", "…的那个人"], ["Who did it?", "谁干的(当主语不加助动词)"]], "hook:2": [["The book that I read.", "我读的那本书"], ["贴在物后面", "…的那个东西"], ["which / that 通用", "口语多用 that"]], "hook:3": [["I don't know what he wants.", "我不知道他想要啥"], ["不是 what does he want", "塞进去要变回陈述语序"], ["疑问词原样用", "当宾语"]], "hook:4": [["The day when we met.", "我们见面那天"], ["where 同理", "…的那个地方"], ["贴在时间地点后", "…的时候"]], "conn:0": [["but", "但是"], ["yet", "然而"], ["though", "不过"], ["however", "但是/然而"], ["although", "虽然"], ["on the contrary", "恰恰相反"], ["nevertheless", "尽管如此"], ["whereas", "而/反观"], ["then again", "话又说回来"], ["that said", "话说回来"]], "conn:1": [["so", "所以"], ["because", "因为"], ["since", "既然/由于"], ["that's why", "所以才"], ["therefore", "因此"], ["thus", "从而"], ["hence", "故"], ["as a result", "结果"], ["which is why", "所以才…"], ["consequently", "因此"]], "conn:2": [["if", "如果"], ["unless", "除非"], ["as long as", "只要"], ["otherwise", "否则"], ["in that case", "那这样的话"]], "conn:3": [["anyway", "反正/不管怎样"], ["at least", "至少"], ["after all", "毕竟"], ["in any case", "无论如何"], ["regardless", "不管怎样"]], "conn:4": [["also", "也/还"], ["besides", "再说"], ["plus", "而且"], ["moreover", "此外"], ["in addition", "另外"], ["what's more", "更重要的是"], ["on top of that", "更别提"]], "conn:5": [["rather", "而是"], ["instead", "而不是/反而"], ["on the other hand", "另一方面"]], "conn:6": [["I mean", "我是说"], ["actually", "其实"], ["in fact", "事实上"], ["especially", "特别是"], ["by the way", "顺便"], ["in particular", "尤其"]], "conn:7": [["like", "比如"], ["for example", "比如"], ["for instance", "举个例子"], ["such as", "诸如"], ["say", "比方说"]], "conn:8": [["in the end", "到头来"], ["basically", "基本上/说白了"], ["in short", "总之"], ["at the end of the day", "说到底"], ["all in all", "总的来说"], ["to sum up", "综上"]], "aux:9": [["were", "过去:你们是"], ["aren't", "不是"], ["Are you…?", "是不是"], ["you're / they're", "缩写"]], "aux:8": [["was", "过去:他是"], ["isn't", "不是"], ["Is he…?", "他是…吗"], ["he's", "缩写"]], "aux:7": [["was", "过去:我是"], ["I'm", "缩写"], ["I'm not", "我不是"], ["Am I…?", "我是…吗"]], "aux:6": [["have", "到现在"], ["hadn't", "那时还没"], ["Had you…?", "早就…了吗"], ["比 did 还早", "过去的过去"]], "tense:5": [["had done", "早就…了"], ["by then", "到那时候"], ["before that", "在那之前"], ["比 did 还早", "过去的过去"]], "aux:10": [["could", "过去 / 客气"], ["can't", "不能"], ["Can you…?", "能不能"], ["be able to", "换个说法"]], "aux:11": [["shouldn't", "不该"], ["Should I…?", "该不该"], ["ought to", "一样的意思"], ["should have", "早该…"]], "aux:12": [["had to", "过去:不得不"], ["don't have to", "不用"], ["Must I…?", "非得…吗"], ["have to", "口语更常用"]], "aux:13": [["might", "也许"], ["may not", "不可以"], ["May I…?", "可不可以"], ["can", "口语更常用"]], "aux:14": [["will", "直说"], ["wouldn't", "不会"], ["Would you…?", "客气:能…吗"], ["would have", "早知道就…"]]};
+var POSMAP={};
+function ringClick(id){ S.ring=(S.ring===id)?null:id; }
+function drawRing(){
+ if(!S.ring)return;
+ var items=RING[S.ring],pos=POSMAP[S.ring];
+ if(!items||!pos)return;
+ var n=items.length, col=POSMAP[S.ring+':c']||'#8ab4ff';
+ var rad=205+n*15;
+ world.appendChild(el('circle',{cx:pos[0],cy:pos[1],r:rad+165,fill:'#01040a',opacity:.88}));
+ world.appendChild(el('circle',{cx:pos[0],cy:pos[1],r:rad,fill:'none',
+  stroke:col,'stroke-width':1,opacity:.22,'stroke-dasharray':'4 10'}));
+ world.appendChild(el('circle',{cx:pos[0],cy:pos[1],r:rad+165,fill:'none',
+  stroke:col,'stroke-width':1.2,opacity:.3}));
+ for(var i=0;i<n;i++){
+  var a=-Math.PI/2+i*2*Math.PI/n;
+  var cx=pos[0]+Math.cos(a)*rad, cy=pos[1]+Math.sin(a)*rad;
+  world.appendChild(el('line',{x1:pos[0]+Math.cos(a)*78,y1:pos[1]+Math.sin(a)*78,
+   x2:cx-Math.cos(a)*46,y2:cy-Math.sin(a)*46,stroke:col,'stroke-width':1.4,opacity:.38}));
+  var en=items[i][0],cn=items[i][1],g;
+  if(en.length>11){
+   var w=en.length*15+64;
+   g=el('g',{transform:'translate('+cx+','+cy+')'});
+   g.appendChild(el('rect',{x:-w/2,y:-40,width:w,height:80,rx:40,fill:col,opacity:.14,filter:'url(#gl)'}));
+   g.appendChild(el('rect',{x:-w/2,y:-40,width:w,height:80,rx:40,fill:'#050a12',
+    stroke:col,'stroke-width':1.6,opacity:.96}));
+  }else{
+   g=el('g',{transform:'translate('+cx+','+cy+')'});
+   g.appendChild(el('circle',{r:66,fill:col,opacity:.13,filter:'url(#gl)'}));
+   g.appendChild(el('circle',{r:52,fill:'#050a12',stroke:col,'stroke-width':1.6,opacity:.96}));
+  }
+  var t1=txt(0,-2,en,23,'#eaf3fb',600);t1.textContent=en;g.appendChild(t1);
+  var t2=txt(0,24,cn,15,'#8fa4b8',500);t2.textContent=cn;g.appendChild(t2);
+  world.appendChild(g);
+ }
+ var me=POSMAP[S.ring+':t'];
+ if(me){
+  var mg=el('g',{transform:'translate('+pos[0]+','+pos[1]+')'});
+  mg.appendChild(el('circle',{r:78,fill:col,opacity:.18,filter:'url(#gl)'}));
+  mg.appendChild(el('circle',{r:56,fill:col,opacity:.95}));
+  var m1=txt(0,me[1]?-2:8,me[0],27,'#06090f',700);m1.textContent=me[0];mg.appendChild(m1);
+  if(me[1]){var m2=txt(0,21,me[1],13,'#0d1420',600);m2.textContent=me[1];mg.appendChild(m2);}
+  world.appendChild(mg);
+ }
+ var hint=txt(pos[0],pos[1]-rad-200,'',17,col,500);
+ hint.textContent='再点一次收起 · 共 '+n+' 条';hint.setAttribute('opacity','.7');
+ world.appendChild(hint);
+}
+
+/* ================= 主渲染 ================= */
+var PATH=[],moved=0;
+function centerRing(){
+ if(!S.ring)return;
+ var pos=POSMAP[S.ring]; if(!pos)return;
+ var sx=tx+pos[0]*k, sy=ty+pos[1]*k;
+ var cx=innerWidth/2, cy=(innerHeight-120)/2+40;
+ if(Math.abs(sx-cx)>innerWidth*0.22||Math.abs(sy-cy)>innerHeight*0.22){
+  tx+=cx-sx; ty+=cy-sy; apply();
+ }
+}
+function render(){
+ world.textContent='';
+ PATH=[];POSMAP={};
+ var CHOSEN={};
+ var i,x,y,st;
+
+ /* —— 模式行 —— */
+ railLine(Y.mode,'零 · 你要干啥',C.mode);
+ for(i=0;i<MODE.length;i++){
+  x=L+(R-L)*(i+.5)/MODE.length;
+  POSMAP['mode:'+i]=[x,Y.mode];POSMAP['mode:'+i+':c']=C.mode;
+  (function(k){ star(x,Y.mode,52,MODE[k].cn,MODE[k].sub,C.mode,k===S.mode,
+   {rid:'mode:'+k,fs:30,click:function(){var id='mode:'+k;if(S.mode===k)ringClick(id);else{S.mode=k;S.ring=id;}render();}}); })(i);
+  if(i===S.mode) PATH.push([x,Y.mode]);
+ }
+
+ /* —— 句子行:顺序随「说/问/否/啥」重排,时间贴着扛它的那个词 —— */
+ var ord=order();
+ var TX=[300,690,1080,1450,1810,2230];        /* 早就 过去 已经 现在 正着 将来 */
+ var TORD=[5,1,3,0,4,2];                      /* 显示顺序 -> TENSE 索引 */
+ var NAMES={tense:'定时间',person:'谁',aux:'助动词(时间的傻大个)',
+            verb:'动作',obj:'啥',wh:'疑问词'};
+ for(var r=0;r<ord.length;r++){
+  var key=ord[r], yy=ROWY[r], col=C[key]||'#8899aa';
+
+  if(key==='tense'){
+   railLine(yy,(r+1)+' · 定时间'+(auxHidden()?'(缩在动词里)':'(挂在助动词上)'),C.tense);
+   for(i=0;i<6;i++){
+    var ti=TORD[i];
+    POSMAP['tense:'+ti]=[TX[i],yy];POSMAP['tense:'+ti+':c']=C.tense;
+    (function(kk,xx,yyy){ star(xx,yyy,54,TENSE[kk].cn,TENSE[kk].hint,C.tense,kk===S.tense,
+     {rid:'tense:'+kk,fs:24,click:function(){var id='tense:'+kk;
+      if(S.tense===kk)ringClick(id);else{S.tense=kk;S.ring=id;}render();}}); })(ti,TX[i],yy);
+    if(ti===S.tense){ CHOSEN.tense=[TX[i],yy]; PATH.push([TX[i],yy]); }
+   }
+   world.appendChild(el('path',{d:'M300 '+(yy+108)+' L2320 '+(yy+108),
+    stroke:C.tense,'stroke-width':1,opacity:.18}));
+   put(world,300,yy+134,'← 早',15,'#4e6a7a',500);
+   put(world,2320,yy+134,'晚 →',15,'#4e6a7a',500);
+   continue;
+  }
+
+  RW = (key==='aux') ? [300,3150] : null;
+  railLine(yy,(r+1)+' · '+NAMES[key],col,RW);
+  st=stars(key);
+  for(i=0;i<st.length;i++){
+   x=spread(st.length,i);
+   var s=st[i];
+   var rid=key+':'+s.i;
+   var opt={rid:rid,fs:st.length>6?21:25,dim:!s.on,ghost:s.ghost}; POSMAP[rid]=[x,yy]; POSMAP[rid+':c']=col;
+   var mw=s.modal;
+   (function(kk,ii,id,mw){opt.click=function(){
+     if(mw){ if(S.modal===mw){S.modal=null;S.ring=null;} else {S.modal=mw;S.ring=id;} render();return; }
+     if(kk==='person'){if(S.person===ii)ringClick(id);else{S.person=ii;S.ring=RING[id]?id:null;}}
+     else if(kk==='obj'){S.obj=ii;S.ring=null;}
+     else if(kk==='wh'){if(S.wh===ii)ringClick(id);else{S.wh=ii;S.ring=RING[id]?id:null;}}
+     else ringClick(id);
+     render();};})(key,s.i,rid,mw);
+   star(x,yy,s.ghost?40:46,s.en,s.cn,col,s.on,opt);
+   if(s.on){ CHOSEN[key]=[x,yy]; if(!s.ghost) PATH.push([x,yy]); }
+  }
+ }
+
+ /* —— 陈述句里助动词藏在动词肚子里 —— */
+ if(auxHidden()&&CHOSEN.aux&&CHOSEN.verb){
+  var ax=CHOSEN.aux,vx=CHOSEN.verb;
+  curve([ax,vx],C.aux,2.2,'7 9');
+  var mx=(ax[0]+vx[0])/2, my=(ax[1]+vx[1])/2;
+  var tip=auxWord()+' + '+VERB[S.verb].base+' = '+verbForm();
+  ax=[ax[0],ax[1]];vx=[vx[0],vx[1]];
+  var tb=el('rect',{x:mx-tip.length*7.5-18,y:my-22,width:tip.length*15+36,height:44,rx:22,
+   fill:'#0a0e16',stroke:C.aux,'stroke-width':1.2,opacity:.95});
+  world.appendChild(tb);
+  put(world,mx,my-1,tip,21,C.aux,600);
+  put(world,mx,my+18,'助动词没露面,缩在动词里',12,'#7b8899',500);
+ }
+
+ /* —— 打包:句A —— */
+ var enA=sentEN(), cnA=sentCN();
+ railLine(Y.packA,'六 · 打包成一个系统',C.pack);
+ pill(1300,Y.packA,Math.max(760,enA.length*17+140),96,enA,cnA,C.pack);
+ PATH.push([1300,Y.packA]);
+
+ /* —— 连接词行(来自你 gym 的真实口语频率) —— */
+ railLine(Y.conn,'七 · 系统之间 = 逻辑',C.conn);
+ for(i=0;i<CONN2.length;i++){
+  x=spread(CONN2.length,i);
+  POSMAP['conn:'+i]=[x,Y.conn];POSMAP['conn:'+i+':c']=C.conn;
+  (function(k,xx){ star(xx,Y.conn,50,CONN2[k].word,CONN2[k].zh,C.conn,k===S.conn,
+   {rid:'conn:'+k,fs:22,click:function(){var id='conn:'+k;if(S.conn===k)ringClick(id);else{S.conn=k;S.ring=id;}render();}}); })(i,x);
+  if(i===S.conn){PATH.push([x,Y.conn]);}
+ }
+
+ /* —— 句B —— */
+ railLine(Y.packB,'八 · 第二个系统',C.pack);
+ pill(1300,Y.packB,Math.max(620,BLOCKB[S.bIdx].en.length*17+140),90,
+  BLOCKB[S.bIdx].en,BLOCKB[S.bIdx].cn,C.pack,
+  function(){S.bIdx=(S.bIdx+1)%BLOCKB.length;render();});
+ PATH.push([1300,Y.packB]);
+
+ /* —— 主线 —— */
+ curve(PATH,'#ffffff',3.2);
+
+ /* —— 复句结果 —— */
+ var cc=CONN2[S.conn], A=enA.replace(/[.?]$/,''), B=BLOCKB[S.bIdx].en;
+ var joined = cc.ord==='BA'
+   ? cap(cc.word)+' '+B+', '+A+'.'
+   : cap(A)+', '+cc.word+' '+B+'.';
+ var jcn = cc.ord==='BA'
+   ? cc.zh+BLOCKB[S.bIdx].cn+','+cnA.replace(/[。?]$/,'')
+   : cnA.replace(/[。?]$/,'')+','+cc.zh+BLOCKB[S.bIdx].cn;
+ pill(1300,Y.packB+185,Math.max(900,joined.length*16+160),86,joined,jcn,'#ffffff');
+
+ /* —— 从句钩 —— */
+ railLine(Y.hook,'九 · 把系统塞进槽 = 从句',C.hook);
+ for(i=0;i<HOOK.length;i++){
+  x=spread(HOOK.length,i);
+  POSMAP['hook:'+i]=[x,Y.hook];POSMAP['hook:'+i+':c']=C.hook;
+  (function(k,xx){ star(xx,Y.hook,50,HOOK[k].en,HOOK[k].cn,C.hook,k===S.hook,
+   {rid:'hook:'+k,fs:24,click:function(){var id='hook:'+k;if(S.hook===k)ringClick(id);else{S.hook=k;S.ring=id;}render();}}); })(i,x);
+ }
+ var hk=HOOK[S.hook], hx=spread(HOOK.length,S.hook);
+ curve([[1300,Y.packB+228],[hx,Y.hook-70]],C.hook,2.6,'8 8');
+ var res='I know '+hk.en+' '+hk.ub+'.';
+ var rcn='我知道'+hk.use;
+ curve([[hx,Y.hook+70],[1300,Y.out-52]],C.hook,2.6,'8 8');
+ pill(1300,Y.out,Math.max(760,res.length*17+160),92,res,rcn,C.hook);
+ put(world,1300,Y.out+92,'中文这儿一个字都不说,英文必须挂个钩',16,'#66798c',500);
+
+ RW=null;
+ drawRing();
+ centerRing();
+ hud(enA,cnA);
+}
+
+var CHUNK={ask:{now:"D'you… / Does he…",past:"Didja…",fut:"Will you…",perf:"Have you…",prog:"Are you…"},
+ wh:{now:"Whaddya…",past:"Whatcha…",fut:"What'll you…",perf:"What have you…",prog:"Whatcha…"}};
+function hud(en,cn){
+ var m=MODE[S.mode].k,t=TENSE[S.tense].k,tip='点星球选中 · 再点一次炸开一圈 · 点空白收起';
+ if(CHUNK[m]) tip='起手音块 → '+CHUNK[m][t];
+ document.getElementById('hudTip').textContent=tip;
+ document.getElementById('hudEn').textContent=en;
+ document.getElementById('hudCn').textContent=cn;
+}
+/* ================= 无限星空 ================= */
+var sky=document.getElementById('sky'),ctx=sky.getContext('2d');
+function hash(a,b,c){var h=a*374761393+b*668265263+c*2246822519;
+ h=(h^(h>>13))*1274126177;return ((h^(h>>16))>>>0)/4294967296;}
+function drawSky(){
+ var dpr=Math.min(2,window.devicePixelRatio||1);
+ var w=innerWidth,h=innerHeight;
+ sky.width=w*dpr;sky.height=h*dpr;sky.style.width=w+'px';sky.style.height=h+'px';
+ ctx.setTransform(dpr,0,0,dpr,0,0);
+ ctx.fillStyle='#000308';ctx.fillRect(0,0,w,h);
+ /* 两层视差,无限平铺 */
+ var layers=[{p:.35,T:420,n:5,r:1.5,a:.55},{p:.7,T:300,n:4,r:1.0,a:.9}];
+ for(var li=0;li<layers.length;li++){
+  var Lz=layers[li],T=Lz.T;
+  var ox=tx*Lz.p, oy=ty*Lz.p, kk=1;
+  var x0=Math.floor((-ox)/T)-1, x1=Math.floor((w-ox)/T)+1;
+  var y0=Math.floor((-oy)/T)-1, y1=Math.floor((h-oy)/T)+1;
+  for(var gx=x0;gx<=x1;gx++)for(var gy=y0;gy<=y1;gy++){
+   for(var s=0;s<Lz.n;s++){
+    var px=(gx+hash(gx,gy,s*7+li))*T+ox;
+    var py=(gy+hash(gx,gy,s*13+li+99))*T+oy;
+    if(px<-4||px>w+4||py<-4||py>h+4) continue;
+    var br=hash(gx,gy,s*31+li+7);
+    ctx.globalAlpha=Lz.a*(.28+br*.72);
+    ctx.fillStyle= br>.93?'#bcd8ff':(br>.82?'#ffe6c2':'#ffffff');
+    ctx.beginPath();ctx.arc(px,py,Lz.r*(.5+br*.8),0,6.283);ctx.fill();
+   }
+  }
+ }
+ ctx.globalAlpha=1;
+}
+
+/* ================= 平移缩放 ================= */
+var svg=document.getElementById('map'),tx=0,ty=0,k=.42,touched=false;
+function apply(){
+ world.setAttribute('transform','translate('+tx+','+ty+') scale('+k+')');
+ drawSky();
+}
+function fit(){
+ var m=26, top=54, bot=116;
+ var w=innerWidth, h=innerHeight-top-bot;
+ var bb; try{bb=world.getBBox();}catch(e){bb={x:0,y:0,width:W,height:H};}
+ if(!bb.width){bb={x:0,y:0,width:W,height:H};}
+ if(w<760){
+  k=(w-20)/1500;
+  var ax=0,ay=1e9;
+  for(var i=0;i<PATH.length;i++){ ax+=PATH[i][0]; if(PATH[i][1]<ay)ay=PATH[i][1]; }
+  ax = PATH.length ? ax/PATH.length : 1300;
+  tx = w/2-ax*k;
+  ty = top+24-(ay-140)*k;
+ }else{
+  k=Math.min((w-m*2)/bb.width,(h-m*2)/bb.height);
+  tx=(w-bb.width*k)/2-bb.x*k;
+  ty=top+(h-bb.height*k)/2-bb.y*k;
+ }
+ touched=false;
+ apply();
+}
+var dragging=false,lx=0,ly=0;
+svg.addEventListener('pointerdown',function(e){
+ dragging=true;moved=0;lx=e.clientX;ly=e.clientY;
+ svg.classList.add('drag');});
+addEventListener('pointermove',function(e){
+ if(!dragging)return;
+ if(Object.keys(pts).length>=2)return;
+ var dx=e.clientX-lx,dy=e.clientY-ly;moved+=Math.abs(dx)+Math.abs(dy);
+ if(moved>6)touched=true;
+ tx+=dx;ty+=dy;lx=e.clientX;ly=e.clientY;apply();});
+function endDrag(){ dragging=false;svg.classList.remove('drag');}
+svg.addEventListener('click',function(){ if(moved<=6&&S.ring){S.ring=null;render();} });
+addEventListener('pointerup',endDrag);
+addEventListener('pointercancel',endDrag);
+svg.addEventListener('wheel',function(e){
+ e.preventDefault();
+ var f=Math.pow(1.0016,-e.deltaY),nk=Math.max(.06,Math.min(6,k*f));
+ var r=svg.getBoundingClientRect(),mx=e.clientX-r.left,my=e.clientY-r.top;
+ tx=mx-(mx-tx)*(nk/k); ty=my-(my-ty)*(nk/k); k=nk; touched=true; apply();
+},{passive:false});
+/* 双指捏合 */
+var pts={},pd=0,pk=1;
+svg.addEventListener('pointerdown',function(e){pts[e.pointerId]=e;});
+svg.addEventListener('pointermove',function(e){
+ if(!(e.pointerId in pts))return; pts[e.pointerId]=e;
+ var ids=Object.keys(pts); if(ids.length!==2)return;
+ var a=pts[ids[0]],b=pts[ids[1]];
+ var d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+ if(!pd){pd=d;pk=k;return;}
+ var nk=Math.max(.06,Math.min(6,pk*d/pd));
+ var cx=(a.clientX+b.clientX)/2,cy=(a.clientY+b.clientY)/2;
+ tx=cx-(cx-tx)*(nk/k);ty=cy-(cy-ty)*(nk/k);k=nk;touched=true;apply();});
+function clr(e){delete pts[e.pointerId];pd=0;}
+svg.addEventListener('pointerup',clr);svg.addEventListener('pointercancel',clr);
+addEventListener('resize',function(){ if(touched)drawSky(); else fit(); });
+
+/* ================= 启动 ================= */
+function boot(){
+ svg.textContent='';
+ var defs=el('defs',{});
+ var f=el('filter',{id:'gl',x:'-60%',y:'-60%',width:'220%',height:'220%'});
+ f.appendChild(el('feGaussianBlur',{stdDeviation:'11'}));
+ defs.appendChild(f);svg.appendChild(defs);
+ world=el('g',{id:'world'});svg.appendChild(world);
+ render(); fit();
+}
+addEventListener('keydown',function(e){if(e.key==='Escape'){S.ring=null;render();}});
+document.getElementById('bFit').onclick=fit;
+document.getElementById('bRand').onclick=function(){
+ S.person=(Math.random()*PERSON.length)|0;
+ S.verb=(Math.random()*VERB.length)|0;
+ S.obj=(Math.random()*OBJ.length)|0;
+ S.tense=(Math.random()*TENSE.length)|0;
+ S.mode=(Math.random()*MODE.length)|0;
+ S.ring=null;S.modal=null;
+ render();};
+boot();
+
+</script></body></html>
