@@ -1,0 +1,74 @@
+code | py.list_dict | 列表与字典 | list & dict | 列表按位置找，字典按名字找 | Book1 ch4 容器
+code | py.loop_comprehension | 循环与推导式 | loop & comprehension | 推导式=一行把 for 折进方括号 | Book1 ch5 循环 / ch6 推导式
+code | py.function | 函数 | function | 函数=装箱：输入进，输出出，里面不外泄 | Book1 ch7 函数
+code | py.recursion | 递归 | recursion | 递归=缩小一号再调自己，底部必须停 | Book1 ch7 函数与递归
+code | py.class | 类与对象 | class & object | 类=模板，对象=实例，self=我这一份 | Book1 ch8 类与对象
+code | py.bigo | 复杂度 Big-O | Big-O | 数嵌套层：一层 n，两层 n²，对半砍 log n | Book1 ch5 循环
+code | py.string | 字符串 | string | 字符串=不可变的字符列表，切片同列表 | Book1 ch3 字符串
+code | py.debug | 报错与调试 | debug | 先读 Traceback 最后一行，再找你自己文件的行号 | Book1 ch9 异常处理
+code | py.slice | 切片 | slice | [a:b:c] 含头不含尾，步长 c，负数从尾数 | Book1 ch4 容器
+code | py.mutable | 可变与引用 | mutable & reference | b=a 不是复制，是两个名字贴同一个东西 | Book1 ch4 容器
+code | np.array_shape | 数组与 shape | array & shape | 先问 shape；元组几个数就是几维 | Book1 ch13 NumPy 数组
+code | np.broadcast | 广播 | broadcasting | 右对齐比 shape：相等或有 1 才配，1 被拉伸 | Book1 ch14 广播
+code | np.dot | 点积与矩阵乘 | dot & matmul | @ 看内维：(m,k)@(k,n)→(m,n)，k 必须相等 | Book1 ch16 线性代数
+code | np.reshape | reshape 与转置 | reshape & transpose | reshape 只换读法不动数据；-1 让它自己算 | Book1 ch13 NumPy 数组
+code | np.axis | axis 归约 | axis reduction | axis=k 就是压掉第 k 维，结果少那一位 | Book1 ch14 广播与聚合
+code | np.overflow | dtype 与溢出 | dtype & overflow | uint8 到 255 加 1 归零；float 大数吃小数 | Book1 ch13 数据类型
+code | np.random | 随机与种子 | random & seed | seed 才可复现；样本均值抖动 ∝ 1/√n | Book1 ch15 随机数
+code | np.vectorize | 向量化 | vectorize | 逐元素 for 改整数组一次算，快百倍 | Book1 ch14 向量化运算
+code | np.mask | 布尔掩码与花式索引 | mask & fancy index | 布尔数组当下标=筛；整数数组当下标=按序挑 | Book1 ch13 索引
+code | np.linalg | 常用线代调用 | np.linalg | solve 代替 inv；norm 长度；eig 方向+缩放 | Book1 ch16 线性代数
+code | vz.scatter | 散点图 | scatter | 两个连续量先画散点；颜色/大小是第 3、4 维 | Book2 ch10 散点图
+code | vz.line | 折线与函数图 | line plot | 横轴有顺序才用折线；先 linspace 再算 y | Book2 ch6 线图
+code | vz.heatmap | 热图 | heatmap | 矩阵直接变色块；先看 colorbar 范围和 0 在哪 | Book2 ch12 热图
+code | vz.contour | 等高线 | contour | z=f(x,y) 压到平面：线密=陡，圈心=极值 | Book2 ch14 等高线
+code | vz.hist | 直方图与分布 | histogram | 一个变量看分布画直方图；bin 数会改形状 | Book2 ch8 直方图 / Book6 ch3
+code | vz.3d | 三维图 | 3D plot | 三维给直觉不给读数；能用等高线就别 3D | Book2 ch15 三维图
+code | vz.color | 颜色映射 | colormap | 顺序用 viridis，正负用 RdBu，类别用 tab10 | Book2 ch3 色彩
+code | vz.subplot | 子图与分面 | subplot & facet | subplots 给 axes；画在 ax 上，不在 plt | Book2 ch2 图形布局
+code | vz.log_axis | 对数坐标 | log axis | 跨数量级就 log 轴；log-log 直线=幂律 | Book2 ch6 线图 / 坐标变换
+code | vz.annotate | 标注与整洁 | annotate & clean | 一图一结论：标题说结论，标签带单位，去掉多余框线 | Book2 ch1-2 图形要素
+code | da.dataframe | DataFrame 心智模型 | DataFrame | 行=样本，列=特征；loc 按标签，iloc 按位置 | Book6 ch2 pandas 基础
+code | da.groupby | 分组聚合 | groupby | 每个 X 的 Y=groupby(X)[Y]：拆、算、拼 | Book6 ch5 分组聚合
+code | da.merge | 表连接 | merge / join | 两表靠共同键拼；inner 取交集，left 保左表全部 | Book6 ch4 数据合并
+code | da.clean | 清洗与缺失 | clean & missing | 先 isna().sum()，再问为什么缺，再决定删或填 | Book6 ch3 数据清洗
+code | da.normalize | 标准化与缩放 | normalize / scale | 尺度不同先缩放；scaler 只 fit 训练集 | Book6 ch6 特征缩放
+code | da.split | 训练/验证/测试划分 | train/val/test split | 测试集只碰一次；调参用验证集；同一病人不跨集 | Book6 ch9 划分与交叉验证
+code | da.pipeline | Pipeline 与可复现 | pipeline | 预处理+模型串成 Pipeline，一个 fit 不泄漏 | Book6 ch10 建模流程
+code | da.leak | 数据泄漏 | data leakage | 测试集/未来/标签的信息进了训练=泄漏 | Book6 ch9 划分与交叉验证
+code | da.tidy | 长表与宽表 | long vs wide | 长表一行一观测给绘图；宽表一行一样本给模型 | Book6 ch4 数据重塑
+code | da.apply | apply 与向量化 | apply vs vectorized | 能用列运算就别 apply；apply 是慢速兜底 | Book6 ch2 pandas 基础
+code | ml.gradient_descent | 梯度下降 | Gradient Descent | 一步 = lr × 坡度；坡陡步大，谷底自动刹车 | Book7 ch4
+code | ml.linear_reg | 线性回归 | Linear Regression | 把 y 垂直投影到特征的列空间，残差必须垂直 | Book7 ch5
+code | ml.logistic | 逻辑回归 | Logistic Regression | 还是一条直线；sigmoid 只把"离线远近"翻译成概率 | Book7 ch6
+code | ml.svm | 支持向量机 | SVM | 能分开的线里选最宽的那条；只有边界点说话 | Book7 ch8
+code | ml.tree | 决策树 | Decision Tree | 每刀切在"最能分纯"的地方；纯度增益说话 | Book7 ch9
+code | ml.forest | 随机森林 | Random Forest | 并行投票：偏差不动，方差除以树数 | Book7 ch10
+code | ml.xgboost | 梯度提升 | XGBoost / Boosting | 串行接力：每棵新树只学上一棵的残差 | Book7 ch11
+code | ml.knn | K 近邻 | KNN | 不训练，查表：你像谁你就是谁 | Book7 ch7
+code | ml.kmeans | K 均值 | K-Means | 认领最近的中心，中心搬到自家均值，来回倒 | Book7 ch12
+code | ml.pca | 主成分分析 | PCA | 只留方差最大的方向，把薄的方向拍掉 | Book7 ch13
+code | ml.naive_bayes | 朴素贝叶斯 | Naive Bayes | 训练=数数，预测=先验乘证据比大小 | Book7 ch6
+code | ml.metrics | 评价指标 | Metrics | 先问漏检贵还是误报贵，再选指标 | Book7 ch3
+code | dl.mlp | 多层感知机 | MLP | 一层 = 转(Wx+b) + 折(ReLU)，堆起来就万能 | Book7 ch14
+code | dl.activation | 激活函数 | Activation | 折刀本身：导数形状决定训练生死 | Book7 ch14
+code | dl.backprop | 反向传播 | Backprop | 链式法则的记账法：一次前向存中间值，一次反向乘回去 | Book7 ch14
+code | dl.cnn | 卷积网络 | CNN | 权重共享的 MLP：一把小刀扫全图 | Book7 ch15
+code | dl.rnn | 循环网络 | RNN / LSTM | 同一组权重沿时间反复用，状态 h 携带历史 | Book7 ch16
+code | dl.attention | 注意力 | Attention | 每个位置用点积问所有位置：你和我多相关 | Book7 ch17
+code | dl.transformer | Transformer | Transformer | 注意力直连一切：并行训练 + 任意距离一步到 | Book7 ch17
+code | dl.resnet | 残差网络 | ResNet | out = F(x) + x：加层至少不伤害 | Book7 ch15
+code | dl.unet | U-Net | U-Net | 下坡懂语义，上坡画细节，跳接把原图细节空运过去 | Book7 ch15
+code | dl.vae | 变分自编码器 | VAE | 压成规整的小星云再解压，潜空间任取一点都能解码 | Book7 ch18
+code | dl.gan | 生成对抗网络 | GAN | 造假者 vs 鉴定师，零和博弈卷到以假乱真 | Book7 ch18
+code | dl.loss | 损失函数 | Loss | 损失 = 负对数似然：先说清噪声模型，损失自动跟着定 | Book7 ch14
+code | bm.sequence | 序列表示 | Sequence Encoding | 序列先变张量：one-hot 是坐标，k-mer 是词袋 | Book7 ch19
+code | bm.protein_embed | 蛋白 embedding | Protein Embedding | 预训练模型把序列压成一个向量，下游只用它做回归 | Book7 ch19
+code | bm.image_seg | 图像分割 | Image Segmentation | 逐像素分类：Dice 看重叠，别看 accuracy | Book7 ch19
+code | bm.flow_gating | 流式 gating | Flow Cytometry Gating | 门是条件概率的链：每一层的百分比都是"父门里的占比" | Book7 ch19
+code | bm.dose_response | 剂量反应曲线 | Dose-Response | 在 log 浓度轴上是 S 形；EC50 是半高点，Hill 是陡度 | Book7 ch19
+code | bm.survival | 生存分析 | Survival Analysis | 删失是信息不是缺失：只知道"活过了这个时间点" | Book7 ch19
+code | bm.pk_ode | 药动学 ODE | PK ODE | 一阶消除 = 指数衰减；半衰期 = ln2/k | Book7 ch19
+code | bm.cell_cluster | 单细胞聚类 | Single-cell Clustering | 标准化→选高变基因→PCA→kNN 图→Leiden→UMAP 画图 | Book7 ch19
+code | bm.batch_effect | 批次效应 | Batch Effect | 先问"这两组是不是不同天做的"，AUC 0.99 常是学到了批次 | Book7 ch19
+code | bm.small_n | 小样本与泄漏 | Small n & Leakage | n=12 而 p=20000：先问多重比较和泄漏，再看模型 | Book7 ch3

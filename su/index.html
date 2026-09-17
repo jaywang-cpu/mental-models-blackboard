@@ -1,0 +1,37 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>数理宇宙</title><link rel="stylesheet" href="base.css">
+<style>
+body{overflow:auto}
+.hero{position:relative;z-index:1;min-height:100%;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:60px 20px;gap:26px}
+.k{font-size:11px;letter-spacing:.4em;color:var(--muted)}
+h1{font-size:clamp(34px,6vw,64px);font-weight:700;letter-spacing:.12em;margin:0;background:linear-gradient(100deg,#fff 10%,var(--cy) 48%,var(--vi) 88%);-webkit-background-clip:text;background-clip:text;color:transparent}
+.lede{color:var(--ink2);max-width:620px;text-align:center;font-size:15px}
+.doors{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:18px;width:min(900px,100%)}
+.door{display:block;padding:26px 26px 22px;border-radius:18px;color:inherit;text-decoration:none;transition:.25s var(--ease)}
+.door:hover{transform:translateY(-3px);border-color:rgba(59,232,255,.5);box-shadow:var(--glow)}
+.door h2{font-size:24px;margin:0 0 4px}
+.door .en{font-family:var(--mono);color:var(--muted);font-size:11px;letter-spacing:.2em}
+.door p{color:var(--ink2);font-size:13.5px;margin:12px 0 0}
+.door .lands{display:flex;flex-wrap:wrap;gap:6px;margin-top:14px}
+.door .lands span{font-size:11px;padding:2px 9px;border-radius:999px;border:.5px solid var(--hair);color:var(--ink2)}
+.bridge{text-align:center;color:var(--muted);font-size:12.5px;letter-spacing:.1em}
+.tools{display:flex;gap:10px;flex-wrap:wrap;justify-content:center}
+</style></head><body>
+<canvas id="sky"></canvas><div id="neb"></div>
+<div class="hero">
+  <div class="k">MATH × CODE · GUT FEELING TRAINER</div>
+  <h1>数理宇宙</h1>
+  <div class="lede">两张星图，一座桥。左边练<b>直觉</b>（看到题 1 秒弹答案），右边练<b>手</b>（同一个概念在代码里长什么样）。<br>每块牌子七层：<b>一句直觉 → 动画 → 判型 → 深挖 → 例题 → 秒答 → 书与代码</b>。</div>
+  <div class="lede" style="font-size:13px;color:var(--muted)">顶栏七个页：图 · 秒答场（含限时道场）· 判型 · 书架（198 章 630 小节）· 计划（12 周）· 进度 · 方法（超级学习者九步）</div>
+  <div class="doors">
+    <a class="door glass" href="math.html"><h2>数学宇宙</h2><div class="en">MATH UNIVERSE</div>
+      <p>数感 · 代数 · 几何 · 线性代数 · 微积分 · 概率统计 · 组合 · 离散数论 · 优化 · 信息论 · 傅里叶 · 复数 · 吠陀速算</p>
+      <div class="lands"><span>3 2 1 排最大</span><span>24 点</span><span>珠心算</span><span>矩阵=变形</span><span>导数=斜率</span><span>贝叶斯=面积</span><span>隔板法</span></div></a>
+    <a class="door glass" href="code.html"><h2>代码宇宙</h2><div class="en">CODE UNIVERSE</div>
+      <p>Python · NumPy · 可视化 · 数据 · 机器学习 · 深度学习 · BME 应用 · PyTorch · 统计推断 · 实验设计与因果 · 生成模型 · 语言模型</p>
+      <div class="lands"><span>广播 broadcast</span><span>shape 推演</span><span>梯度下降</span><span>Attention</span><span>流式 gating</span><span>PK 药动学</span></div></a>
+  </div>
+  <div class="bridge">⇄ 每块牌子都有桥：ge.dot_projection ↔ np.dot · ca.chain_rule ↔ dl.backprop · pr.bayes ↔ ml.naive_bayes</div>
+  <div class="tools"><a class="btn" href="math.html#v=plan">12 周计划</a><a class="btn" href="math.html#v=arena">进道场</a><a class="btn" href="math.html#v=route">判型树</a><a class="btn" href="math.html#v=shelf">书架 198 章</a><a class="btn" href="math.html#v=me">我的进度</a><a class="btn" href="tools/abacus.html">珠心算</a><a class="btn" href="math.html#v=method">九步法</a></div>
+</div>
+<script src="star.js"></script></body></html>

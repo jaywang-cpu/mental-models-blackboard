@@ -1,0 +1,246 @@
+<!DOCTYPE html><html lang="zh-CN"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>珠心算 · 心像训练器</title>
+<style>
+:root{
+  --bg:#0b0d10; --ink:#e8eaed; --ink2:#8b939c; --line:#242a31;
+  --bead:#ffb648; --bead-off:#2b3138; --rod:#39414a; --frame:#4a545f;
+  --ok:#4ade80; --bad:#f87171; --accent:#ffb648;
+}
+*{box-sizing:border-box}
+html,body{margin:0;height:100%}
+body{background:var(--bg);color:var(--ink);
+  font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Helvetica Neue",sans-serif;
+  display:flex;flex-direction:column;align-items:center;padding:18px 14px 40px;
+  transition:background .25s}
+h1{font-size:15px;font-weight:600;letter-spacing:.14em;color:var(--ink2);margin:0 0 14px}
+
+/* ---------- 控制区 ---------- */
+.panel{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;max-width:760px;margin-bottom:8px}
+.chip{background:transparent;color:var(--ink2);border:1px solid var(--line);border-radius:999px;
+  padding:6px 13px;font-size:12.5px;cursor:pointer;font-family:inherit}
+.chip:hover{border-color:var(--frame);color:var(--ink)}
+.chip.on{background:var(--accent);border-color:var(--accent);color:#0b0d10;font-weight:600}
+.row{display:flex;align-items:center;gap:9px;color:var(--ink2);font-size:12.5px}
+input[type=range]{width:130px;accent-color:var(--accent)}
+
+/* ---------- 舞台 ---------- */
+.stage{position:relative;margin:20px 0 8px;min-height:320px;display:flex;
+  flex-direction:column;align-items:center;justify-content:center}
+.fix{width:6px;height:6px;border-radius:50%;background:var(--ink2);opacity:.75;margin-bottom:16px}
+.abacus{display:flex;gap:0;border:2px solid var(--frame);border-radius:6px;padding:0;background:transparent}
+.col{position:relative;width:46px;padding:10px 0;display:flex;flex-direction:column;align-items:center}
+.col::before{content:"";position:absolute;top:10px;bottom:10px;left:50%;width:3px;
+  transform:translateX(-50%);background:var(--rod);border-radius:2px}
+.deckU{height:70px;display:flex;flex-direction:column;justify-content:flex-start;position:relative;z-index:1}
+.deckU.down{justify-content:flex-end}
+.bar{height:5px;align-self:stretch;background:var(--frame);margin:6px 0;position:relative;z-index:2}
+.deckL{height:150px;display:flex;flex-direction:column;justify-content:flex-end;position:relative;z-index:1}
+.deckL.up{justify-content:flex-start}
+.bead{width:34px;height:26px;margin:1px 0;border-radius:50%/38%;
+  background:var(--bead-off);transition:background .06s}
+.bead.on{background:var(--bead)}
+.hidden{visibility:hidden}
+.qmark{font-size:64px;color:var(--ink2);letter-spacing:.1em}
+
+/* ---------- 答题 ---------- */
+.answer{display:flex;gap:10px;align-items:center;margin-top:10px}
+input[type=text]{background:transparent;border:1px solid var(--line);border-radius:8px;
+  color:var(--ink);font-size:26px;letter-spacing:.22em;padding:8px 14px;width:230px;
+  text-align:center;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
+input[type=text]:focus{outline:none;border-color:var(--accent)}
+.go{background:var(--accent);color:#0b0d10;border:0;border-radius:8px;padding:11px 22px;
+  font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.msg{margin-top:14px;font-size:15px;min-height:24px;letter-spacing:.06em}
+.msg.ok{color:var(--ok)} .msg.bad{color:var(--bad)}
+
+/* ---------- 统计 ---------- */
+.stats{margin-top:26px;width:100%;max-width:760px}
+table{width:100%;border-collapse:collapse;font-size:12.5px;color:var(--ink2)}
+th,td{padding:7px 9px;border-bottom:1px solid var(--line);text-align:left}
+th{color:var(--ink);font-weight:600;font-size:11.5px;letter-spacing:.08em}
+td.num{font-family:ui-monospace,Menlo,monospace;color:var(--ink)}
+.note{max-width:760px;font-size:12.5px;line-height:1.85;color:var(--ink2);margin-top:26px}
+.note b{color:var(--ink)}
+.hint{font-size:12px;color:var(--ink2);margin-top:6px;letter-spacing:.04em}
+</style></head><body>
+
+<h1>珠 心 算 · 心 像 训 练 器</h1>
+
+<div class="panel" id="themes"></div>
+<div class="panel">
+  <button class="chip mode on" data-mode="1">单档闪认</button>
+  <button class="chip mode" data-mode="3">3 位</button>
+  <button class="chip mode" data-mode="6">6 位</button>
+  <button class="chip mode" data-mode="8">8 位</button>
+</div>
+<div class="panel">
+  <div class="row"><span>闪示</span><input type="range" id="dur" min="100" max="3000" step="100" value="1000"><span id="durV">1.0s</span></div>
+  <div class="row"><span>倒数</span><input type="range" id="pre" min="0" max="3000" step="500" value="1000"><span id="preV">1.0s</span></div>
+</div>
+
+<div class="stage">
+  <div class="fix"></div>
+  <div id="board"></div>
+</div>
+
+<div class="answer">
+  <input type="text" id="ans" inputmode="numeric" autocomplete="off" placeholder="········">
+  <button class="go" id="go">开始</button>
+</div>
+<div class="hint">空格 / 回车 = 开始或提交 · 眼睛全程盯住上面那个小圆点</div>
+<div class="msg" id="msg"></div>
+
+<div class="stats">
+  <table id="tbl"><thead><tr>
+    <th>配色</th><th>位数</th><th>做过</th><th>正确率</th><th>平均反应</th>
+  </tr></thead><tbody></tbody></table>
+</div>
+
+<div class="note">
+<b>为什么这样设计</b><br>
+1. <b>亮度对比,不是颜色对比</b>。视觉系统编码形状靠的是明暗边界,颜色是附加信息。所以珠子和背景之间拉的是亮度差,全盘只用一个颜色,不给你多余的东西记。<br>
+2. <b>暗底亮珠</b>。白底大面积发光会抢占视觉资源、也让你不舒服;暗底只让珠子发亮,对比度高但总光通量低。<br>
+3. <b>去掉高光、渐变、阴影</b>。那些是噪声,心像里根本存不下,只会让轮廓变糊。<br>
+4. <b>位置和尺寸永远固定</b>。心像跟着眼睛走,盘会飘就是因为缺锚。上面那个小圆点是注视锚,全程盯它,盘挂在它下面。<br>
+5. <b>一上五下,档宽固定</b>。一档只有 10 个形状,练的就是这 10 个形状的条件反射。<br>
+6. <b>先看后闪</b>。闪示时间可调,从 3 秒慢慢往 0.3 秒压,一次只压这一个变量。<br>
+<br>
+<b>怎么练</b>:先单档闪认,把 10 个形状认到不用想。再上 3 位,再上 6 位。<b>正确率不到 95% 不许缩短闪示时间。</b><br>
+下面那张表按配色分开记,自己看哪种对比对你最好,别信别人的。
+</div>
+
+<script>
+/* ================= 配色方案 ================= */
+var THEMES = [
+  {id:'amber', nm:'暗底琥珀', v:{'--bg':'#0b0d10','--ink':'#e8eaed','--ink2':'#8b939c','--line':'#242a31',
+     '--bead':'#ffb648','--bead-off':'#252b32','--rod':'#39414a','--frame':'#4a545f','--accent':'#ffb648'}},
+  {id:'white', nm:'暗底纯白', v:{'--bg':'#08090b','--ink':'#f2f4f6','--ink2':'#868d96','--line':'#20252b',
+     '--bead':'#ffffff','--bead-off':'#20252b','--rod':'#333b44','--frame':'#48525c','--accent':'#e8eaed'}},
+  {id:'green', nm:'暗底青绿', v:{'--bg':'#07100c','--ink':'#dfeae3','--ink2':'#7d938a','--line':'#1b2620',
+     '--bead':'#3ef2a0','--bead-off':'#1c2a24','--rod':'#2e4038','--frame':'#40564b','--accent':'#3ef2a0'}},
+  {id:'paper', nm:'纸白墨黑', v:{'--bg':'#f2efe8','--ink':'#14171a','--ink2':'#6b6f73','--line':'#d8d3c8',
+     '--bead':'#14171a','--bead-off':'#ddd8cd','--rod':'#b9b3a6','--frame':'#8d877a','--accent':'#14171a'}},
+  {id:'dim', nm:'低对比护眼', v:{'--bg':'#161210','--ink':'#d8cfc4','--ink2':'#8a8078','--line':'#2a231e',
+     '--bead':'#c99a5e','--bead-off':'#2a231e','--rod':'#3a3129','--frame':'#4d4238','--accent':'#c99a5e'}}
+];
+var theme = localStorage.getItem('zx_theme') || 'amber';
+var tw = document.getElementById('themes');
+THEMES.forEach(function(t){
+  var b=document.createElement('button');
+  b.className='chip'+(t.id===theme?' on':''); b.textContent=t.nm; b.dataset.t=t.id;
+  b.onclick=function(){ setTheme(t.id); };
+  tw.appendChild(b);
+});
+function setTheme(id){
+  theme=id; localStorage.setItem('zx_theme',id);
+  var t=THEMES.filter(function(x){return x.id===id})[0];
+  for(var k in t.v) document.documentElement.style.setProperty(k,t.v[k]);
+  Array.prototype.forEach.call(tw.children,function(c){c.classList.toggle('on',c.dataset.t===id)});
+  render();
+}
+
+/* ================= 算盘渲染 ================= */
+var board=document.getElementById('board');
+var digits=1, current=[], phase='idle', t0=0;
+
+function drawAbacus(vals, blank){
+  var ab=document.createElement('div'); ab.className='abacus';
+  vals.forEach(function(d){
+    var col=document.createElement('div'); col.className='col';
+    var up=document.createElement('div'); up.className='deckU'+((!blank&&d>=5)?' down':'');
+    var b=document.createElement('div'); b.className='bead'+((!blank&&d>=5)?' on':'');
+    up.appendChild(b);
+    var bar=document.createElement('div'); bar.className='bar';
+    var lowN=blank?0:d%5;
+    var low=document.createElement('div'); low.className='deckL'+(lowN?' up':'');
+    for(var i=0;i<5;i++){
+      var lb=document.createElement('div'); lb.className='bead'+(i<lowN?' on':'');
+      low.appendChild(lb);
+    }
+    col.appendChild(up); col.appendChild(bar); col.appendChild(low);
+    ab.appendChild(col);
+  });
+  return ab;
+}
+function render(vals, blank){
+  board.innerHTML='';
+  board.appendChild(drawAbacus(vals||current.length?current:new Array(digits).fill(0), blank));
+}
+function showQ(){
+  board.innerHTML='';
+  var d=document.createElement('div'); d.className='qmark'; d.textContent='?';
+  board.appendChild(d);
+}
+
+/* ================= 出题流程 ================= */
+var durEl=document.getElementById('dur'), preEl=document.getElementById('pre');
+var durV=document.getElementById('durV'), preV=document.getElementById('preV');
+durEl.oninput=function(){durV.textContent=(durEl.value/1000).toFixed(1)+'s'};
+preEl.oninput=function(){preV.textContent=(preEl.value/1000).toFixed(1)+'s'};
+
+Array.prototype.forEach.call(document.querySelectorAll('.mode'),function(m){
+  m.onclick=function(){
+    Array.prototype.forEach.call(document.querySelectorAll('.mode'),function(x){x.classList.remove('on')});
+    m.classList.add('on'); digits=+m.dataset.mode; current=new Array(digits).fill(0);
+    msg.textContent=''; msg.className='msg'; render(); ans.value='';
+  };
+});
+
+var ans=document.getElementById('ans'), go=document.getElementById('go'), msg=document.getElementById('msg');
+
+function newRound(){
+  phase='pre'; ans.value=''; msg.textContent=''; msg.className='msg';
+  go.textContent='提交';
+  current=[];
+  for(var i=0;i<digits;i++) current.push(Math.floor(Math.random()*10));
+  render(current,true);                       // 空盘,建立位置锚
+  setTimeout(function(){
+    render(current,false);                    // 闪示
+    setTimeout(function(){
+      showQ(); phase='answer'; t0=Date.now(); ans.focus();
+    }, +durEl.value);
+  }, +preEl.value);
+}
+function submit(){
+  var want=current.join(''), got=ans.value.trim();
+  var rt=(Date.now()-t0)/1000, ok=(got===want);
+  msg.textContent = ok ? ('对  '+want+'   '+rt.toFixed(1)+'s')
+                       : ('错  你写 '+(got||'空')+'  实际 '+want);
+  msg.className='msg '+(ok?'ok':'bad');
+  render(current,false);                      // 立刻回看正确盘面
+  log(ok, rt);
+  phase='idle'; go.textContent='下一题';
+}
+go.onclick=function(){ phase==='answer' ? submit() : newRound(); };
+document.addEventListener('keydown',function(e){
+  if(e.key==='Enter'){ e.preventDefault(); go.click(); }
+  if(e.key===' ' && document.activeElement!==ans){ e.preventDefault(); go.click(); }
+});
+
+/* ================= 统计 ================= */
+function key(){ return theme+'|'+digits }
+function load(){ try{return JSON.parse(localStorage.getItem('zx_stats')||'{}')}catch(e){return {}} }
+function log(ok,rt){
+  var s=load(), k=key();
+  if(!s[k]) s[k]={n:0,ok:0,t:0};
+  s[k].n++; if(ok)s[k].ok++; s[k].t+=rt;
+  localStorage.setItem('zx_stats',JSON.stringify(s)); table();
+}
+function table(){
+  var s=load(), tb=document.querySelector('#tbl tbody'); tb.innerHTML='';
+  Object.keys(s).sort().forEach(function(k){
+    var p=k.split('|'), d=s[k], nm=(THEMES.filter(function(x){return x.id===p[0]})[0]||{nm:p[0]}).nm;
+    var tr=document.createElement('tr');
+    tr.innerHTML='<td>'+nm+'</td><td>'+p[1]+'</td><td class="num">'+d.n+'</td>'+
+      '<td class="num">'+Math.round(d.ok/d.n*100)+'%</td>'+
+      '<td class="num">'+(d.t/d.n).toFixed(1)+'s</td>';
+    tb.appendChild(tr);
+  });
+}
+
+/* ================= 启动 ================= */
+current=new Array(digits).fill(0);
+setTheme(theme); table();
+</script>
+</body></html>

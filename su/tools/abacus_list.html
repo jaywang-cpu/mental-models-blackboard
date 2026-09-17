@@ -1,0 +1,429 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>珠心算口诀演示</title>
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    font-family: -apple-system, "PingFang SC", sans-serif;
+    background: #f5f3ed;
+    color: #2a2a2a;
+    padding: 20px;
+    max-width: 900px;
+    margin: 0 auto;
+  }
+  h1 { font-size: 24px; margin-bottom: 8px; color: #6b3410; }
+  .sub { color: #999; font-size: 14px; margin-bottom: 24px; }
+
+  .tabs { display: flex; gap: 8px; margin-bottom: 20px; flex-wrap: wrap; }
+  .tab {
+    padding: 8px 16px; background: #e8e0d0; border: none; border-radius: 8px;
+    cursor: pointer; font-size: 14px; color: #6b3410; transition: 0.2s;
+  }
+  .tab.active { background: #6b3410; color: #fff; }
+
+  /* Abacus */
+  .abacus-wrap {
+    background: #8b4513; border-radius: 12px; padding: 20px;
+    margin-bottom: 20px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);
+  }
+  .abacus { display: flex; justify-content: center; gap: 4px; }
+  .column {
+    display: flex; flex-direction: column; align-items: center;
+    width: 44px; position: relative;
+  }
+  .rod {
+    position: absolute; top: 0; bottom: 0; left: 50%; width: 3px;
+    background: #5a2d0c; transform: translateX(-50%); z-index: 0;
+  }
+  .upper-deck { height: 90px; position: relative; width: 100%; }
+  .divider { height: 8px; background: #3a1d08; margin: 4px 0; border-radius: 2px; }
+  .lower-deck { height: 200px; position: relative; width: 100%; }
+  .bead {
+    width: 40px; height: 26px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, #f4d19b, #c8860a);
+    border: 1px solid #8a5a08; position: absolute; left: 50%;
+    transform: translateX(-50%); z-index: 1; cursor: pointer;
+    transition: top 0.25s cubic-bezier(0.34, 1.56, 0.64, 1);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+  .bead.active {
+    background: radial-gradient(circle at 35% 30%, #7ee0a0, #2a9d5c);
+    border-color: #1a7d3c;
+  }
+  .col-label {
+    text-align: center; margin-top: 6px; color: #f4d19b;
+    font-size: 12px; font-weight: bold;
+  }
+  .value-display {
+    text-align: center; font-size: 32px; font-weight: bold;
+    color: #6b3410; margin: 16px 0; letter-spacing: 4px;
+    min-height: 40px;
+  }
+
+  /* Formula cards */
+  .formula-grid {
+    display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+    gap: 10px; margin-bottom: 20px;
+  }
+  .formula-card {
+    background: #fff; border-radius: 10px; padding: 14px;
+    border-left: 4px solid #c8860a; cursor: pointer; transition: 0.2s;
+  }
+  .formula-card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,0,0,0.1); }
+  .formula-card.playing { border-left-color: #2a9d5c; background: #f0fff5; }
+  .formula-title { font-size: 16px; font-weight: bold; color: #6b3410; }
+  .formula-desc { font-size: 13px; color: #999; margin-top: 4px; }
+
+  .controls { display: flex; gap: 10px; margin-bottom: 16px; flex-wrap: wrap; }
+  .btn {
+    padding: 10px 20px; background: #6b3410; color: #fff; border: none;
+    border-radius: 8px; cursor: pointer; font-size: 14px;
+  }
+  .btn.secondary { background: #c8860a; }
+  .btn:active { transform: scale(0.96); }
+
+  .explain {
+    background: #fff; border-radius: 10px; padding: 16px;
+    margin-bottom: 20px; font-size: 15px; line-height: 1.7;
+    min-height: 60px;
+  }
+  .explain .step { color: #2a9d5c; font-weight: bold; }
+  .hidden { display: none; }
+
+  .section-title { font-size: 18px; color: #6b3410; margin: 20px 0 12px; }
+  .rules-list { background: #fff; border-radius: 10px; padding: 16px; }
+  .rules-list div { padding: 6px 0; border-bottom: 1px solid #f0ede5; font-size: 14px; }
+  .rules-list div:last-child { border: none; }
+  .rules-list .key { color: #c8860a; font-weight: bold; }
+</style>
+</head>
+<body>
+  <h1>珠心算口诀演示</h1>
+  <div class="sub">点击算珠可手动拨动 · 点击口诀卡片看动画演示</div>
+
+  <div class="tabs">
+    <button class="tab active" data-tab="basic">基础认识</button>
+    <button class="tab" data-tab="add">加法口诀</button>
+    <button class="tab" data-tab="sub">减法口诀</button>
+    <button class="tab" data-tab="demo">完整运算</button>
+  </div>
+
+  <div class="value-display" id="valueDisplay">0</div>
+
+  <div class="abacus-wrap">
+    <div class="abacus" id="abacus"></div>
+  </div>
+
+  <div class="explain" id="explain">
+    这是传统中式算盘（上二下五）。每档上面2颗珠（上珠）每颗代表5，下面5颗珠（下珠）每颗代表1。
+    上珠拨下贴梁、下珠拨上贴梁时才"计数"。一档最大可表示15，用于旧时十六进制（一斤十六两）。
+    做十进制时每档用到9即向左进位。试着点击算珠拨动看看。
+  </div>
+
+  <!-- BASIC -->
+  <div class="tab-content" id="tab-basic">
+    <div class="section-title">档位价值</div>
+    <div class="rules-list">
+      <div><span class="key">上珠</span> 2颗，每颗代表 5，拨下贴梁计数</div>
+      <div><span class="key">下珠</span> 5颗，每颗代表 1，拨上贴梁计数</div>
+      <div><span class="key">每一档</span> 最大可表示 15（2上珠+5下珠）</div>
+      <div><span class="key">十进制运算</span> 每档用到9即向左进位</div>
+      <div><span class="key">十六进制</span> 旧时一斤=十六两，用满15</div>
+      <div><span class="key">从右到左</span> 个位、十位、百位、千位…</div>
+    </div>
+    <div class="controls" style="margin-top:16px">
+      <button class="btn" onclick="setNumber(5)">显示 5</button>
+      <button class="btn" onclick="setNumber(8)">显示 8</button>
+      <button class="btn" onclick="setNumber(9)">显示 9</button>
+      <button class="btn secondary" onclick="clearAbacus()">清盘</button>
+    </div>
+  </div>
+
+  <!-- ADD -->
+  <div class="tab-content hidden" id="tab-add">
+    <div class="section-title">加法口诀（点击演示）</div>
+    <div class="formula-grid" id="addFormulas"></div>
+    <div class="section-title">口诀原理</div>
+    <div class="rules-list">
+      <div><span class="key">直加</span> 珠够加，直接拨珠。例：一上一</div>
+      <div><span class="key">满五加</span> 下珠不够，拨上珠减补数。例：一下五去四（+1时拨上珠5，退下珠4）</div>
+      <div><span class="key">进十加</span> 本档满10，向左进1，本档减补数。例：九进一去九（+9时向左进1，本档减9）</div>
+    </div>
+  </div>
+
+  <!-- SUB -->
+  <div class="tab-content hidden" id="tab-sub">
+    <div class="section-title">减法口诀（点击演示）</div>
+    <div class="formula-grid" id="subFormulas"></div>
+    <div class="section-title">口诀原理</div>
+    <div class="rules-list">
+      <div><span class="key">直减</span> 珠够减，直接退珠。例：一去一</div>
+      <div><span class="key">破五减</span> 下珠不够减，退上珠加补数。例：一上四去五（-1时退上珠5，加下珠4）</div>
+      <div><span class="key">退十减</span> 本档不够，向左退1，本档加补数。例：一退一还九（-1时向左退1，本档加9）</div>
+    </div>
+  </div>
+
+  <!-- DEMO -->
+  <div class="tab-content hidden" id="tab-demo">
+    <div class="section-title">完整运算演示</div>
+    <div class="controls">
+      <button class="btn" onclick="demoAdd()">演示 7 + 8 = 15</button>
+      <button class="btn" onclick="demoAdd2()">演示 6 + 5 = 11</button>
+      <button class="btn secondary" onclick="demoSub()">演示 12 - 5 = 7</button>
+      <button class="btn secondary" onclick="clearAbacus()">清盘</button>
+    </div>
+    <div class="rules-list" style="margin-top:16px">
+      <div>珠心算的核心：<span class="key">把算盘搬进脑子里</span></div>
+      <div>看到数字时，脑中"拨珠"，用口诀驱动手指记忆</div>
+      <div>熟练后不需要念口诀，直接"看见"珠动的画面</div>
+    </div>
+  </div>
+
+<script>
+const COLS = 5; // 5 rods
+// old Chinese abacus: 2 upper beads (x5) + 5 lower beads (x1), rod max = 15
+let state = new Array(COLS).fill(0);
+
+function buildAbacus() {
+  const abacus = document.getElementById('abacus');
+  abacus.innerHTML = '';
+  for (let c = 0; c < COLS; c++) {
+    const col = document.createElement('div');
+    col.className = 'column';
+    col.innerHTML = `
+      <div class="rod"></div>
+      <div class="upper-deck" id="upper-${c}"></div>
+      <div class="divider"></div>
+      <div class="lower-deck" id="lower-${c}"></div>
+      <div class="col-label">${['千','百','十','个'][c-1] || '万'}</div>
+    `;
+    abacus.appendChild(col);
+
+    // upper beads (2 beads, each = 5)
+    const upper = col.querySelector(`#upper-${c}`);
+    for (let b = 0; b < 2; b++) {
+      const ub = document.createElement('div');
+      ub.className = 'bead upper-bead';
+      ub.dataset.idx = b;
+      ub.onclick = () => setUpper(c, b);
+      upper.appendChild(ub);
+    }
+
+    // lower beads (5 beads, each = 1)
+    const lower = col.querySelector(`#lower-${c}`);
+    for (let b = 0; b < 5; b++) {
+      const lb = document.createElement('div');
+      lb.className = 'bead lower-bead';
+      lb.dataset.idx = b;
+      lb.onclick = () => setLower(c, b);
+      lower.appendChild(lb);
+    }
+  }
+  render();
+}
+
+function setUpper(c, idx) {
+  const v = state[c];
+  const upperCount = Math.floor(v / 5); // 0,1,2
+  const lower = v % 5;
+  // idx 0 = TOP bead, idx 1 = BOTTOM bead (closest to beam)
+  // bottom bead should activate first. Map click to count.
+  // If clicking bottom bead(idx1): activates 1. Clicking top bead(idx0): activates 2.
+  let newUpper;
+  if (idx === 1) { // bottom bead
+    newUpper = (upperCount >= 1) ? 0 : 1;
+  } else { // top bead (idx 0)
+    newUpper = (upperCount >= 2) ? 1 : 2;
+  }
+  state[c] = newUpper * 5 + lower;
+  render();
+}
+
+function setLower(c, idx) {
+  const v = state[c];
+  const upperCount = Math.floor(v / 5);
+  const lowerCount = v % 5; // 0-5
+  // idx 0 = TOP bead (closest to beam), idx 4 = bottom
+  // top bead activates first. Clicking bead idx activates idx+1 beads.
+  const newLower = (lowerCount >= idx + 1) ? idx : idx + 1;
+  state[c] = upperCount * 5 + newLower;
+  render();
+}
+
+function render() {
+  for (let c = 0; c < COLS; c++) {
+    const v = state[c];
+    const upperCount = Math.floor(v / 5); // 0,1,2
+    const lowerCount = v % 5; // 0-5
+
+    // UPPER: idx0=top, idx1=bottom(near beam). Bottom activates first.
+    const ubs = document.querySelectorAll(`#upper-${c} .upper-bead`);
+    ubs.forEach((ub, i) => {
+      // i=0 top, i=1 bottom. Bottom (i=1) active when count>=1, top(i=0) active when count>=2
+      const active = (i === 1) ? (upperCount >= 1) : (upperCount >= 2);
+      ub.classList.toggle('active', active);
+      if (i === 1) {
+        // bottom bead: rests just above beam when active, up in stack when inactive
+        ub.style.top = active ? '62px' : '32px';
+      } else {
+        // top bead: drops down to sit on bottom bead when active
+        ub.style.top = active ? '34px' : '2px';
+      }
+    });
+
+    // LOWER: idx0=top(near beam), idx4=bottom. Top activates first.
+    const lbs = document.querySelectorAll(`#lower-${c} .lower-bead`);
+    lbs.forEach((lb, i) => {
+      const active = i < lowerCount;
+      lb.classList.toggle('active', active);
+      // active beads rise toward beam (small top), inactive rest at bottom
+      lb.style.top = active ? (i * 28) + 'px' : (i * 28 + 40) + 'px';
+    });
+  }
+  const decimal = state.every(x => x <= 9) ? (parseInt(state.join('')) || 0) : null;
+  document.getElementById('valueDisplay').textContent =
+    decimal !== null ? decimal : state.join(' · ');
+}
+
+function setNumber(n) {
+  const s = String(n).padStart(COLS, '0');
+  state = s.split('').map(Number);
+  render();
+}
+function clearAbacus() { state = new Array(COLS).fill(0); render(); }
+
+function explain(html) { document.getElementById('explain').innerHTML = html; }
+
+// Animate a sequence of states
+async function animate(steps, texts) {
+  for (let i = 0; i < steps.length; i++) {
+    state = [...steps[i]];
+    render();
+    if (texts && texts[i]) explain(texts[i]);
+    await new Promise(r => setTimeout(r, 900));
+  }
+}
+
+// Demos
+async function demoAdd() {
+  clearAbacus();
+  await animate(
+    [[0,0,0,0,7]],
+    ['先拨上 <span class="step">7</span>（1上珠5 + 2下珠）']
+  );
+  await new Promise(r=>setTimeout(r,600));
+  explain('现在 +8。口诀：<span class="step">八进一去二</span> —— 本档不够加8，向十位进1，本档减2（8的补数）');
+  await new Promise(r=>setTimeout(r,1500));
+  await animate(
+    [[0,0,0,1,5]],
+    ['十位进1，个位 7-2=5，结果 <span class="step">15</span>']
+  );
+}
+
+async function demoAdd2() {
+  clearAbacus();
+  await animate([[0,0,0,0,6]], ['先拨上 <span class="step">6</span>（1上珠5 + 1下珠）']);
+  await new Promise(r=>setTimeout(r,600));
+  explain('现在 +5。口诀：<span class="step">五进一去五</span> —— 本档下珠不够，向十位进1，本档减5');
+  await new Promise(r=>setTimeout(r,1500));
+  await animate([[0,0,0,1,1]], ['十位进1，个位 6-5=1，结果 <span class="step">11</span>']);
+}
+
+async function demoSub() {
+  clearAbacus();
+  await animate([[0,0,0,1,2]], ['先拨上 <span class="step">12</span>']);
+  await new Promise(r=>setTimeout(r,600));
+  explain('现在 -5。个位是2，不够减5。口诀：<span class="step">一退一还五</span> 的思路 —— 向十位借，但这里用退十还五：十位退1，个位加5');
+  await new Promise(r=>setTimeout(r,1800));
+  await animate([[0,0,0,0,7]], ['十位 1→0，个位 2+5=7，结果 <span class="step">7</span>']);
+}
+
+// Formula data
+const addFormulas = [
+  {t:'一上一', d:'加1，下珠够，直接上1颗'},
+  {t:'二上二', d:'加2，直接上2颗'},
+  {t:'一下五去四', d:'加1下珠不够，拨上珠5退下珠4'},
+  {t:'二下五去三', d:'加2，拨上珠5退下珠3'},
+  {t:'三下五去二', d:'加3，拨上珠5退下珠2'},
+  {t:'四下五去一', d:'加4，拨上珠5退下珠1'},
+  {t:'一去九进一', d:'加1本档满10，进1减9'},
+  {t:'九进一去九', d:'加9，向左进1，本档减9'},
+];
+const subFormulas = [
+  {t:'一去一', d:'减1，下珠够，直接退1颗'},
+  {t:'二去二', d:'减2，直接退2颗'},
+  {t:'一上四去五', d:'减1下珠不够，退上珠5加下珠4'},
+  {t:'二上三去五', d:'减2，退上珠5加下珠3'},
+  {t:'三上二去五', d:'减3，退上珠5加下珠2'},
+  {t:'四上一去五', d:'减4，退上珠5加下珠1'},
+  {t:'一退一还九', d:'减1本档不够，向左退1，本档加9'},
+  {t:'六退一还五加一', d:'减6，退1还5再加1'},
+];
+
+function renderFormulas() {
+  const ag = document.getElementById('addFormulas');
+  const sg = document.getElementById('subFormulas');
+  addFormulas.forEach(f => {
+    const c = document.createElement('div');
+    c.className = 'formula-card';
+    c.innerHTML = `<div class="formula-title">${f.t}</div><div class="formula-desc">${f.d}</div>`;
+    c.onclick = () => playFormula(f, c);
+    ag.appendChild(c);
+  });
+  subFormulas.forEach(f => {
+    const c = document.createElement('div');
+    c.className = 'formula-card';
+    c.innerHTML = `<div class="formula-title">${f.t}</div><div class="formula-desc">${f.d}</div>`;
+    c.onclick = () => playFormula(f, c);
+    sg.appendChild(c);
+  });
+}
+
+async function playFormula(f, card) {
+  document.querySelectorAll('.formula-card').forEach(x=>x.classList.remove('playing'));
+  card.classList.add('playing');
+  explain(`<span class="step">${f.t}</span> —— ${f.d}`);
+
+  // simple visual demos for key formulas
+  clearAbacus();
+  if (f.t === '一下五去四') {
+    await animate([[0,0,0,0,4]], ['个位已有4，现在要 +1']);
+    await new Promise(r=>setTimeout(r,700));
+    await animate([[0,0,0,0,5]], ['下珠不够 → 拨上珠(+5)退4颗下珠(-4)，净 +1 = 5']);
+  } else if (f.t === '一上四去五') {
+    await animate([[0,0,0,0,5]], ['个位是5（上珠），现在要 -1']);
+    await new Promise(r=>setTimeout(r,700));
+    await animate([[0,0,0,0,4]], ['退上珠(-5)加4颗下珠(+4)，净 -1 = 4']);
+  } else if (f.t === '九进一去九') {
+    await animate([[0,0,0,0,5]], ['个位5，现在要 +9']);
+    await new Promise(r=>setTimeout(r,700));
+    await animate([[0,0,0,1,4]], ['向十位进1，个位减9的补数… 5+9=14']);
+  } else if (f.t.includes('上')) {
+    const n = {'一':1,'二':2,'三':3,'四':4}[f.t[0]] || 1;
+    await animate([[0,0,0,0,n]], [`直接上 ${n} 颗下珠`]);
+  } else if (f.t.includes('去')) {
+    const n = {'一':1,'二':2}[f.t[0]] || 1;
+    await animate([[0,0,0,0,3]], ['先有3']);
+    await new Promise(r=>setTimeout(r,600));
+    await animate([[0,0,0,0,3-n]], [`直接退 ${n} 颗`]);
+  }
+}
+
+// Tabs
+document.querySelectorAll('.tab').forEach(tab => {
+  tab.onclick = () => {
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    document.querySelectorAll('.tab-content').forEach(c=>c.classList.add('hidden'));
+    document.getElementById('tab-'+tab.dataset.tab).classList.remove('hidden');
+  };
+});
+
+buildAbacus();
+renderFormulas();
+</script>
+</body>
+</html>

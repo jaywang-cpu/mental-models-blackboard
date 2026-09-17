@@ -1,0 +1,280 @@
+math | ns.max_digits | 3 2 1 排最大 | 指数吃一切：最大的数放指数位，比大小看 指数×ln底
+math | ns.make24 | 24 点套路 | 先找 3×8、4×6、2×12，剩下两个数去凑那个搭档
+math | ns.estimate | 估算 | 先定数量级，再修一位有效数字；对到 20% 就赢
+math | ns.percent | 百分比心算 | x% 的 y = y% 的 x；先算 10%，其他都是 10% 的拼装
+math | ns.abacus | 珠心算 | 数字不是符号是珠子的位置；加不够就进位再减补数
+math | ns.factor | 因数分解 | 试除到 √n 为止；2 看尾数、3 看数位和、5 看末位
+math | ns.log_scale | 对数尺度 | 对数把乘法变加法：log 轴上等距 = 等比
+math | ns.magnitude | 数量级 | 先问几个零；差 3 个零就别管小数点了
+math | ns.mental_mult | 乘法速算 | 拆成好算的块：靠近整十用平方差，乘 5 乘 25 换成除，乘 11 错位相加
+math | ns.square_trick | 平方速算 | 平方=邻居平方±奇数；尾 5 直接 n(n+1) 接 25
+math | ns.divisibility | 整除判定 | 2、5 看尾数；3、9 看数位和；11 看交替和；4、8 看末两、三位
+math | ns.average_trap | 平均数的坑 | 平均"率"看分母：分母是时间用调和，连乘用几何，分组合并先看权重
+math | al.function_zoo | 函数动物园 | 先认脸：直线稳、幂弯、指数爆、对数趴、正弦摆、倒数撕
+math | al.exp_log | 指数与对数 | 指数问翻几倍，对数问翻了几次；互为逆操作
+math | al.quadratic | 二次函数 | 抛物线看顶点 x=−b/2a；判别式定根数
+math | al.inequality_amgm | 均值不等式 | 和定积最大，积定和最小，取等在全相等
+math | al.substitution | 换元 | 看到重复出现的一坨就给它起名 t，方程立刻变熟脸
+math | al.polynomial | 多项式 | 根就是因式，因式就是根；次数定形状和根数
+math | al.system_eq | 方程组 | 解=所有线的公共交点；消元=让一个变量消失
+math | al.sequence | 数列 | 等差看差、等比看比；求和：等差首尾配对，等比错位相减
+math | al.trig | 三角函数 | 三角函数=单位圆上点的坐标：cos 是横、sin 是竖
+math | al.vieta | 韦达定理 | 不解方程也知道根的和 −b/a 与积 c/a
+math | al.abs_ineq | 绝对值不等式 | |x−a|<r 就是"离 a 的距离小于 r"：a 左右各 r
+math | al.doubling | 72 法则 | 翻倍时间 ≈ 72 ÷ 增长率(%)
+math | al.log_trap | 对数的坑 | log 只拆乘除不拆加减；看到 log(a+b) 停手
+math | ge.vector | 向量 | 向量=箭头=位移：加法首尾相接，数乘拉伸，长度勾股
+math | ge.dot_projection | 点积与投影 | 点积=影子长×被投影的长：正同向、零垂直、负反向
+math | ge.unit_circle | 单位圆 | 角度就是圆上的位置，(cosθ, sinθ) 就是那个点
+math | ge.conic | 圆锥曲线 | 切圆锥：平切圆、斜切椭圆、平行母线抛物线、更陡双曲线
+math | ge.transform | 几何变换 | 平移用加、缩放旋转用乘矩阵；复合时右边先作用，顺序不能换
+math | ge.distance | 距离 | 两点距离是勾股；点到线是垂线长；最近点永远在垂足
+math | ge.area_cross | 叉积与面积 | 叉积=平行四边形面积，三角形取一半，符号是转向
+math | ge.similar | 相似 | 形状同、大小按比例：边比 k，面积 k²，体积 k³
+math | ge.pythagoras | 勾股定理 | 直角两边平方和=斜边平方；记熟 3-4-5、5-12-13、8-15-17
+math | ge.polar | 极坐标与复数旋转 | 极坐标=(多远, 转多少)；乘复数=转角加、长度乘
+math | ge.inscribed_angle | 圆周角 | 圆周角=同弧圆心角的一半；直径所对是直角
+math | ge.normal_line | 法向量与直线 | ax+by+c=0 的法向量就是系数 (a,b)；方向向量 (b,−a)
+math | la.matrix_transform | 矩阵即变换 | 矩阵的列=基向量的去向；乘向量=按分量把列加权求和
+math | la.eigen | 特征值与特征向量 | 特征向量是变换里不转向的方向，特征值是那个方向的拉伸倍数
+math | la.svd | 奇异值分解 | 任何矩阵=转、缩、转：A=UΣVᵀ
+math | la.rank | 秩 | 秩=真正独立的方向数=输出空间的维数
+math | la.inverse | 逆矩阵 | 逆=撤销；行列式为 0 就撤不回来
+math | la.basis | 基与坐标 | 基=坐标系的尺子；换基=换说法，向量本身没变
+math | la.projection | 投影 | 投影=子空间里离你最近的点=丢掉垂直分量；最小二乘就是投影
+math | la.determinant | 行列式 | 行列式=面积缩放倍数；负号=翻面；0=压扁
+math | la.matmul_shape | 矩阵乘法与形状 | 内维相消：(m×n)(n×p)=m×p；结果 (i,j)=左第 i 行·右第 j 列
+math | la.orthogonal | 正交矩阵 | 正交矩阵=纯旋转或反射：长度角度全保，逆就是转置
+math | la.least_squares | 最小二乘 | 方程比未知数多没精确解，就让残差平方和最小：AᵀAx̂=Aᵀb
+math | la.null_space | 零空间 | 零空间=被压成 0 的所有输入；它的维数=丢掉的维数
+math | ca.derivative_slope | 导数 = 切线斜率 | 导数就是放大到直线后的斜率
+math | ca.integral_area | 积分 = 面积累加 | 积分就是无穷多个细条加起来
+math | ca.chain_rule | 链式法则 | 外层导数 × 内层导数，一层层剥
+math | ca.taylor | 泰勒展开 | 任何函数局部都是多项式
+math | ca.gradient | 梯度 = 最陡上坡方向 | 梯度指向上坡最陡处，反着走就下山
+math | ca.optimization | 极值：导数为零 | 找极值 = 找斜率为零的点，再看弯向
+math | ca.ode | 微分方程：变化率决定未来 | 知道变化规则 + 起点，未来就定了
+math | ca.limit | 极限：无限逼近 | 极限问的是"趋向哪"，不是"到没到"
+math | ca.partial_hessian | 偏导与 Hessian | 偏导 = 只动一个变量；Hessian = 曲面的弯法
+math | ca.product_quotient | 乘法与除法法则 | 乘积求导：一个动一个不动，轮流来
+math | ca.log_trick | 对数技巧与数值稳定 | 乘法难就取 log 变加法，再求导
+math | ca.lagrange | 拉格朗日乘子 | 带约束的极值：目标梯度与约束梯度平行
+math | ca.integration_tricks | 换元与分部 | 看到 f(g)·g' 就换元；看到两类函数相乘就分部
+math | pr.distribution | 分布族：认出它是谁 | 先问：计数、次数、等待、还是测量？
+math | pr.bayes | 贝叶斯：证据更新信念 | 后验 ∝ 先验 × 似然，先验很小时阳性也多半是假的
+math | pr.clt | 中心极限定理 | 很多独立小东西加起来，总是钟形
+math | pr.expectation | 期望：长期平均 | 期望 = 每个结果 × 它的概率，加起来
+math | pr.variance | 方差：离散程度 | 方差 = 平方后的平均偏差；常数提出来要平方
+math | pr.covariance | 协方差与相关 | 协方差看两者同涨同跌；相关系数是去掉单位的版本
+math | pr.mle | 最大似然估计 | 哪个参数让已发生的数据最不意外，就选它
+math | pr.entropy | 熵与 KL 散度 | 熵 = 平均惊讶度；KL = 用错分布多付的比特
+math | pr.conditional | 条件概率与独立 | 条件概率 = 缩小样本空间后重新数
+math | pr.binomial_poisson | 二项与泊松 | n 次试验数成功 = 二项；n 大 p 小 = 泊松
+math | pr.gaussian | 正态分布 | 68-95-99.7：一二三个 σ 覆盖多少
+math | pr.hypothesis | p 值与置信区间 | p 值是"H0 真时数据有多离谱"，不是"H0 有多可能真"
+math | pr.map_prior | MAP 与正则化 | MAP = MLE + log 先验；高斯先验就是 L2
+math | co.perm_comb | 排列 vs 组合 | 换顺序算不算新的？算 → 排列，不算 → 组合
+math | co.pigeonhole | 鸽巢原理 | 东西比盒子多，必有盒子装两个
+math | co.binomial | 二项式系数与杨辉三角 | (a+b)^n 的系数就是杨辉三角第 n 行
+math | co.recursion | 递推：斐波那契与汉诺塔 | 看最后一步怎么来的，就写出递推
+math | co.inclusion_exclusion | 容斥原理 | 加单个，减两两，加三三，正负交替
+math | co.generating | 生成函数直觉 | 把计数问题变成多项式相乘，看系数
+math | co.graph_count | 图计数 | 边数 = 度数和的一半
+math | co.stars_bars | 隔板法 | n 个相同的球分 k 组 = 在 n 颗星里插 k-1 块板
+math | co.multiplication_rule | 加法与乘法原理 | 分步相乘，分类相加
+math | co.circular_repeat | 圆排列与重复元素 | 圆桌固定一人；重复字母除以各自的阶乘
+math | co.catalan | 卡特兰数 | 括号、格路、二叉树形状：全是 1,2,5,14,42
+math | co.complement | 正难则反 | "至少一个" = 全部 减 "一个都没有"
+math | co.bijection | 一一对应 | 难数的东西换成好数的东西，只要一一对应
+math | di.modular | 模运算：时钟算术 | 先取余再运算，结果不变
+math | di.prime | 质数与因数分解 | 试除只到 √n；约数个数 = 各指数加一相乘
+math | di.gcd | 最大公约数：辗转相除 | gcd(a,b)=gcd(b, a mod b)，余零即停
+math | di.graph | 图：点和边 | 一切关系都是图；邻接矩阵的幂数路径
+math | di.logic | 命题逻辑 | 蕴含只在"前真后假"时为假；否定要翻量词
+math | di.induction | 数学归纳法 | 推倒第一块，且每块都能推倒下一块
+math | di.bits | 位运算 | 左移乘 2，右移除 2，x&(x-1) 清最低位 1
+math | di.big_o | 大 O：增长的量级 | 只看 n 最大时谁涨得最快，常数扔掉
+math | di.divisibility | 整除判定 | 3/9 看数字和，4/8 看末两三位，11 看交错和
+math | di.fermat_fastpow | 费马小定理与快速幂 | 指数对 p-1 取余；幂运算二进制拆分只要 log 步
+math | di.set_function | 集合、关系、函数 | 单射不撞，满射不漏，双射一一对应
+math | di.crt | 中国剩余定理 | 模互质，各余数拼成唯一一个 mod 乘积的解
+math | di.base_convert | 进制转换 | 一位十六进制 = 四位二进制；十进制转二进制反复除 2 取余
+math | op.convex | 凸性：只有一个谷底 | 凸 = 碗；碗里局部最低就是全局最低，闭眼往下走一定对
+math | op.gradient_descent | 梯度法族：往下最陡的方向 | 梯度指“最陡上坡”，取负号往下走；动量 = 给球加惯性，Adam = 每个方向自己配步长
+math | op.learning_rate | 学习率：一步走多远 | 太小磨蹭，太大发散；上界由最陡方向的曲率定：η < 2/L
+math | op.constraint_lagrange | 约束与拉格朗日 | 在约束曲面上，最优点处目标的梯度和约束的梯度必须平行
+math | op.kkt | KKT 直觉：谁在顶着你 | 不等式约束只有两种状态：贴着（λ>0，在顶你）或没贴着（λ=0，不存在）
+math | op.regularization | 正则化几何：L1 尖角出稀疏 | L1 的约束球是菱形，尖角在坐标轴上，等高线最先碰到尖角 → 有些系数被压成 0；L2 是圆，处处光滑 → 只缩不杀
+math | op.coordinate_descent | 坐标下降：一次只动一维 | 其余全冻住，只对一个坐标求最优；一维问题往往有闭式解，绕开梯度
+math | op.second_order | 二阶方法：用曲率修方向 | 牛顿法 = 用抛物面近似地形，一步跳到抛物面的底；H⁻¹ 把椭圆掰成圆
+math | op.stochastic | 随机 vs 批量 | 全量梯度准但贵，单样本梯度糙但快；噪声不是缺点，是逃出坏坑的工具
+math | op.early_stop | 早停：把时间当正则化 | 训练步数本身就是一个正则化超参：走得越久，越贴合噪声
+math | it.surprisal | 信息量 = 惊讶度 | 越不可能发生的事，一旦发生信息量越大；信息量 = −log p
+math | it.entropy | 熵：平均要问几个问题 | 熵 = 惊讶度的期望 = 猜出结果平均需要的最少是非题数
+math | it.cross_entropy | 交叉熵：拿错码表的代价 | 真分布是 p，你按 q 编码，平均码长就是 H(p,q)；训练就是把它压到最小
+math | it.kl | KL 散度：用错分布多付的钱 | KL(p‖q) = 假设是 q 但真相是 p，平均每个样本多花的 bit 数；≥0，且不对称
+math | it.mutual_info | 互信息：知道 Y 能省几个 bit | I(X;Y) = 告诉你 Y 之后，X 的不确定性减少了多少；相关性的非线性版本
+math | it.code_length | 编码长度：短码给常见的 | 最优码长 = −log₂p；常见的给短码，罕见的给长码，平均长度逼近熵
+math | it.channel | 信道容量：噪声里能塞多少 | 容量 = 输出关于输入的最大互信息；低于容量可以近乎无错传输，高于就必错
+math | it.max_entropy | 最大熵原理：别多假设 | 已知的约束都满足，剩下的取最不确定的那个分布——这样才没有偷偷加假设
+math | it.compression | 压缩与学习是同一件事 | 能压缩说明发现了规律；模型越好压得越短，最短描述长度就是最好的模型
+math | fo.eigenfunction | 正弦是特征函数 | 把正弦喂给任何线性时不变系统，出来还是同频的正弦，只改幅度和相位
+math | fo.basis | 频域就是换一组基 | DFT 是一个正交矩阵乘法：同一个向量，换到正弦基下的坐标
+math | fo.fft | FFT：把 N² 砍成 N log N | 把偶数点和奇数点分开各做一次半长 DFT，再用旋转因子拼起来；分治到底
+math | fo.convolution | 卷积定理：时域卷 = 频域乘 | 难算的卷积到频域变成逐点相乘；O(N²) 变 O(N log N)
+math | fo.sampling | 采样定理与混叠 | 采样率必须 > 2×最高频率，否则高频伪装成低频回不去了
+math | fo.filter | 滤波：在频域上挑选 | 滤波 = 给每个频率配一个增益；低通留慢的，高通留快的，带通只留一段
+math | fo.window | 窗函数：截断的代价 | 截一段信号就等于乘了矩形窗，频域被 sinc 抹开；换个软窗，主瓣变宽换旁瓣变低
+math | fo.spectrogram | 频谱图：频率随时间变 | 把信号切成小段各做一次 FFT，堆成时间×频率的热图；窗长决定你看清时间还是频率
+math | fo.wavelet | 小波：让窗随频率变 | 高频用短窗（看清时间），低频用长窗（看清频率）；一个母波形缩放平移铺满整个平面
+math | cx.i_rotation | i 就是旋转 90 度 | i 不是“想象出来的数”，它是“转四分之一圈”这个动作；转两次就是转半圈，所以 i²=−1
+math | cx.multiply | 乘法 = 缩放 + 旋转 | 复数相乘：模相乘、角相加。一个动作叠另一个动作。
+math | cx.polar | 极坐标：模与幅角 | 一个复数只有两件事：多长（r）和朝哪（θ）。乘除幂开方全在极坐标下变简单。
+math | cx.euler | 欧拉公式：转与增长同一件事 | e^{iθ} = cosθ + i sinθ；把“沿垂直方向的增长”累积起来，轨迹就是圆
+math | cx.roots_unity | 单位根：把圆等分 | x^n=1 的 n 个解是单位圆上均匀分布的 n 个点；它们的和恒为 0
+math | cx.oscillation | 复指数与振荡 | e^{(σ+iω)t}：实部管包络（涨还是衰），虚部管振荡（转多快）；一个式子写完所有波形
+math | cx.conjugate | 共轭：照镜子 | 共轭 = 关于实轴翻转；z·conj(z)=|z|²，把复数变回实数的标准手法
+math | cx.poly_roots | 复平面上的多项式根 | n 次多项式在复平面上恰好 n 个根（计重数）；实数域里的“无解”只是把根藏到了平面外
+math | cx.pole_zero | 极点零点：系统的形状 | 零点把频响按下去，极点把频响顶起来；极点离虚轴越近，那个频率越尖锐
+math | vd.ekadhikena | 1 比前一个多一 | 尾数是 5 的平方：前面那截 × (它+1)，后面直接写 25
+math | vd.nikhilam | 2 全从 9 减，末位从 10 减 | 靠近 100 的两数相乘：交叉减得左半，补数相乘得右半
+math | vd.urdhva | 3 竖乘加交叉 | 通用乘法：从右往左，每一位的结果 = 该位所有交叉乘积之和；本质是多项式卷积
+math | vd.paravartya | 4 移项再套用 | 除数首位后面的位全部变号写下来，然后像综合除法一样一路乘加
+math | vd.sunyam | 5 相同的那一坨等于零 | 方程两边出现同一个“公共块”，就直接令它等于 0，跳过所有展开
+math | vd.anurupye | 6 一个成比例，另一个是零 | 某个变量的系数比 = 常数项比，那另一个变量就是 0
+math | vd.sankalana | 7 一加一减 | 两式的 x、y 系数互换位置时，相加得 x+y，相减得 x−y，两步出结果
+math | vd.purana | 8 补全或不补全 | 凑成完全平方/完全立方，把复杂式子变成 y=某个括号 的简单方程
+math | vd.calana | 9 用导数看重根 | 把微分接进代数：一次导数给判别式，重根 = 原式和导数的公共根
+math | vd.ekanyunena | 10 比前一个少一 | 乘 9、99、999：左半 = 原数减 1，右半 = 乘数减去左半
+math | vd.anurupyena | 11 按比例换基准 | 数离 100 太远就换一个工作基（50、200、500），算完再按倍数还原
+math | vd.adyamadyena | 12 首乘首，尾乘尾 | 带单位的乘法（尺与寸、时与分）：先首×首、尾×尾，交叉项按进制折算
+math | vd.yavadunam | 13 差多少减多少，再接差的平方 | 平方靠近 10 的幂：数 ± 偏差 得左半，偏差的平方得右半
+math | vd.antyayor_dasake | 14 尾数相加是 10 | 前缀相同且末位相加为 10：前缀×(前缀+1) 得左半，末位相乘得右半
+math | vd.antyayoreva | 15 只看最后那两项 | 分式方程里若“高次那部分”两边已经同比例，就只剩常数项那一小块决定答案
+math | vd.lopana | 16 交替消去与保留 | 三元二次式因式分解：轮流把一个变量置 0，各分解一次，再把缺口填回去
+code | py.list_dict | 列表与字典 | 列表按位置找，字典按名字找
+code | py.loop_comprehension | 循环与推导式 | 推导式=一行把 for 折进方括号
+code | py.function | 函数 | 函数=装箱：输入进，输出出，里面不外泄
+code | py.recursion | 递归 | 递归=缩小一号再调自己，底部必须停
+code | py.class | 类与对象 | 类=模板，对象=实例，self=我这一份
+code | py.bigo | 复杂度 Big-O | 数嵌套层：一层 n，两层 n²，对半砍 log n
+code | py.string | 字符串 | 字符串=不可变的字符列表，切片同列表
+code | py.debug | 报错与调试 | 先读 Traceback 最后一行，再找你自己文件的行号
+code | py.slice | 切片 | [a:b:c] 含头不含尾，步长 c，负数从尾数
+code | py.mutable | 可变与引用 | b=a 不是复制，是两个名字贴同一个东西
+code | np.array_shape | 数组与 shape | 先问 shape；元组几个数就是几维
+code | np.broadcast | 广播 | 右对齐比 shape：相等或有 1 才配，1 被拉伸
+code | np.dot | 点积与矩阵乘 | @ 看内维：(m,k)@(k,n)→(m,n)，k 必须相等
+code | np.reshape | reshape 与转置 | reshape 只换读法不动数据；-1 让它自己算
+code | np.axis | axis 归约 | axis=k 就是压掉第 k 维，结果少那一位
+code | np.overflow | dtype 与溢出 | uint8 到 255 加 1 归零；float 大数吃小数
+code | np.random | 随机与种子 | seed 才可复现；样本均值抖动 ∝ 1/√n
+code | np.vectorize | 向量化 | 逐元素 for 改整数组一次算，快百倍
+code | np.mask | 布尔掩码与花式索引 | 布尔数组当下标=筛；整数数组当下标=按序挑
+code | np.linalg | 常用线代调用 | solve 代替 inv；norm 长度；eig 方向+缩放
+code | vz.scatter | 散点图 | 两个连续量先画散点；颜色/大小是第 3、4 维
+code | vz.line | 折线与函数图 | 横轴有顺序才用折线；先 linspace 再算 y
+code | vz.heatmap | 热图 | 矩阵直接变色块；先看 colorbar 范围和 0 在哪
+code | vz.contour | 等高线 | z=f(x,y) 压到平面：线密=陡，圈心=极值
+code | vz.hist | 直方图与分布 | 一个变量看分布画直方图；bin 数会改形状
+code | vz.3d | 三维图 | 三维给直觉不给读数；能用等高线就别 3D
+code | vz.color | 颜色映射 | 顺序用 viridis，正负用 RdBu，类别用 tab10
+code | vz.subplot | 子图与分面 | subplots 给 axes；画在 ax 上，不在 plt
+code | vz.log_axis | 对数坐标 | 跨数量级就 log 轴；log-log 直线=幂律
+code | vz.annotate | 标注与整洁 | 一图一结论：标题说结论，标签带单位，去掉多余框线
+code | da.dataframe | DataFrame 心智模型 | 行=样本，列=特征；loc 按标签，iloc 按位置
+code | da.groupby | 分组聚合 | 每个 X 的 Y=groupby(X)[Y]：拆、算、拼
+code | da.merge | 表连接 | 两表靠共同键拼；inner 取交集，left 保左表全部
+code | da.clean | 清洗与缺失 | 先 isna().sum()，再问为什么缺，再决定删或填
+code | da.normalize | 标准化与缩放 | 尺度不同先缩放；scaler 只 fit 训练集
+code | da.split | 训练/验证/测试划分 | 测试集只碰一次；调参用验证集；同一病人不跨集
+code | da.pipeline | Pipeline 与可复现 | 预处理+模型串成 Pipeline，一个 fit 不泄漏
+code | da.leak | 数据泄漏 | 测试集/未来/标签的信息进了训练=泄漏
+code | da.tidy | 长表与宽表 | 长表一行一观测给绘图；宽表一行一样本给模型
+code | da.apply | apply 与向量化 | 能用列运算就别 apply；apply 是慢速兜底
+code | ml.gradient_descent | 梯度下降 | 一步 = lr × 坡度；坡陡步大，谷底自动刹车
+code | ml.linear_reg | 线性回归 | 把 y 垂直投影到特征的列空间，残差必须垂直
+code | ml.logistic | 逻辑回归 | 还是一条直线；sigmoid 只把"离线远近"翻译成概率
+code | ml.svm | 支持向量机 | 能分开的线里选最宽的那条；只有边界点说话
+code | ml.tree | 决策树 | 每刀切在"最能分纯"的地方；纯度增益说话
+code | ml.forest | 随机森林 | 并行投票：偏差不动，方差除以树数
+code | ml.xgboost | 梯度提升 | 串行接力：每棵新树只学上一棵的残差
+code | ml.knn | K 近邻 | 不训练，查表：你像谁你就是谁
+code | ml.kmeans | K 均值 | 认领最近的中心，中心搬到自家均值，来回倒
+code | ml.pca | 主成分分析 | 只留方差最大的方向，把薄的方向拍掉
+code | ml.naive_bayes | 朴素贝叶斯 | 训练=数数，预测=先验乘证据比大小
+code | ml.metrics | 评价指标 | 先问漏检贵还是误报贵，再选指标
+code | dl.mlp | 多层感知机 | 一层 = 转(Wx+b) + 折(ReLU)，堆起来就万能
+code | dl.activation | 激活函数 | 折刀本身：导数形状决定训练生死
+code | dl.backprop | 反向传播 | 链式法则的记账法：一次前向存中间值，一次反向乘回去
+code | dl.cnn | 卷积网络 | 权重共享的 MLP：一把小刀扫全图
+code | dl.rnn | 循环网络 | 同一组权重沿时间反复用，状态 h 携带历史
+code | dl.attention | 注意力 | 每个位置用点积问所有位置：你和我多相关
+code | dl.transformer | Transformer | 注意力直连一切：并行训练 + 任意距离一步到
+code | dl.resnet | 残差网络 | out = F(x) + x：加层至少不伤害
+code | dl.unet | U-Net | 下坡懂语义，上坡画细节，跳接把原图细节空运过去
+code | dl.vae | 变分自编码器 | 压成规整的小星云再解压，潜空间任取一点都能解码
+code | dl.gan | 生成对抗网络 | 造假者 vs 鉴定师，零和博弈卷到以假乱真
+code | dl.loss | 损失函数 | 损失 = 负对数似然：先说清噪声模型，损失自动跟着定
+code | bm.sequence | 序列表示 | 序列先变张量：one-hot 是坐标，k-mer 是词袋
+code | bm.protein_embed | 蛋白 embedding | 预训练模型把序列压成一个向量，下游只用它做回归
+code | bm.image_seg | 图像分割 | 逐像素分类：Dice 看重叠，别看 accuracy
+code | bm.flow_gating | 流式 gating | 门是条件概率的链：每一层的百分比都是"父门里的占比"
+code | bm.dose_response | 剂量反应曲线 | 在 log 浓度轴上是 S 形；EC50 是半高点，Hill 是陡度
+code | bm.survival | 生存分析 | 删失是信息不是缺失：只知道"活过了这个时间点"
+code | bm.pk_ode | 药动学 ODE | 一阶消除 = 指数衰减；半衰期 = ln2/k
+code | bm.cell_cluster | 单细胞聚类 | 标准化→选高变基因→PCA→kNN 图→Leiden→UMAP 画图
+code | bm.batch_effect | 批次效应 | 先问"这两组是不是不同天做的"，AUC 0.99 常是学到了批次
+code | bm.small_n | 小样本与泄漏 | n=12 而 p=20000：先问多重比较和泄漏，再看模型
+code | pt.tensor | 张量与 NumPy | tensor = ndarray + 设备 + 梯度记录，三样多出来的东西全是坑源
+code | pt.autograd | autograd 与计算图 | 前向时每步都记一笔账，backward 就是按账本反着走一遍链式法则
+code | pt.requires_grad | requires_grad 与 detach | requires_grad 决定这条线记不记账，detach 是当场剪断
+code | pt.module | nn.Module 的三件事 | Module = 参数登记处 + forward 定义，注册了才被优化器看见
+code | pt.optimizer | 优化器与 zero_grad | 梯度是累加的，所以每个 step 前必须先清零
+code | pt.dataloader | DataLoader 与 collate | Dataset 给一条，collate 负责把一堆条拼成一个 batch
+code | pt.train_eval | train 与 eval 模式 | 只有 Dropout 和 BatchNorm 会看这个开关，但它们足以毁掉结果
+code | pt.device | device 与显存 | 显存 = 参数 + 梯度 + 优化器状态 + 激活，激活通常最大
+code | pt.save_load | 保存与加载 | 存 state_dict 不存整个模型对象，代码是代码，权重是权重
+code | pt.amp | 混合精度直觉 | 前向用半精度算得快，累加和更新仍用单精度保住数值
+code | pt.debug_shape | 三类报错定位 | 九成报错只有三种：形状不对、设备不同、类型不同
+code | si.estimate_vs_test | 估计 vs 检验 | 先问差多大（估计），再问能不能是运气（检验）；顺序反了就写不出好结论
+code | si.pvalue | p 值真正的含义 | p = 假设没有效应时，看到这么极端或更极端数据的概率
+code | si.confidence_interval | 置信区间 | 区间在随机，参数不随机；95% 说的是这套流程的长期命中率
+code | si.effect_size | 效应量 | 效应量 = 差值 ÷ 噪声，是唯一能跨实验比较的量
+code | si.power | 功效与样本量 | n ≈ 16/d²（每组，双样本，80% 功效，α=0.05）
+code | si.multiple_testing | 多重比较校正 | 做 20 个检验，全无效应也平均出 1 个 p<0.05
+code | si.bootstrap | bootstrap | 把样本当总体，有放回重抽一万次，看统计量自己怎么抖
+code | si.permutation | 置换检验 | 把组标签打乱一万次，看真实差值排第几名
+code | si.bayes_factor | 贝叶斯因子直觉 | BF = 数据在 H1 下的可能性 ÷ 在 H0 下的可能性，是证据的汇率
+code | si.preregistration | 预注册与 p-hacking | 先写下要测什么怎么测，再看数据；顺序一反，p 值就失去意义
+code | si.assumptions | 检验的前提假设 | 选检验先问三件事：独立、分布形状、方差齐；独立最重要
+code | ex.randomization | 随机化为什么有效 | 随机化切断处理与所有变量的关联，包括你没想到的那些
+code | ex.control_blinding | 对照与盲法 | 对照回答"没有它会怎样"，盲法防止期望值渗进测量
+code | ex.confounder | 混杂 | 混杂 = 同时影响处理和结果的第三者，它让相关不等于因果
+code | ex.dag | DAG 直觉 | 三种基本结构：链、叉、对撞；条件化对前两种断路，对第三种通路
+code | ex.backdoor | 后门准则 | 找一组变量堵住所有从处理反向出发的路径，且不含处理的后代
+code | ex.ab_sequential | A/B 与序贯检验 | 边看边停会把假阳性从 5% 抬到 20% 以上，除非用序贯方法
+code | ex.batch_design | 批次设计 | 批次和处理绝不能同向排布，否则永远分不开谁的效应
+code | ex.replicate_level | 重复的层级 | n 是能独立随机分配的单位数，不是你测了多少次
+code | ex.simpson | 辛普森悖论 | 每组内都是 A 好，合起来却是 B 好，因为组的权重不同
+code | ex.selection_bias | 选择偏倚与对撞 | 样本怎么进来的，决定你能得出什么结论
+code | gm.autoregressive | 自回归 | 把联合概率拆成一串条件概率，一次生成一个
+code | gm.vae | VAE 与 ELBO | 重建要像 + 潜变量分布要规整，两项拔河
+code | gm.gan | GAN 博弈 | 造假者和鉴定者互相逼，没有可下降的单一目标函数
+code | gm.diffusion | 扩散模型 | 正向一步步加噪声毁掉图像，反向学着一步步去噪还原
+code | gm.flow | 流模型直觉 | 用可逆变换把简单分布捏成复杂分布，概率靠雅可比行列式记账
+code | gm.temperature | 采样温度与多样性 | 温度调的是分布的尖锐度：低温保守，高温发散
+code | gm.fid | FID 的含义与局限 | 把真假两堆图丢进同一个网络取特征，比较两团高斯的距离
+code | gm.conditional | 条件生成 | 把条件塞进模型，再用引导强度决定听话程度
+code | gm.latent_space | 潜空间与插值 | 潜空间里的直线走廊，对应数据空间里的一条连续变形
+code | gm.protein_design | 蛋白与分子生成 | 生成很便宜，验证很贵；所以模型的价值在排序不在数量
+code | lm.tokenization | tokenization | 模型看不到字符，只看到词表里的编号；切分方式决定它的盲区
+code | lm.embedding | embedding 空间 | 意义变成方向，相似度用夹角量，不用距离
+code | lm.causal_mask | causal mask | 只许往左看，未来的位置被置成负无穷
+code | lm.kv_cache | KV cache | 前面算过的键值存起来，每步只算新 token 那一列
+code | lm.context_window | 上下文窗口 | 窗口是能看见多少，不是能用好多少；中间的内容最容易被忽略
+code | lm.finetune_vs_prompt | 微调还是提示 | 教格式和风格用微调，补事实用检索，选能力用换模型
+code | lm.rag | RAG 的检索几何 | RAG 的成败在检索，不在生成；召回不到就一定编
+code | lm.hallucination | 幻觉从哪来 | 目标是"最像话"，不是"是真的"；不知道时它没有沉默这个选项
+code | lm.eval_align | 评测与对齐直觉 | 没有评测集就没有改进；对齐调的是偏好，不是知识
+code | lm.research_use | 科研里怎么正确用 | 用它做能被你快速验证的事；不能验证的输出一律不要

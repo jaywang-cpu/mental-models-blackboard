@@ -1,0 +1,112 @@
+<!doctype html><html lang="zh"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<title>代码宇宙 · CODE UNIVERSE</title>
+<link rel="manifest" href="../manifest.webmanifest"><link rel="apple-touch-icon" sizes="180x180" href="../apple-touch-icon.png">
+<link rel="stylesheet" href="base.css?v=1789686411"><link rel="stylesheet" href="map.css?v=1789686411">
+</head><body>
+<canvas id="sky"></canvas><div id="neb"></div>
+<div id="top">
+  <div class="mark"><div class="o"></div><div><h1>代码宇宙</h1><div class="sub">CODE UNIVERSE · 张量 · 算法 · BME</div></div></div>
+  <input id="search" placeholder="搜牌子 / 直觉 / 公式 … ⌘K" autocomplete="off">
+  <div class="tabs">
+    <button class="tab on" data-v="map">图</button>
+    <button class="tab" data-v="tour">巡游</button>
+    <button class="tab" data-v="arena">秒答场</button>
+    <button class="tab" data-v="route">判型</button>
+    <button class="tab" data-v="shelf">书架</button>
+    <button class="tab" data-v="plan">计划</button>
+    <button class="tab" data-v="me">进度</button>
+    <button class="tab" data-v="method">方法</button>
+    <a class="tab other" href="math.html">⇄ 数学宇宙</a>
+  </div>
+</div>
+<div id="wrap">
+  <div class="view on" id="mapview">
+    <div id="hint"></div>
+    <div class="legend" id="legend"></div>
+    <div id="zoombar"><button id="zin">+</button><button id="zout">−</button><button id="zfit">⤢</button></div>
+    <div id="drawer"><button id="close">×</button><div id="dbody"></div></div>
+  </div>
+  <div class="view" id="arenaview"></div>
+  <div class="view" id="tourview"></div>
+  <div class="view" id="routeview"></div>
+  <div class="view" id="planview"></div>
+  <div class="view" id="meview"></div>
+  <div class="view" id="shelfview"></div>
+  <div class="view" id="methodview"></div>
+</div>
+<script>window.PAGE_CFG={page:'code',title:'代码宇宙',en:'CODE UNIVERSE',other:{file:'math.html',name:'数学宇宙'},order:['py','np','vz','da','ml','dl','bm'],cols:4,
+  abacus:'tools/abacus.html'};</script>
+<script src="vendor/d3.min.js?v=1789686411"></script>
+<script src="star.js?v=1789686411"></script>
+<script src="anim/_kit.js?v=1789686411"></script>
+<script src="anim/_kit2.js?v=1789686411"></script>
+<script src="data/index_all.js?v=1789686411"></script>
+<script src="data/books.js?v=1789686411"></script>
+<script src="data/refs.js?v=1789686411"></script>
+<script src="data/refmap_math.js?v=1789686411"></script>
+<script src="data/refmap_code.js?v=1789686411"></script>
+<script src="data/drills.js?v=1789686411"></script>
+<script src="data/drills2.js?v=1789686411"></script>
+<script src="data/routes.js?v=1789686411"></script>
+<script src="data/plan.js?v=1789686411"></script>
+<script src="data/tours_order.js?v=1789686411"></script>
+<script src="data/subs_math.js?v=1789686411"></script>
+<script src="data/subs_code.js?v=1789686411"></script>
+<script src="data/videos.js?v=1789686411"></script>
+<script src="data/videos_ns.js?v=1789686411"></script>
+<script src="data/animfor.js?v=1789686411"></script>
+<script src="data/tours.js?v=1789686411"></script>
+<script src="data/tours_a.js?v=1789686411"></script>
+<script src="data/tours_b.js?v=1789686411"></script>
+<script src="data/tours_c.js?v=1789686411"></script>
+<script src="data/tours_d.js?v=1789686411"></script>
+<script src="data/tours_ns.js?v=1789686411"></script>
+<script src="data/refmap_c.js?v=1789686411"></script>
+<script src="data/code_a.js?v=1789686411"></script>
+<script src="data/code_b.js?v=1789686411"></script>
+<script src="data/code_c.js?v=1789686411"></script>
+<script src="anim/code_a.js?v=1789686411"></script>
+<script src="anim/code_b.js?v=1789686411"></script>
+<script src="anim/code_c.js?v=1789686411"></script>
+<script src="anim/ns2.js?v=1789686411"></script>
+<script src="data/deep_py.js?v=1789686411"></script>
+<script src="data/deep_np.js?v=1789686411"></script>
+<script src="data/deep_vz.js?v=1789686411"></script>
+<script src="data/deep_da.js?v=1789686411"></script>
+<script src="data/deep_ml.js?v=1789686411"></script>
+<script src="data/deep_dl.js?v=1789686411"></script>
+<script src="data/deep_bm.js?v=1789686411"></script>
+<script src="data/deep_pt.js?v=1789686411"></script>
+<script src="data/deep_si.js?v=1789686411"></script>
+<script src="data/deep_ex.js?v=1789686411"></script>
+<script src="data/deep_gm.js?v=1789686411"></script>
+<script src="data/deep_lm.js?v=1789686411"></script>
+<script src="data/derive_py.js?v=1789686411"></script>
+<script src="data/derive_np.js?v=1789686411"></script>
+<script src="data/derive_vz.js?v=1789686411"></script>
+<script src="data/derive_da.js?v=1789686411"></script>
+<script src="data/derive_ml.js?v=1789686411"></script>
+<script src="data/derive_dl.js?v=1789686411"></script>
+<script src="data/derive_bm.js?v=1789686411"></script>
+<script src="data/derive_pt.js?v=1789686411"></script>
+<script src="data/derive_si.js?v=1789686411"></script>
+<script src="data/derive_ex.js?v=1789686411"></script>
+<script src="data/derive_gm.js?v=1789686411"></script>
+<script src="data/derive_lm.js?v=1789686411"></script>
+<script src="data/more_py.js?v=1789686411"></script>
+<script src="data/more_np.js?v=1789686411"></script>
+<script src="data/more_vz.js?v=1789686411"></script>
+<script src="data/more_da.js?v=1789686411"></script>
+<script src="data/more_ml.js?v=1789686411"></script>
+<script src="data/more_dl.js?v=1789686411"></script>
+<script src="data/more_bm.js?v=1789686411"></script>
+<script src="data/more_pt.js?v=1789686411"></script>
+<script src="data/more_si.js?v=1789686411"></script>
+<script src="data/more_ex.js?v=1789686411"></script>
+<script src="data/more_gm.js?v=1789686411"></script>
+<script src="data/more_lm.js?v=1789686411"></script>
+<script>window.NOBOOKS=1</script>
+<script src="engine.js?v=1789686411"></script>
+</body></html>
