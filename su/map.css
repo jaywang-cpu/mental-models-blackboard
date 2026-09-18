@@ -531,13 +531,23 @@ body{overflow:hidden}
 /* ===================== 手机 / iPad 适配 ===================== */
 /* iPad 竖屏及以下：顶栏可横滑、抽屉更宽、控件加大 */
 @media (max-width:1180px){
-  #top{height:auto;min-height:52px;padding:6px 10px;gap:8px;flex-wrap:wrap}
+  /* 顶栏在窄屏会换成两行，高度不再是 54px。#wrap 原来写死 top:54px，会被顶栏压住一截，
+     所以这里整页改成竖向 flex，让内容区自己接在顶栏下面。 */
+  html,body{height:100%}
+  body{display:flex;flex-direction:column;overflow:hidden}
+  #top{flex:0 0 auto;height:auto;min-height:52px;gap:8px;flex-wrap:wrap;
+    padding:calc(6px + env(safe-area-inset-top,0px)) 10px 6px}
+  #wrap{position:relative;top:auto;left:auto;right:auto;bottom:auto;flex:1 1 auto;min-height:0}
   #top .sub{display:none}
   #search{flex:1;min-width:120px;width:auto}
   .tabs{margin-left:0;width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;
     scrollbar-width:none;padding-bottom:2px;gap:4px}
   .tabs::-webkit-scrollbar{display:none}
   .tabs .tab{flex:none;padding:7px 12px;font-size:14px}
+  /* 去另一页的入口钉在右边，不然要横滑到头才找得到 */
+  .tab.other{position:sticky;right:0;z-index:3;
+    background:var(--panel2);backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);
+    box-shadow:-10px 0 14px -6px rgba(4,6,13,.9)}
   #drawer{width:min(620px,100vw)}
   .legend{max-height:38vh;overflow-y:auto;font-size:12px;padding:9px 11px}
   #zoombar button{width:44px;height:44px;font-size:18px}
