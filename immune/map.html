@@ -1,0 +1,1224 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<title>免疫宇宙</title><link rel="stylesheet" href="base.css">
+<style>
+body{overflow:hidden;touch-action:none}
+#stage{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:1;
+  touch-action:none;cursor:grab}
+#stage.drag{cursor:grabbing}
+.rg-fill{opacity:.13}
+.rg-ring{fill:none;stroke-width:1.2;opacity:.4;stroke-dasharray:5 7}
+.rg-name{font:700 26px var(--sf);letter-spacing:.08em;text-anchor:middle;opacity:.95}
+.rg-en{font:600 11px var(--sf);letter-spacing:.22em;text-anchor:middle;opacity:.5}
+.rg-sub{font:400 13px var(--sf);text-anchor:middle;opacity:.42;fill:#93A4C4}
+.nd{cursor:pointer}
+.nd rect{fill:rgba(13,19,34,.9);stroke:rgba(126,178,255,.24);stroke-width:1;rx:14}
+.nd rect.bar{stroke:none;opacity:.85;rx:3}
+.nd g{pointer-events:none}
+.nd:hover rect{stroke:rgba(59,232,255,.85);fill:rgba(20,32,52,.96)}
+.nd.hit rect{stroke:#FFC46B;stroke-width:1.8;fill:rgba(46,36,14,.92)}
+.nd.dim{opacity:.16}
+.nd.ctx rect{fill:rgba(9,14,26,.72);stroke:rgba(126,178,255,.16);stroke-dasharray:5 5}
+.nd.ctx{opacity:.72}
+.nd.ctx .zh{fill:#B9C8E4;font-size:12.5px} .nd.ctx .en{fill:#5C6B8A}
+.nd .pb{fill:rgba(139,108,255,.9);stroke:rgba(4,6,13,.9);stroke-width:1}
+.nd .pbt{font:700 9px var(--sf);fill:#0b0713;text-anchor:middle}
+.ctx-band{fill:rgba(126,178,255,.05);pointer-events:none}
+.ctx-ring{fill:none;stroke:rgba(126,178,255,.22);stroke-dasharray:6 10;stroke-width:1.1}
+.ctx-lab{font:600 12px var(--sf);fill:#7E90B4;text-anchor:middle;letter-spacing:.16em}
+.nd .zh{font:600 13.5px var(--sf);fill:#E8EEFB;text-anchor:middle}
+.nd .en{font:400 9.5px var(--sf);fill:#8093B4;text-anchor:middle;letter-spacing:.03em}
+.ed{fill:none;stroke-width:1.1;opacity:.32}
+.ed.on{opacity:.95;stroke-width:2}
+.edlab{font:400 9.5px var(--sf);fill:#7d8ba6;text-anchor:middle;opacity:0}
+.drill{cursor:pointer}
+.drill circle{fill:rgba(59,232,255,.14);stroke:rgba(59,232,255,.55);stroke-width:1.2}
+.drill:hover circle{fill:rgba(59,232,255,.3)}
+.drill text{font:600 12px var(--sf);fill:#8ef4ff;text-anchor:middle}
+.drill .cap{font:600 10.5px var(--sf);fill:#8ef4ff;letter-spacing:.1em;opacity:.85}
+
+#hud{position:fixed;top:0;left:0;right:0;z-index:5;display:flex;align-items:center;gap:10px;
+  padding:calc(9px + env(safe-area-inset-top)) 14px 9px;background:linear-gradient(180deg,
+  rgba(4,6,13,.92),rgba(4,6,13,.55) 70%,transparent);pointer-events:none}
+#hud>*{pointer-events:auto}
+#crumb{display:flex;align-items:center;gap:7px;font-size:13px;color:var(--ink2)}
+#crumb b{font-size:15px;font-weight:660;color:var(--ink);letter-spacing:-.01em}
+#crumb .bk{padding:5px 11px;border-radius:9px;border:.5px solid var(--hair);
+  background:rgba(255,255,255,.05);font-size:12.5px}
+#crumb .bk:hover{border-color:rgba(59,232,255,.45);color:var(--cy)}
+#q{width:238px;flex:none}
+#hud .sp{flex:1}
+#lv{font-size:11px;color:var(--muted);font-family:var(--mono)}
+#legend{position:fixed;left:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:4;
+  border-radius:13px;padding:11px 13px;background:var(--panel);backdrop-filter:blur(22px);
+  border:.5px solid var(--hair);font-size:11.5px;color:var(--ink2);line-height:1.9}
+#legend i{display:inline-block;width:18px;height:2px;border-radius:2px;margin-right:7px;
+  vertical-align:middle}
+#legend .t{color:var(--muted);font-size:10.5px;letter-spacing:.1em;margin-top:7px}
+#zoom{position:fixed;right:14px;bottom:calc(14px + env(safe-area-inset-bottom));z-index:4;
+  display:flex;flex-direction:column;gap:5px}
+#zoom button{width:38px;height:38px;border-radius:11px;background:var(--panel);
+  border:.5px solid var(--hair);color:var(--ink2);font-size:16px;backdrop-filter:blur(20px)}
+#zoom button:hover{border-color:rgba(59,232,255,.45);color:var(--cy)}
+#dr{position:fixed;top:0;right:0;bottom:0;width:min(468px,94vw);z-index:8;display:flex;
+  flex-direction:column;background:var(--panel2);backdrop-filter:blur(30px);
+  border-left:.5px solid var(--hair);transform:translateX(102%);transition:.34s var(--ease);
+  box-shadow:-30px 0 80px rgba(0,0,0,.6)}
+#dr.on{transform:none}
+#dr .h{padding:calc(16px + env(safe-area-inset-top)) 22px 14px;border-bottom:.5px solid var(--hair)}
+#dr .h h2{margin:8px 0 3px;font-size:23px;letter-spacing:-.02em}
+#dr .h .en{color:var(--ink2);font-size:14px}
+#dr .x{position:absolute;top:calc(12px + env(safe-area-inset-top));right:14px;color:var(--muted);
+  font-size:21px;padding:4px 8px}
+#dr .b{flex:1;overflow:auto;padding:16px 22px 36px;font-size:15px;color:var(--ink2);line-height:1.7}
+#dr .b b{color:var(--ink)}
+#dr .lk{display:flex;flex-wrap:wrap;gap:6px;margin-top:7px}
+#dr .lk a{font-size:12.5px;padding:5px 11px;border-radius:8px;background:rgba(255,255,255,.05);
+  border:.5px solid var(--hair2);color:var(--ink2);cursor:pointer}
+#dr .lk a:hover{border-color:rgba(59,232,255,.45);color:var(--cy)}
+#dr .fd.note{background:rgba(59,232,255,.05);border-color:rgba(59,232,255,.22);margin-top:16px}
+#dr .fd.note .k{color:var(--cy)}
+#dr textarea{margin-top:2px;min-height:130px;font-size:14px;line-height:1.65;
+  background:rgba(0,0,0,.25);border-color:rgba(59,232,255,.2)}
+#dr .fd{border-radius:13px;padding:13px 15px;margin-bottom:10px;
+  background:rgba(255,255,255,.035);border:.5px solid var(--hair2)}
+#dr .fd .k{font-size:11px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  font-weight:680;margin-bottom:6px}
+#dr .fd .v{font-size:15px;line-height:1.72;color:#C7D3E8}
+#dr .fd.mp{background:rgba(255,196,107,.09);border-color:rgba(255,196,107,.3)}
+#dr .fd.mp .k{color:#FFC46B}
+#dr .fd.mp .v{color:#FFE3B4;font-size:16px;line-height:1.7}
+#dr .fd.one{background:rgba(59,232,255,.08);border-color:rgba(59,232,255,.28)}
+#dr .fd.one .k{color:var(--cy)}
+#dr .fd.one .v{color:#DAF6FF;font-size:16.5px;font-weight:540;line-height:1.66}
+#dr .mdp{margin:0 0 8px}
+.mdp:last-child{margin-bottom:0}
+.mdpre{margin:8px 0;padding:10px 12px;background:#0b1220;border:1px solid #1e2740;
+  border-radius:8px;overflow-x:auto;font:12px/1.55 ui-monospace,SFMono-Regular,Menlo,monospace;
+  color:#9FD8FF;white-space:pre}
+.mdt{border-collapse:collapse;margin:8px 0;width:100%;font-size:12.5px}
+.mdt th,.mdt td{border:1px solid #1e2740;padding:6px 9px;text-align:left;vertical-align:top}
+.mdt th{background:#101a2c;color:#8ef4ff;font-weight:700;white-space:nowrap}
+.mdt td:first-child{white-space:nowrap;color:#FFC46B;font-weight:700}
+.fd .v code{background:#101a2c;border-radius:4px;padding:1px 5px;font-size:12px;color:#9FD8FF}
+.fig3.fs{position:fixed;inset:0;z-index:9999;margin:0;border-radius:0;
+  background:#04060c;display:flex;flex-direction:column}
+.fig3.fs iframe{flex:1;height:auto!important;width:100%;border-radius:0}
+.fig3.fs .cap{padding:10px 16px;font-size:12.5px}
+.figbtn{color:var(--cy);font-size:11px;background:rgba(59,232,255,.10);
+  border:1px solid rgba(59,232,255,.28);border-radius:6px;padding:2px 9px;margin-left:6px;cursor:pointer}
+.figbtn:hover{background:rgba(59,232,255,.2)}
+.fig3{border-radius:14px;overflow:hidden;margin-bottom:12px;
+  border:.5px solid rgba(59,232,255,.28);background:#070a12}
+#dr .fig3 .cap{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--cy);
+  font-weight:680;padding:9px 12px 7px;background:rgba(59,232,255,.07)}
+#dr .fig3 iframe{width:100%;border:0;display:block;background:#070a12}
+#dr .fig{border-radius:14px;padding:12px 10px;margin-bottom:12px;
+  background:rgba(0,0,0,.3);border:.5px solid var(--hair)}
+#dr .fig .cap{font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;color:var(--muted);
+  font-weight:680;margin:0 4px 8px}
+#dr .fd.fp{background:rgba(92,232,168,.08);border-color:rgba(92,232,168,.3)}
+#dr .fd.fp .k{color:#5CE8A8}
+#dr .fd.fp .v{color:#C8F5E0;font-size:15.5px;line-height:1.72}
+#dr .fd.trap{background:rgba(139,108,255,.09);border-color:rgba(139,108,255,.3)}
+#dr .fd.trap .k{color:#B9A6FF}
+/* 三级：关系网 */
+.ego-c rect{fill:rgba(16,26,46,.95);stroke:rgba(59,232,255,.7);stroke-width:1.6;rx:16}
+.ego-c .zh{font:700 24px var(--sf);fill:#DAF6FF;text-anchor:middle}
+.ego-c .en{font:500 12px var(--sf);fill:#7FD9F0;text-anchor:middle;letter-spacing:.06em}
+.ego-c .mp{font:400 12.5px var(--sf);fill:#FFD9A3;text-anchor:middle}
+.ego-r{fill:none;stroke:rgba(126,178,255,.1);stroke-dasharray:3 9}
+.ego-lab{font:500 9.5px var(--sf);fill:#8fa3c4;text-anchor:middle;opacity:.75}
+#pl{position:fixed;top:0;right:0;bottom:0;width:min(430px,94vw);z-index:7;display:none;
+  flex-direction:column;background:var(--panel2);backdrop-filter:blur(30px);
+  border-left:.5px solid var(--hair);box-shadow:-30px 0 80px rgba(0,0,0,.6)}
+#pl.on{display:flex}
+#pl .h{padding:calc(13px + env(safe-area-inset-top)) 16px 10px;border-bottom:.5px solid var(--hair)}
+#pl .h .r{display:flex;align-items:center;gap:8px}
+#pl .h h3{font-size:16px;font-weight:660;flex:1;letter-spacing:-.01em}
+#pl .tabs{display:flex;gap:4px;margin-top:9px}
+#pl .tabs button{padding:5px 11px;border-radius:8px;font-size:12px;color:var(--muted);font-weight:560}
+#pl .tabs button.on{background:rgba(59,232,255,.13);color:#CFF6FF}
+#pl .ls{flex:1;overflow:auto;padding:9px 12px 26px}
+.pp{padding:9px 11px;border-radius:11px;background:rgba(255,255,255,.035);
+  border:.5px solid var(--hair2);margin-bottom:6px;cursor:pointer}
+.pp:hover{border-color:rgba(59,232,255,.4);background:rgba(59,232,255,.06)}
+.pp .t{font-size:12.6px;line-height:1.42;font-weight:540}
+.pp .m{font-size:10.5px;color:var(--muted);margin-top:4px;display:flex;gap:9px;flex-wrap:wrap}
+.pp .m .cy{color:var(--cy)} .pp .m .st{color:var(--am)}
+.pp .m .go{margin-left:auto;color:var(--cy);opacity:0;transition:.18s}
+.pp:hover .m .go{opacity:1}
+.mine{display:inline-block;font-size:10px;padding:1px 6px;border-radius:6px;vertical-align:1px;
+  background:rgba(255,196,107,.16);color:#FFC46B;border:.5px solid rgba(255,196,107,.35);margin-right:2px}
+/* 场景巡游 */
+#tourbtn{padding:7px 14px;border-radius:10px;border:.5px solid rgba(59,232,255,.4);
+  background:rgba(59,232,255,.13);color:#CFF6FF;font-size:13px;font-weight:580;flex:none}
+#tourbtn:hover{background:rgba(59,232,255,.22)}
+#tl{position:fixed;top:0;left:0;bottom:0;width:min(360px,92vw);z-index:9;display:none;
+  flex-direction:column;background:var(--panel2);backdrop-filter:blur(30px);
+  border-right:.5px solid var(--hair);box-shadow:30px 0 80px rgba(0,0,0,.6)}
+#tl.on{display:flex}
+#tl .h{padding:calc(16px + env(safe-area-inset-top)) 18px 12px;border-bottom:.5px solid var(--hair);
+  display:flex;align-items:center;gap:8px}
+#tl .h h3{font-size:17px;font-weight:660;flex:1}
+#tl .ls{flex:1;overflow:auto;padding:10px 12px 26px}
+#tlscope{padding:9px 16px;border-bottom:.5px solid var(--hair2);font-size:12px;color:var(--ink2);
+  display:flex;align-items:center;gap:8px;line-height:1.45}
+#tlscope b{color:var(--cy);font-weight:620}
+#tlscope button{margin-left:auto;flex:none;padding:4px 10px;border-radius:8px;font-size:11.5px;
+  border:.5px solid var(--hair);background:rgba(255,255,255,.05);color:var(--ink2)}
+#tlscope button:hover{border-color:rgba(59,232,255,.45);color:var(--cy)}
+#tlcats{display:flex;gap:4px;flex-wrap:wrap;padding:9px 14px;border-bottom:.5px solid var(--hair2)}
+#tlcats.off{display:none}
+#tlcats button{padding:4px 10px;border-radius:8px;font-size:11.5px;color:var(--muted);font-weight:560}
+#tlcats button.on{background:rgba(59,232,255,.13);color:#CFF6FF}
+#tl .cat{font-size:10.5px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);
+  font-weight:680;margin:14px 4px 7px}
+#tl .cat:first-child{margin-top:2px}
+.tr{padding:11px 13px;border-radius:12px;background:rgba(255,255,255,.035);
+  border:.5px solid var(--hair2);margin-bottom:7px;cursor:pointer;transition:.2s var(--ease)}
+.tr:hover{border-color:rgba(59,232,255,.45);background:rgba(59,232,255,.07)}
+.tr .t{font-size:14px;font-weight:600;line-height:1.35}
+.tr .s{font-size:11.5px;color:var(--muted);margin-top:4px;line-height:1.45}
+.tr .n{font-size:10.5px;color:var(--cy);margin-top:6px}
+.tr{position:relative}
+.tr .del{position:absolute;top:9px;right:9px;width:26px;height:26px;border-radius:8px;
+  display:grid;place-items:center;color:var(--muted);font-size:13px;opacity:0;
+  border:.5px solid transparent;transition:.18s var(--ease)}
+.tr:hover .del{opacity:.8}
+.tr .del:hover{opacity:1;color:#FF6B8A;background:rgba(255,107,138,.14);
+  border-color:rgba(255,107,138,.4)}
+.once{display:inline-block;font-size:9.5px;padding:1px 6px;border-radius:6px;margin-right:6px;
+  vertical-align:1px;background:rgba(255,196,107,.16);color:#FFC46B;
+  border:.5px solid rgba(255,196,107,.35)}
+#qz{position:fixed;inset:0;z-index:16;display:none;background:rgba(4,6,13,.95);
+  backdrop-filter:blur(14px);align-items:center;justify-content:center;flex-direction:column;gap:16px;
+  padding:40px 20px}
+#qz.on{display:flex}
+#qz .card{width:min(760px,94vw);border-radius:18px;padding:30px 34px;background:var(--panel);
+  border:.5px solid var(--hair)}
+#qz .qh{font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);font-weight:680}
+#qz .q{font-size:23px;font-weight:660;line-height:1.5;margin-top:12px;letter-spacing:-.01em}
+#qz .a{margin-top:18px;padding:16px 18px;border-radius:13px;font-size:15.5px;line-height:1.75;
+  background:rgba(92,232,168,.08);border:.5px solid rgba(92,232,168,.3);color:#C8F5E0;display:none}
+#qz .a.on{display:block}
+#qz .btns{display:flex;gap:9px;margin-top:20px;flex-wrap:wrap}
+#qz .btns button{padding:9px 18px;border-radius:11px;font-size:13.5px;font-weight:570;
+  border:.5px solid var(--hair);background:rgba(255,255,255,.06);color:var(--ink2)}
+#qz .btns button.pri{background:rgba(59,232,255,.16);color:#CFF6FF;border-color:rgba(59,232,255,.4)}
+#qz .sc{font-size:12px;color:var(--muted);font-family:var(--mono)}
+/* 底部巡游条 */
+#tb{position:fixed;left:50%;transform:translateX(-50%) translateY(140%);
+  bottom:calc(16px + env(safe-area-inset-bottom));z-index:11;width:min(760px,94vw);
+  border-radius:16px;padding:14px 16px 12px;background:var(--panel2);backdrop-filter:blur(28px);
+  border:.5px solid rgba(59,232,255,.3);box-shadow:0 24px 70px rgba(0,0,0,.6);
+  transition:.36s var(--ease)}
+#tb.on{transform:translateX(-50%) translateY(0)}
+#tb .top{display:flex;align-items:center;gap:10px;margin-bottom:8px}
+#tb .top .nm{font-size:12px;color:var(--cy);font-weight:600;letter-spacing:.04em}
+#tb .top .ct{font-size:11px;color:var(--muted);margin-left:auto;font-family:var(--mono)}
+#tb .say{font-size:16px;line-height:1.6;color:#E8EEFB;min-height:52px}
+#tb .say b{color:var(--cy)}
+#tb .bar{display:flex;align-items:center;gap:7px;margin-top:11px}
+#tb .btn{padding:7px 15px}
+#tb .prog{flex:1;height:4px;border-radius:4px;background:rgba(255,255,255,.09);overflow:hidden;
+  margin:0 6px}
+#tb .prog i{display:block;height:100%;background:linear-gradient(90deg,var(--cy),var(--gr));
+  box-shadow:0 0 12px rgba(59,232,255,.5);transition:.3s var(--ease)}
+.nd.spot rect{stroke:#3BE8FF;stroke-width:2.6;fill:rgba(20,44,64,.98)}
+.nd.spot{filter:drop-shadow(0 0 22px rgba(59,232,255,.65))}
+/* 术语表 */
+#gl{position:fixed;inset:0;z-index:14;display:none;background:rgba(4,6,13,.93);
+  backdrop-filter:blur(14px);flex-direction:column}
+#gl.on{display:flex}
+#gl .h{padding:calc(16px + env(safe-area-inset-top)) 22px 12px;border-bottom:.5px solid var(--hair);
+  display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+#gl .h h3{font-size:20px;font-weight:680;letter-spacing:-.02em}
+#gl .h .sub{font-size:12px;color:var(--muted)}
+#gl .h .sp{flex:1}
+#gl #glq{width:280px}
+#glcats{display:flex;gap:5px;padding:9px 22px;flex-wrap:wrap;border-bottom:.5px solid var(--hair2)}
+#glcats button{padding:5px 12px;border-radius:9px;font-size:12.5px;color:var(--muted);font-weight:560;
+  border:.5px solid transparent}
+#glcats button.on{background:rgba(59,232,255,.13);color:#CFF6FF;border-color:rgba(59,232,255,.35)}
+#glls{flex:1;overflow:auto;padding:0 0 40px}
+table.gtab{width:100%;border-collapse:collapse;font-size:13.5px}
+table.gtab thead th{position:sticky;top:0;z-index:2;background:#0a0f1c;
+  text-align:left;font-size:10.5px;letter-spacing:.13em;text-transform:uppercase;
+  color:var(--muted);font-weight:680;padding:10px 14px;border-bottom:.5px solid var(--hair)}
+table.gtab td{padding:11px 14px;border-bottom:.5px solid var(--hair2);vertical-align:top;
+  line-height:1.6}
+table.gtab tbody tr:nth-child(even){background:rgba(255,255,255,.018)}
+table.gtab tbody tr:hover{background:rgba(59,232,255,.07)}
+td.tm b{font-size:14.5px;font-weight:640;display:block;letter-spacing:-.01em}
+td.tm i{font-style:normal;font-size:11.5px;color:var(--muted);display:block;margin-top:2px}
+td.tm .c{display:inline-block;margin-top:5px;font-size:10px;padding:1px 7px;border-radius:6px;
+  background:rgba(126,178,255,.1);color:var(--ink2);border:.5px solid var(--hair2)}
+td.mp{color:#FFE3B4;background:rgba(255,196,107,.05)}
+td.ac{color:#C2D0E6}
+td.ac b{color:#DAF6FF}
+td.lk a{display:inline-block;font-size:11px;padding:2px 8px;border-radius:7px;margin:0 4px 4px 0;
+  background:rgba(255,255,255,.05);border:.5px solid var(--hair2);color:var(--ink2);cursor:pointer;
+  white-space:nowrap}
+td.lk a:hover{border-color:rgba(59,232,255,.45);color:var(--cy)}
+tr.grp td{background:rgba(139,108,255,.09);font-size:11px;letter-spacing:.14em;font-weight:700;
+  color:#CDB9FF;padding:7px 14px;text-transform:uppercase}
+@media(max-width:900px){table.gtab td.ac{display:none}}
+@media(max-width:640px){table.gtab td.lk{display:none}}
+#glbtn{padding:7px 14px;border-radius:10px;border:.5px solid rgba(139,108,255,.4);
+  background:rgba(139,108,255,.14);color:#CDB9FF;font-size:13px;font-weight:580;flex:none}
+#glbtn:hover{background:rgba(139,108,255,.24)}
+@media(max-width:760px){#glls{grid-template-columns:1fr;padding:12px 14px 40px}#gl #glq{width:100%}}
+#tip{position:fixed;z-index:6;pointer-events:none;padding:8px 12px;border-radius:10px;
+  background:rgba(8,12,22,.95);border:.5px solid var(--hair);font-size:13.5px;color:var(--ink2);
+  opacity:0;transition:.15s;max-width:260px}
+</style></head><body>
+<canvas id="sky"></canvas><div id="neb"></div>
+<svg id="stage"><g id="cam">
+  <g id="gRg"></g><g id="gEd"></g><g id="gNd"></g><g id="gDrill"></g>
+</g></svg>
+<div id="hud">
+  <div id="crumb"></div>
+  <button id="tourbtn">▶ 场景巡游</button>
+  <button id="glbtn">☰ 术语表</button>
+  <div class="sp"></div>
+  <input id="q" placeholder="搜节点 / 分子 / 英文…">
+  <div id="lv"></div>
+</div>
+<div id="legend">
+  <div><i style="background:#5CE8A8"></i>激活 / 推动</div>
+  <div><i style="background:#FFC46B"></i>提供 / 装配</div>
+  <div><i style="background:#8B6CFF"></i>展示 / 提呈</div>
+  <div><i style="background:#FF6B8A"></i>抑制 / 杀伤</div>
+  <div class="t">点方块看讲解 · 双击看关系网 · 点园区进二级</div>
+</div>
+<div id="zoom"><button id="zi">＋</button><button id="zo">－</button><button id="zf">⌖</button></div>
+<div id="tip"></div>
+<div id="qz"><div class="card">
+    <div class="qh" id="qzh"></div><div class="q" id="qzq"></div>
+    <div class="a" id="qza"></div>
+    <div class="btns"><button class="pri" id="qzshow">显示答案</button>
+      <button id="qzprev">← 上一题</button><button id="qznext">下一题 →</button>
+      <button id="qzgo">去图上看这一站</button><button id="qzx">退出</button></div>
+  </div><div class="sc" id="qzsc"></div></div>
+<div id="gl"><div class="h"><h3>术语表</h3>
+   <span class="sub" id="glcount"></span><div class="sp"></div>
+   <input id="glq" placeholder="搜中文 / 英文 / 比喻 / 学术描述…">
+   <button class="btn" id="glx">关闭 esc</button></div>
+  <div id="glcats"></div><div id="glls"></div></div>
+<div id="tl"><div class="h"><h3>场景巡游</h3><button class="btn sm" id="tlx">×</button></div>
+  <div id="tlscope"></div>
+  <div id="tlcats"></div>
+  <div class="ls" id="tlls"></div></div>
+<div id="tb"><div class="top"><span class="nm" id="tbnm"></span><span class="ct" id="tbct"></span></div>
+  <div class="say" id="tbsay"></div>
+  <div class="bar">
+    <button class="btn" id="tbprev">← 上一步</button>
+    <button class="btn pri" id="tbnext">下一步 →</button>
+    <div class="prog"><i id="tbprog"></i></div>
+    <button class="btn sm" id="tbplay">自动播放</button>
+    <button class="btn sm" id="tbexit">退出</button>
+  </div></div>
+<div id="pl"><div class="h"><div class="r"><h3 id="plh"></h3>
+    <button class="btn sm" id="plx">×</button></div>
+  <div class="tabs" id="pltabs"></div></div>
+  <input id="plq" placeholder="在这些里面搜…" style="margin:8px 12px 0;width:calc(100% - 24px)">
+  <div class="ls" id="plls"></div></div>
+<div id="dr"><button class="x" id="drx">×</button>
+  <div class="h"><span class="chip" id="drt"></span><h2 id="drh"></h2><div class="en" id="dre"></div></div>
+  <div class="b" id="drb"></div></div>
+<script src="star.js"></script><script src="api.js"></script>
+<script>
+function gly(t){
+ const b=(f,r)=>`<circle r="${r||17}" fill="${f}" stroke="#D6E2F7" stroke-width="2"/>`;
+ switch(t){
+  case 'virus': return `<g><polygon points="0,-16 14,-8 14,8 0,16 -14,8 -14,-8" fill="#a86a90" stroke="#D6E2F7" stroke-width="2"/>
+    ${[0,60,120,180,240,300].map(a=>`<g transform="rotate(${a})"><line y1="-16" y2="-23" stroke="#D6E2F7" stroke-width="2"/><circle cy="-25" r="2.6" fill="#D6E2F7"/></g>`).join('')}</g>`;
+  case 'wall': return `<g><rect x="-20" y="-13" width="40" height="26" rx="3" fill="#c9b696" stroke="#D6E2F7" stroke-width="2"/>
+    <line x1="-20" x2="20" y1="-4" y2="-4" stroke="#D6E2F7" stroke-width="1.4"/><line x1="-20" x2="20" y1="5" y2="5" stroke="#D6E2F7" stroke-width="1.4"/>
+    <line x1="-6" x2="-6" y1="-13" y2="-4" stroke="#D6E2F7" stroke-width="1.4"/><line x1="8" x2="8" y1="-4" y2="5" stroke="#D6E2F7" stroke-width="1.4"/><line x1="-10" x2="-10" y1="5" y2="13" stroke="#D6E2F7" stroke-width="1.4"/></g>`;
+  case 'mucus': return `<g><path d="M-20 6 q6 -12 12 -2 q6 -12 12 -2 q6 -10 12 0 v10 h-36 z" fill="#7fb3c8" stroke="#D6E2F7" stroke-width="2"/>
+    <circle cx="-6" cy="-10" r="3" fill="#7fb3c8" stroke="#D6E2F7" stroke-width="1.6"/><circle cx="8" cy="-14" r="2.4" fill="#7fb3c8" stroke="#D6E2F7" stroke-width="1.6"/></g>`;
+  case 'bact': return `<g><rect x="-19" y="-11" width="22" height="9" rx="4.5" fill="#6f9c74" stroke="#D6E2F7" stroke-width="2"/>
+    <rect x="-6" y="3" width="22" height="9" rx="4.5" fill="#6f9c74" stroke="#D6E2F7" stroke-width="2" transform="rotate(12)"/></g>`;
+  case 'anti': return `<g stroke="#D6E2F7" stroke-width="2.6" fill="none" stroke-linecap="round"><path d="M0 14 v-10"/><path d="M0 4 l-11 -13"/><path d="M0 4 l11 -13"/>
+    <circle cx="-11" cy="-11" r="3.4" fill="#3f7fb5"/><circle cx="11" cy="-11" r="3.4" fill="#3f7fb5"/></g>`;
+  case 'sensor': return `<g>${b('#e6c48f')}<circle r="6" fill="#D6E2F7" opacity=".2"/>
+    ${[20,80,140,200,260,320].map(a=>`<g transform="rotate(${a})"><line y1="-17" y2="-25" stroke="#D6E2F7" stroke-width="2.2"/><path d="M-4 -25 h8" stroke="#D6E2F7" stroke-width="2.2"/></g>`).join('')}</g>`;
+  case 'comp': return `<g><circle cx="-14" cy="-8" r="5" fill="#e6c48f" stroke="#D6E2F7" stroke-width="1.8"/><circle cx="-1" cy="-11" r="5" fill="#e6c48f" stroke="#D6E2F7" stroke-width="1.8"/>
+    <path d="M6 -8 q7 3 8 9" stroke="#D6E2F7" stroke-width="1.8" fill="none" marker-end="url(#ah_a)"/>
+    <ellipse cx="4" cy="10" rx="15" ry="7" fill="none" stroke="#D6E2F7" stroke-width="2"/><line x1="-4" x2="-4" y1="4" y2="16" stroke="#D6E2F7" stroke-width="1.6"/><line x1="4" x2="4" y1="3" y2="17" stroke="#D6E2F7" stroke-width="1.6"/><line x1="12" x2="12" y1="4" y2="16" stroke="#D6E2F7" stroke-width="1.6"/></g>`;
+  case 'signal': return `<g><circle r="5" fill="#d99b4a" stroke="#D6E2F7" stroke-width="2"/>
+    ${[10,17,24].map((r,i)=>`<path d="M ${-r*0.7} ${-r*0.7} A ${r} ${r} 0 0 1 ${r*0.7} ${-r*0.7}" fill="none" stroke="#d99b4a" stroke-width="2.4" opacity="${1-i*0.25}"/>
+    <path d="M ${-r*0.7} ${r*0.7} A ${r} ${r} 0 0 0 ${r*0.7} ${r*0.7}" fill="none" stroke="#d99b4a" stroke-width="2.4" opacity="${1-i*0.25}"/>`).join('')}</g>`;
+  case 'neut': return `<g>${b('#f0dcc0')}<path d="M-8 -5 a4.5 4.5 0 1 1 0.1 0 M2 -8 a4.5 4.5 0 1 1 0.1 0 M6 3 a4.5 4.5 0 1 1 0.1 0" fill="#8a7fc0" stroke="#D6E2F7" stroke-width="1.5"/>
+    <line x1="-4" x2="0" y1="-4" y2="-6" stroke="#D6E2F7" stroke-width="1.5"/><line x1="4" x2="6" y1="-5" y2="0" stroke="#D6E2F7" stroke-width="1.5"/>
+    ${[[-10,7],[-2,9],[8,8],[11,-6]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="1.7" fill="#c98a3f"/>`).join('')}</g>`;
+  case 'mac': return `<g><path d="M-16 -6 q-6 -10 3 -11 q3 -8 11 -3 q9 -6 13 3 q9 2 5 11 q4 9 -6 11 q-5 8 -13 2 q-10 4 -13 -5 q-8 -2 0 -8 z" fill="#d99b4a" stroke="#D6E2F7" stroke-width="2"/>
+    <circle cx="-3" cy="-1" r="6" fill="#8a7fc0" stroke="#D6E2F7" stroke-width="1.6"/><circle cx="9" cy="6" r="3.4" fill="#f3e9d7" stroke="#D6E2F7" stroke-width="1.5"/></g>`;
+  case 'dc': return `<g>${[0,40,80,120,160,200,240,280,320].map(a=>`<line transform="rotate(${a})" y1="-8" y2="-25" stroke="#D6E2F7" stroke-width="2.2" stroke-linecap="round"/>`).join('')}
+    <circle r="12" fill="#c8a2d6" stroke="#D6E2F7" stroke-width="2"/><circle r="5" fill="#D6E2F7" opacity=".25"/></g>`;
+  case 'gran': return `<g>${b('#e8b7cf')}${[[-7,-6],[3,-8],[9,0],[-8,4],[0,2],[6,8],[-2,9],[11,-8]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3.1" fill="#a86a90" stroke="#D6E2F7" stroke-width="1.1"/>`).join('')}</g>`;
+  case 'gran2': return `<g>${b('#f2c6a0')}<path d="M-9 -4 a4.5 4.5 0 1 1 0.1 0 M7 -4 a4.5 4.5 0 1 1 0.1 0" fill="#8a7fc0" stroke="#D6E2F7" stroke-width="1.4"/><line x1="-5" x2="3" y1="-3" y2="-3" stroke="#D6E2F7" stroke-width="1.4"/>
+    ${[[-8,6],[0,8],[8,6],[-3,2],[5,1]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#c5675e" stroke="#D6E2F7" stroke-width="1.1"/>`).join('')}</g>`;
+  case 'nk': return `<g>${b('#9ec9b0')}${[[-7,-5],[4,-6],[-4,5],[7,4]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="3" fill="#2f6b52" stroke="#D6E2F7" stroke-width="1.1"/>`).join('')}
+    <circle r="10" fill="none" stroke="#D6E2F7" stroke-width="1.4" stroke-dasharray="3 3"/><line x1="-22" x2="-15" y1="0" y2="0" stroke="#D6E2F7" stroke-width="2"/><line x1="15" x2="22" y1="0" y2="0" stroke="#D6E2F7" stroke-width="2"/></g>`;
+  case 'cell': return `<g>${b('#cdd6cf')}<circle r="7" fill="#8a7fc0" stroke="#D6E2F7" stroke-width="1.6"/></g>`;
+  case 'tcell': return `<g>${b('#8fb8d8')}<circle r="7" fill="#2a4a63" opacity=".55"/>
+    ${[-30,0,30].map(a=>`<g transform="rotate(${a})"><line y1="-17" y2="-24" stroke="#D6E2F7" stroke-width="2"/><path d="M-3.5 -24 l3.5 -4 l3.5 4" fill="none" stroke="#D6E2F7" stroke-width="2" stroke-linejoin="round"/></g>`).join('')}</g>`;
+  case 'ctl': return `<g>${b('#c5675e')}<circle r="7" fill="#5a2422" opacity=".55"/>
+    ${[[-8,5],[0,8],[8,5],[-4,-2],[5,-3]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.6" fill="#f3e9d7"/>`).join('')}
+    ${[-25,0,25].map(a=>`<g transform="rotate(${a})"><line y1="-17" y2="-24" stroke="#D6E2F7" stroke-width="2"/><path d="M-3.5 -24 l3.5 -4 l3.5 4" fill="none" stroke="#D6E2F7" stroke-width="2" stroke-linejoin="round"/></g>`).join('')}</g>`;
+  case 'bcell': return `<g>${b('#7fb3c8')}<circle r="7" fill="#1d4457" opacity=".5"/>
+    ${[0,72,144,216,288].map(a=>`<g transform="rotate(${a})"><line y1="-17" y2="-22" stroke="#D6E2F7" stroke-width="2"/><path d="M0 -22 l-4 -5 M0 -22 l4 -5" stroke="#D6E2F7" stroke-width="2" stroke-linecap="round"/></g>`).join('')}</g>`;
+  case 'plasma': return `<g><ellipse rx="19" ry="15" fill="#7fb3c8" stroke="#D6E2F7" stroke-width="2"/><circle cx="-8" cy="-3" r="6" fill="#1d4457" opacity=".55"/>
+    ${[-2,3,8].map((y,i)=>`<path d="M${-2+i} ${y+2} q9 -3 14 1" fill="none" stroke="#f3e9d7" stroke-width="2"/>`).join('')}
+    <path d="M22 -8 l4 4 l-4 4" fill="none" stroke="#D6E2F7" stroke-width="2"/><path d="M20 -4 h6" stroke="#D6E2F7" stroke-width="2"/></g>`;
+  case 'gc': return `<g><circle r="18" fill="#e5dcef" stroke="#D6E2F7" stroke-width="2"/>
+    <path d="M0 -18 a18 18 0 0 0 0 36 z" fill="#8a7fc0" opacity=".65"/>
+    <path d="M-9 -11 a13 13 0 0 1 0 22" fill="none" stroke="#D6E2F7" stroke-width="1.8" marker-end="url(#ah_a)"/>
+    <path d="M9 11 a13 13 0 0 1 0 -22" fill="none" stroke="#D6E2F7" stroke-width="1.8" marker-end="url(#ah_a)"/></g>`;
+  case 'mhc1': case 'mhc2': {const w=t==='mhc1'?16:26,c=t==='mhc1'?'#3f7fb5':'#d99b4a';
+    return `<g><path d="M-18 14 v-8 q0 -6 6 -6 h24 q6 0 6 6 v8" fill="${c}" stroke="#D6E2F7" stroke-width="2"/>
+    <rect x="${-w/2}" y="-9" width="${w}" height="6" rx="3" fill="#f3e9d7" stroke="#D6E2F7" stroke-width="1.8"/>
+    ${Array.from({length:t==='mhc1'?3:5},(_,i)=>`<circle cx="${-w/2+4+i*(w-8)/(t==='mhc1'?2:4)}" cy="-6" r="1.5" fill="#D6E2F7"/>`).join('')}</g>`;}
+  case 'sig': return `<g>${[0,1,2].map(i=>`<g transform="translate(0 ${-12+i*12})"><rect x="-19" y="-4.5" width="30" height="9" rx="4.5" fill="${['#8a7fc0','#4d8f8b','#d99b4a'][i]}" stroke="#D6E2F7" stroke-width="1.8"/>
+    <text x="16" y="3.5" font-size="10" font-weight="700" fill="#D6E2F7">${i+1}</text></g>`).join('')}</g>`;
+  case 'kill': return `<g><circle r="13" fill="#f0dcc0" stroke="#D6E2F7" stroke-width="2" stroke-dasharray="4 3"/>
+    ${[[-24,-14],[-26,2],[-20,16]].map((p,i)=>`<path d="M${p[0]} ${p[1]} L-11 ${p[1]/2}" stroke="${['#c5675e','#c5675e','#d99b4a'][i]}" stroke-width="2.6" marker-end="url(#ah_r)"/>`).join('')}
+    ${[[4,-4],[-3,3],[6,5]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="2.4" fill="#c5675e"/>`).join('')}</g>`;
+  case 'shield': return `<g><path d="M0 -17 l15 6 v10 q0 12 -15 18 q-15 -6 -15 -18 v-10 z" fill="#9ec9b0" stroke="#D6E2F7" stroke-width="2"/><path d="M-6 1 l4 5 l9 -10" fill="none" stroke="#D6E2F7" stroke-width="2.4" stroke-linecap="round"/></g>`;
+  case 'broken': return `<g><path d="M0 -17 l15 6 v10 q0 12 -15 18 q-15 -6 -15 -18 v-10 z" fill="#e0bccd" stroke="#D6E2F7" stroke-width="2"/>
+    <path d="M-1 -14 l5 10 l-8 4 l6 12" fill="none" stroke="#D6E2F7" stroke-width="2.4" stroke-linejoin="round"/></g>`;
+  case 'down': return `<g><path d="M0 -16 v24" stroke="#D6E2F7" stroke-width="3" marker-end="url(#ah_r)"/>
+    ${[[-15,-10,5],[-15,2,3.4],[14,-8,4],[15,4,2.4]].map(p=>`<circle cx="${p[0]}" cy="${p[1]}" r="${p[2]}" fill="#c5675e" opacity=".65"/>`).join('')}</g>`;
+  case 'up': return `<g><path d="M0 16 v-26" stroke="#D6E2F7" stroke-width="3" marker-end="url(#ah_g)"/>
+    ${[0,1,2].map(i=>`<rect x="${8+i*5}" y="${8-i*8}" width="4" height="${8+i*8}" fill="#6f9c74" stroke="#D6E2F7" stroke-width="1.2"/>`).join('')}</g>`;
+  case 'tumor': return `<g><path d="M-14 -9 l7 -8 l9 5 l8 -6 l4 10 l9 5 l-7 8 l1 10 l-11 -2 l-8 6 l-6 -9 l-10 -3 l4 -9 z" fill="#7a5a6d" stroke="#D6E2F7" stroke-width="2"/>
+    <circle cx="-2" cy="0" r="5" fill="#D6E2F7" opacity=".45"/><circle cx="8" cy="6" r="2.6" fill="#D6E2F7" opacity=".3"/></g>`;
+  case 'aapc': return `<g><circle r="14" fill="#4d8f8b" stroke="#D6E2F7" stroke-width="2"/><circle r="14" fill="none" stroke="#f3e9d7" stroke-width="1.4" stroke-dasharray="3 4"/>
+    ${[-40,0,40].map((a,i)=>`<g transform="rotate(${a})"><line y1="-14" y2="-22" stroke="#D6E2F7" stroke-width="2"/><rect x="-4" y="-27" width="8" height="5" rx="2" fill="${i===1?'#3f7fb5':'#d99b4a'}" stroke="#D6E2F7" stroke-width="1.4"/></g>`).join('')}</g>`;
+  case 'car': return `<g>${b('#8fb8d8')}<circle r="7" fill="#2a4a63" opacity=".5"/>
+    <g><line y1="-17" y2="-23" stroke="#D6E2F7" stroke-width="2.4"/><path d="M0 -23 l-6 -7 M0 -23 l6 -7" stroke="#D6E2F7" stroke-width="2.4" stroke-linecap="round"/>
+    <circle cx="-6" cy="-30" r="3" fill="#4d8f8b" stroke="#D6E2F7" stroke-width="1.4"/><circle cx="6" cy="-30" r="3" fill="#4d8f8b" stroke="#D6E2F7" stroke-width="1.4"/></g></g>`;
+  case 'brake': return `<g><circle r="15" fill="#cdd6cf" stroke="#D6E2F7" stroke-width="2"/><circle r="5" fill="#D6E2F7" opacity=".3"/>
+    ${[0,60,120].map(a=>`<line transform="rotate(${a})" x1="-15" x2="15" stroke="#D6E2F7" stroke-width="1.2" opacity=".5"/>`).join('')}
+    <path d="M-22 -20 L22 20" stroke="#c5675e" stroke-width="4" stroke-linecap="round"/></g>`;
+  case 'm2': return `<g><path d="M-15 -5 q-5 -9 3 -10 q3 -7 10 -3 q8 -5 12 3 q8 2 4 10 q4 8 -5 10 q-5 7 -12 2 q-9 4 -12 -5 q-7 -2 0 -7 z" fill="#9ec9b0" stroke="#D6E2F7" stroke-width="2"/>
+    <path d="M0 -6 v12 M-6 0 h12" stroke="#D6E2F7" stroke-width="2.6" stroke-linecap="round"/></g>`;
+  default: return b('#cdd6cf');
+ }
+}
+
+const $=i=>document.getElementById(i);
+const EC={activates:'#5CE8A8',makes:'#FFC46B',presents:'#8B6CFF',kills:'#FF6B8A',
+          differentiates:'#8B6CFF',same:'#3BE8FF',evidence:'#3BE8FF'};
+const svg=$('stage'), cam=$('cam');
+let NS=[],RG=[],CN=[],LEVEL='world',V={x:0,y:0,k:.42},SEL=null,HIT=new Set();
+let BACK='world', EGO=null, EGOTAB='paper', NM={}, PC={};
+
+/* ---------- 载入 ---------- */
+(async function boot(){
+  NS=await API.nodes(true);
+  RG=NS.filter(n=>n.type==='region');
+  CN=NS.filter(n=>n.type==='concept'&&n.region&&n.xy);
+  NM=Object.fromEntries(NS.map(n=>[n.id,n]));
+  TOURS=NS.filter(n=>n.type==='tour');
+  /* 每个概念挂了多少篇论文（含 same 桥过来的），画在节点右上角 */
+  const bridge={};
+  for(const n of NS) for(const l of (n.links||[]))
+    if(l.rel==='same'){ (bridge[n.id] ||= []).push(l.to); (bridge[l.to] ||= []).push(n.id); }
+  const direct={};
+  for(const p of NS.filter(n=>n.type==='paper'))
+    for(const l of (p.links||[])) if(l.rel==='about'){ (direct[l.to] ||= new Set()).add(p.id); }
+  for(const id of Object.keys(NM)){
+    const s0=new Set(direct[id]||[]);
+    for(const t of (bridge[id]||[])) for(const q of (direct[t]||[])) s0.add(q);
+    if(s0.size) PC[id]=s0.size;
+  }
+  goWorld(true);
+})();
+
+const kids=pid=>RG.filter(r=>r.parent===pid);
+const G0=id=>RG.find(r=>r.id===id).geo;
+function bboxPts(pts){
+  const xs=pts.map(p=>p[0]), ys=pts.map(p=>p[1]);
+  const x0=Math.min(...xs),x1=Math.max(...xs),y0=Math.min(...ys),y1=Math.max(...ys);
+  return {x:x0,y:y0,w:Math.max(1,x1-x0),h:Math.max(1,y1-y0)};
+}
+/* 下钻时父区自己的概念不能消失，否则跨层的连线全断 —— 把它们排到外圈当锚点 */
+function layoutFor(){
+  if(LEVEL==='world'||LEVEL.startsWith('node:')){
+    const rs=RG.filter(r=>r.level===1);
+    const ns=CN.filter(n=>rs.some(r=>r.id===n.region));
+    return {regions:rs,nodes:ns,pos:Object.fromEntries(ns.map(n=>[n.id,n.xy])),ctx:new Set()};
+  }
+  const ks=kids(LEVEL);
+  const inner=CN.filter(n=>ks.some(r=>r.id===n.region));
+  const own=CN.filter(n=>n.region===LEVEL);
+  const pos={}; inner.forEach(n=>pos[n.id]=n.xy);
+  const b=bboxPts(inner.map(n=>n.xy));
+  const cx=b.x+b.w/2, cy=b.y+b.h/2;
+  const CW=124, CH=100, GAP=26;
+  /* 环带内径：必须把所有子区椭圆整个包在里面，卡片才不会压到子区上 */
+  /* 环带贴着子区的形状走：子区横着铺开，环就是横椭圆，不浪费上下空间 */
+  let RX=b.w/2+CW*0.95, RY=b.h/2+CH*1.45;
+  const perim=(a,c)=>Math.PI*(3*(a+c)-Math.sqrt((3*a+c)*(a+3*c)));
+  const wantLen=own.length*(CW+GAP);
+  if(own.length){ let guard=0;
+    while(perim(RX,RY)<wantLen && guard++<200){ RX*=1.04; RY*=1.04; } }
+  /* 再确认环上任何一点都在所有子区之外 */
+  for(let guard=0;guard<200;guard++){
+    let clash=false;
+    for(let a=0;a<Math.PI*2 && !clash;a+=Math.PI/36){
+      const x=cx+Math.cos(a)*RX, y=cy+Math.sin(a)*RY;
+      for(const r of ks){const g=G0(r.id);
+        if(((x-g.cx)/(g.rx+CW*0.6))**2+((y-g.cy)/(g.ry+CH*0.6))**2<1){clash=true;break}}
+    }
+    if(!clash)break;
+    RX*=1.05; RY*=1.05;
+  }
+  const p=RG.find(r=>r.id===LEVEL);
+  const sorted=own.slice().sort((a,c)=>
+    Math.atan2(a.xy[1]-p.geo.cy,a.xy[0]-p.geo.cx)-Math.atan2(c.xy[1]-p.geo.cy,c.xy[0]-p.geo.cx));
+  const a0=sorted.length? Math.atan2(sorted[0].xy[1]-p.geo.cy,sorted[0].xy[0]-p.geo.cx) : 0;
+  sorted.forEach((n,i)=>{
+    const a=a0+(i/sorted.length)*Math.PI*2;
+    pos[n.id]=[cx+Math.cos(a)*RX, cy+Math.sin(a)*RY];
+  });
+  /* 兜底：谁要是还压到子区椭圆或内层卡片，沿半径继续外推 */
+  const hitsChild=(x,y)=>ks.some(r=>{const g=G0(r.id);
+    for(const dx of [-CW/2,CW/2])for(const dy of [-CH/2,CH/2])
+      if(((x+dx-g.cx)/(g.rx+8))**2+((y+dy-g.cy)/(g.ry+8))**2 < 1) return true;
+    return false;});
+  for(let it=0;it<120;it++){
+    let fix=0;
+    for(const n of sorted){
+      const [x,y]=pos[n.id];
+      let bad=hitsChild(x,y);
+      if(!bad) for(const m of inner){
+        if(Math.abs(x-pos[m.id][0])<CW+14 && Math.abs(y-pos[m.id][1])<CH+12){bad=true;break}
+      }
+      if(!bad) for(const m of sorted){
+        if(m===n)continue;
+        if(Math.abs(x-pos[m.id][0])<CW+10 && Math.abs(y-pos[m.id][1])<CH+8){bad=true;break}
+      }
+      if(bad){ const ang=Math.atan2((y-cy)/(RY/RX),x-cx);
+        pos[n.id]=[x+Math.cos(ang)*12, y+Math.sin(ang)*12*(RY/RX)]; fix++; }
+    }
+    if(!fix)break;
+  }
+  /* 环带的内外边界，用来画那个"上一层"的圈 */
+  const ratio=RY/RX;
+  const rr=sorted.map(n=>Math.hypot((pos[n.id][0]-cx),(pos[n.id][1]-cy)/ratio));
+  const band=sorted.length?{cx,cy,
+    inRx:Math.min(...rr)-CW*0.62, inRy:(Math.min(...rr)-CW*0.62)*ratio,
+    outRx:Math.max(...rr)+CW*0.62, outRy:(Math.max(...rr)+CW*0.62)*ratio}:null;
+  return {regions:ks,nodes:[...inner,...own],pos,ctx:new Set(own.map(n=>n.id)),ring:band};
+}
+const inView=()=>{
+  if(LEVEL.startsWith('node:')) return {regions:[],nodes:[]};
+  if(LEVEL==='world'){
+    const rs=RG.filter(r=>r.level===1);
+    return {regions:rs, nodes:CN.filter(n=>rs.some(r=>r.id===n.region))};
+  }
+  const ks=kids(LEVEL);
+  return {regions:ks, nodes:CN.filter(n=>ks.some(r=>r.id===n.region))};
+};
+
+/* ---------- 绘制 ---------- */
+function draw(){
+  if(LEVEL.startsWith('node:')) return drawEgo(LEVEL.slice(5));
+  $('pl').classList.remove('on');
+  const {regions,nodes,pos,ctx,ring}=layoutFor();
+  const nm=Object.fromEntries(nodes.map(n=>[n.id,n]));
+
+  $('gRg').innerHTML=regions.map(r=>{
+    const g=r.geo;
+    const d=r.drill?`<g class="drill" data-drill="${r.id}"
+        transform="translate(${g.cx+g.rx*.68},${g.cy-g.ry*.68})">
+        <circle r="17"/><text y="5">＋</text>
+        <text class="cap" y="34" text-anchor="middle">点这里进去 →</text></g>`:'';
+    return `<g ${r.drill?`data-rg="${r.id}" style="cursor:zoom-in"`:''}>
+      <ellipse class="rg-fill" cx="${g.cx}" cy="${g.cy}" rx="${g.rx}" ry="${g.ry}" fill="${r.color}"/>
+      <ellipse class="rg-ring" cx="${g.cx}" cy="${g.cy}" rx="${g.rx}" ry="${g.ry}" stroke="${r.color}"/>
+      <text class="rg-name" x="${g.cx}" y="${g.cy-g.ry+2}" fill="${r.color}">${API.esc(r.title)}</text>
+      <text class="rg-en" x="${g.cx}" y="${g.cy-g.ry+20}" fill="${r.color}">${API.esc(r.en)}</text>
+      <text class="rg-sub" x="${g.cx}" y="${g.cy-g.ry+40}">${API.esc(r.body||'')}</text></g>`+d;
+  }).join('') + (ring?`
+     <path class="ctx-band" fill-rule="evenodd" d="
+       M${ring.cx-ring.outRx},${ring.cy}
+       a${ring.outRx},${ring.outRy} 0 1,0 ${ring.outRx*2},0
+       a${ring.outRx},${ring.outRy} 0 1,0 ${-ring.outRx*2},0 Z
+       M${ring.cx-ring.inRx},${ring.cy}
+       a${ring.inRx},${ring.inRy} 0 1,0 ${ring.inRx*2},0
+       a${ring.inRx},${ring.inRy} 0 1,0 ${-ring.inRx*2},0 Z"/>
+     <ellipse class="ctx-ring" cx="${ring.cx}" cy="${ring.cy}" rx="${ring.outRx}" ry="${ring.outRy}"/>
+     <ellipse class="ctx-ring" cx="${ring.cx}" cy="${ring.cy}" rx="${ring.inRx}" ry="${ring.inRy}"/>
+     <text class="ctx-lab" x="${ring.cx}" y="${ring.cy-ring.outRy+26}">上一层 · ${
+       API.esc(RG.find(r=>r.id===LEVEL)?.title||'')}的其他概念（点了也能看讲解）</text>`:'');
+
+  const ed=[];
+  for(const n of nodes) for(const l of (n.links||[])){
+    const t=nm[l.to]; if(!t) continue;
+    const [x1,y1]=pos[n.id],[x2,y2]=pos[l.to];
+    const mx=(x1+x2)/2, my=(y1+y2)/2, dx=x2-x1, dy=y2-y1;
+    const c=EC[l.rel]||'#7d8ba6';
+    ed.push(`<path class="ed" data-a="${n.id}" data-b="${l.to}" stroke="${c}"
+      d="M${x1},${y1} Q${mx-dy*.09},${my+dx*.09} ${x2},${y2}"/>`);
+  }
+  $('gEd').innerHTML=ed.join('');
+
+  const RC=Object.fromEntries(RG.map(r=>[r.id,r.color]));
+  $('gNd').innerHTML=nodes.map(n=>{
+    const np=PC[n.id]||0, W=124, H=100;
+    const zh=n.title.length>9?n.title.slice(0,9)+'…':n.title;
+    const en=(n.en||'').length>19?(n.en||'').slice(0,18)+'…':(n.en||'');
+    return `<g class="nd ${ctx.has(n.id)?'ctx':''}" data-id="${n.id}"
+        transform="translate(${pos[n.id][0]},${pos[n.id][1]})">
+      <rect x="${-W/2}" y="${-H/2}" width="${W}" height="${H}"/>
+      <rect class="bar" x="${-W/2}" y="${-H/2}" width="${W}" height="7"
+        fill="${RC[n.region]||'#3BE8FF'}"/>
+      <g transform="translate(0,-8) scale(.92)">${gly(n.glyph)}</g>
+      <text class="zh" y="29">${API.esc(zh)}</text>
+      <text class="en" y="42">${API.esc(en)}</text>
+      ${np?`<g transform="translate(${W/2-13},${-H/2+18})"><circle class="pb" r="10"/>
+        <text class="pbt" y="3.5">${np>99?'99+':np}</text></g>`:''}</g>`;
+  }).join('');
+  applyHit(); apply();
+  if(TR&&TR.steps[TI]){const g=document.querySelector(`.nd[data-id="${TR.steps[TI].id}"]`);
+    if(g)g.classList.add('spot');}
+  $('lv').textContent=`${regions.length} 区 · ${nodes.length} 点 · ${ed.length} 边`
+    +(ctx.size?` · 含 ${ctx.size} 个上层锚点`:'');
+  const cur=LEVEL==='world'?null:RG.find(r=>r.id===LEVEL);
+  $('crumb').innerHTML=cur
+    ? `<button class="bk" id="bk">← 免疫全景</button><b>${API.esc(cur.title)}</b>
+       <span style="opacity:.6">${API.esc(cur.en)}</span>`
+    : `<b>免疫宇宙</b><span style="opacity:.6">IMMUNE UNIVERSE · 缩放即层级</span>`;
+  if($('bk'))$('bk').onclick=()=>goWorld();
+}
+const TYPE_ZH={concept:'概念',instrument:'仪器',reagent:'试剂',protocol:'流程',
+  question:'问题',idea:'想法',person:'人',paper:'论文',region:'园区',run:'实验',task:'待办'};
+function neighbours(id){
+  const n=NM[id]; if(!n)return[];
+  const seen=new Map();
+  for(const l of (n.links||[])) if(NM[l.to]) seen.set(l.to,{n:NM[l.to],rel:l.note||l.rel,dir:'out'});
+  for(const x of NS) for(const l of (x.links||[]))
+    if(l.to===id&&!seen.has(x.id)) seen.set(x.id,{n:x,rel:l.note||l.rel,dir:'in'});
+  return [...seen.values()];
+}
+function drawEgo(id){
+  const c=NM[id]; if(!c){goWorld();return}
+  EGO=c;
+  const nb=neighbours(id);
+  /* 论文顺着 same 桥一起拉过来：两层是同一件事，不该只有一边有论文 */
+  const twins=nb.filter(x=>x.rel==='same'||x.rel==='另一层的同一件事'||x.rel==='另一层的同一个概念')
+                .map(x=>x.n.id);
+  const pm=new Map();
+  for(const x of nb) if(x.n.type==='paper') pm.set(x.n.id,{n:x.n,via:''});
+  for(const t of twins) for(const y of neighbours(t))
+    if(y.n.type==='paper'&&!pm.has(y.n.id)) pm.set(y.n.id,{n:y.n,via:NM[t]?.title||''});
+  const papers=[...pm.values()].sort((a,b)=>(b.n.cites||0)-(a.n.cites||0));
+  const rest=nb.filter(x=>x.n.type!=='paper'&&x.n.type!=='person'&&x.n.type!=='region');
+  /* 卫星按类型分组，环形排布 */
+  const order=['concept','protocol','instrument','reagent','question','idea','run'];
+  rest.sort((a,b)=>order.indexOf(a.n.type)-order.indexOf(b.n.type));
+  const R1=340, R2=540, per=Math.min(rest.length,14);
+  const pos=rest.map((x,i)=>{
+    const inner=i<per;
+    const idx=inner?i:i-per, cnt=inner?per:Math.max(1,rest.length-per);
+    const a=-Math.PI/2 + (idx+.5)/cnt*Math.PI*2;
+    const R=inner?R1:R2;
+    return {...x, x:Math.cos(a)*R, y:Math.sin(a)*R};
+  });
+  $('gRg').innerHTML=`<circle class="ego-r" cx="0" cy="0" r="${R1}"/>
+    ${rest.length>per?`<circle class="ego-r" cx="0" cy="0" r="${R2}"/>`:''}`;
+  $('gEd').innerHTML=pos.map(p=>{
+    const col=EC[p.rel]||'rgba(126,178,255,.45)';
+    return `<path class="ed" stroke="${col}" d="M0,0 L${p.x},${p.y}"/>
+      <text class="ego-lab" x="${p.x*.56}" y="${p.y*.56-3}">${API.esc(p.rel).slice(0,14)}</text>`;
+  }).join('');
+  const mp=(c.fields&&c.fields.mp)||'';
+  $('gNd').innerHTML=`<g class="ego-c"><rect x="-172" y="-58" width="344" height="116"/>
+      <text class="zh" y="-14">${API.esc(c.title)}</text>
+      <text class="en" y="6">${API.esc(c.en||'')}</text>
+      <text class="mp" y="32">${API.esc(mp.slice(0,26))}${mp.length>26?'…':''}</text></g>`
+    + pos.map(p=>{
+      const w=Math.max(104,Math.min(210,(p.n.title.length+2)*13));
+      const W=124,H=100, zh=p.n.title.length>9?p.n.title.slice(0,9)+'…':p.n.title;
+      return `<g class="nd" data-ego="${p.n.id}" transform="translate(${p.x},${p.y})">
+        <rect x="${-W/2}" y="${-H/2}" width="${W}" height="${H}"/>
+        <g transform="translate(0,-8) scale(.92)">${gly(p.n.glyph)}</g>
+        <text class="zh" y="29">${API.esc(zh)}</text>
+        <text class="en" y="42">${API.esc(TYPE_ZH[p.n.type]||p.n.type)}</text></g>`;
+    }).join('');
+  $('gDrill').innerHTML='';
+  const cur=RG.find(r=>r.id===c.region);
+  $('crumb').innerHTML=`<button class="bk" id="bk">← ${API.esc(cur?cur.title:'全景')}</button>
+    <b>${API.esc(c.title)}</b><span style="opacity:.6">${API.esc(c.en||'')}</span>`;
+  $('bk').onclick=()=>{const b=BACK; LEVEL='world'; b==='world'?goWorld():drillInto(b)};
+  $('lv').textContent=`${rest.length} 个关联 · ${papers.length} 篇论文`;
+  fitEgo(rest.length>per?R2:R1);
+  /* 右侧论文/关联面板 */
+  EGO._papers=papers.map(x=>({...x.n,_via:x.via})); EGO._rest=rest.map(x=>x.n);
+  $('plh').textContent=c.title;
+  drawPanel();
+  $('pl').classList.add('on');
+}
+function fitEgo(R){
+  const k=Math.min((innerWidth-460-80)/(R*2+300),(innerHeight-160)/(R*2+180));
+  V={k:Math.max(.2,Math.min(1.1,k)),
+     x:(innerWidth-430)/2-0*k, y:innerHeight/2+18};
+  V.x=(innerWidth-430)/2; V.y=innerHeight/2+18; apply();
+}
+function drawPanel(){
+  const c=EGO; if(!c)return;
+  const tabs=[['paper','论文 '+c._papers.length],['rel','关联 '+c._rest.length]];
+  $('pltabs').innerHTML=tabs.map(([k,l])=>
+    `<button data-t="${k}" class="${EGOTAB===k?'on':''}">${l}</button>`).join('');
+  const q=$('plq').value.trim().toLowerCase();
+  const list=EGOTAB==='paper'
+    ? c._papers.filter(p=>!q||((p.title||'')+(p.venue||'')+(p.year||'')).toLowerCase().includes(q))
+        .sort((a,b)=>((b.tags||[]).includes('我给的')-(a.tags||[]).includes('我给的'))
+                   ||((b.file?1:0)-(a.file?1:0))||((b.cites||0)-(a.cites||0)))
+    : c._rest.filter(n=>!q||(n.title+(n.en||'')).toLowerCase().includes(q));
+  $('plls').innerHTML=list.length?list.map(n=>EGOTAB==='paper'
+    ? `<div class="pp" data-p="${n.id}"><div class="t">${(n.tags||[]).includes('我给的')?'<span class="mine">我给的</span> ':''}${API.esc(n.title)}</div>
+        <div class="m"><span>${n.year||''}</span><span>${API.esc((n.venue||'').slice(0,40))}</span>
+        <span class="cy">${n.cites||0} 引</span><span class="st">${'★'.repeat(n.star||0)}</span>
+        ${n._via?`<span style="opacity:.6">经 ${API.esc(n._via)}</span>`:''}
+        <span class="go">${n.file?'打开阅读器 →':'去阅读器 →'}</span>
+        ${n.file?'<span>有 PDF</span>':''}${n.read>=2?'<span>已读</span>':''}</div></div>`
+    : `<div class="pp" data-ego="${n.id}"><div class="t">${API.esc(n.title)}</div>
+        <div class="m"><span>${TYPE_ZH[n.type]||n.type}</span><span>${API.esc(n.en||'')}</span></div></div>`
+  ).join('') : '<div class="empty">没有</div>';
+}
+/* 讲解弹出后，把这个点挪到左半边可见区中央 */
+function centerFor(n){
+  if(LEVEL.startsWith('node:'))return;
+  const {nodes,pos}=layoutFor(); if(!pos[n.id])return;
+  const dw=$('dr').classList.contains('on')?Math.min(468,innerWidth*.94):0;
+  const cx=(innerWidth-dw)/2, cy=innerHeight/2;
+  fly({k:V.k, x:cx-pos[n.id][0]*V.k, y:cy-pos[n.id][1]*V.k},420);
+}
+function apply(){ cam.setAttribute('transform',`translate(${V.x},${V.y}) scale(${V.k})`); }
+
+/* ---------- 视图 ---------- */
+function fit(box,pad=90){
+  const w=innerWidth,h=innerHeight;
+  const k=Math.min((w-pad*2)/box.w,(h-pad*2-60)/box.h);
+  return {k,x:w/2-(box.x+box.w/2)*k,y:h/2+30-(box.y+box.h/2)*k};
+}
+function bbox(rs){
+  const x0=Math.min(...rs.map(r=>r.geo.cx-r.geo.rx)), x1=Math.max(...rs.map(r=>r.geo.cx+r.geo.rx));
+  const y0=Math.min(...rs.map(r=>r.geo.cy-r.geo.ry)), y1=Math.max(...rs.map(r=>r.geo.cy+r.geo.ry));
+  return {x:x0,y:y0,w:x1-x0,h:y1-y0};
+}
+let anim=null,flyTmr=null,flyDone=null;
+function fly(to,ms=560,after){
+  cancelAnimationFrame(anim); clearTimeout(flyTmr);
+  const f={...V}, t0=performance.now(); let done=false;
+  const land=()=>{ if(done)return; done=true; V={...to}; apply(); after&&after(); };
+  (function step(t){
+    if(done)return;
+    const p=Math.min(1,(t-t0)/ms), e=1-Math.pow(1-p,3);
+    V={x:f.x+(to.x-f.x)*e, y:f.y+(to.y-f.y)*e, k:f.k+(to.k-f.k)*e};
+    apply(); if(p<1) anim=requestAnimationFrame(step); else land();
+  })(t0);
+  /* 标签页在后台时 rAF 会被冻住，兜底直接落位 */
+  flyTmr=setTimeout(land, ms+140);
+}
+function goWorld(instant){
+  flushNote(); $('pl').classList.remove('on'); LEVEL='world'; draw();
+  const t=fit(bbox(RG.filter(r=>r.level===1)));
+  instant?(V=t,apply()):fly(t);
+}
+function drillInto(rid){
+  const ks=kids(rid); if(!ks.length)return;
+  const r=RG.find(x=>x.id===rid);
+  /* 先飞到父区，再换层，视觉上像一路放大进去 */
+  fly(fit({x:r.geo.cx-r.geo.rx,y:r.geo.cy-r.geo.ry,w:r.geo.rx*2,h:r.geo.ry*2},40),380,()=>{
+    LEVEL=rid; draw();
+    const {nodes,pos}=layoutFor();
+    fly(fit(bboxPts(nodes.map(n=>pos[n.id])),70),520);
+  });
+}
+
+/* ---------- 交互 ---------- */
+const pts=new Map(); let pan=null,pinch=null,moved=0,down=null,downEl=null,captured=false,lastTap=0,lastTapId='';
+svg.addEventListener('pointerdown',e=>{
+  pts.set(e.pointerId,e); moved=0; downEl=e.target;   /* 先不捕获，否则 click 目标会被改成整张 svg */
+  if(pts.size===2){const[a,b]=[...pts.values()];
+    pinch={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),
+      cx:(a.clientX+b.clientX)/2,cy:(a.clientY+b.clientY)/2,...V}; pan=null; return;}
+  pan={x:e.clientX,y:e.clientY,vx:V.x,vy:V.y}; down={x:e.clientX,y:e.clientY};
+  svg.classList.add('drag');
+});
+svg.addEventListener('pointermove',e=>{
+  if(!pts.has(e.pointerId))return; pts.set(e.pointerId,e);
+  if(pinch&&pts.size>=2){const[a,b]=[...pts.values()];
+    const d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+    const mx=(a.clientX+b.clientX)/2,my=(a.clientY+b.clientY)/2;
+    const k=Math.min(4,Math.max(.12,pinch.k*d/pinch.d));
+    V.x=mx-(pinch.cx-pinch.x)*(k/pinch.k); V.y=my-(pinch.cy-pinch.y)*(k/pinch.k); V.k=k;
+    apply(); autoLevel(); return;}
+  if(pan){ if(down) moved=Math.hypot(e.clientX-down.x,e.clientY-down.y);
+    if(!captured&&moved>4){ try{svg.setPointerCapture(e.pointerId)}catch(_){}; captured=true; }
+    V.x=pan.vx+e.clientX-pan.x; V.y=pan.vy+e.clientY-pan.y; apply();}
+});
+const up=e=>{
+  const wasPan=!!pan;
+  pts.delete(e.pointerId); if(pts.size<2)pinch=null;
+  if(!pts.size){pan=null;captured=false;svg.classList.remove('drag')}
+  if(wasPan&&moved<=9) activate(downEl,e.clientX,e.clientY);
+  downEl=null;
+};
+svg.addEventListener('pointerup',up); svg.addEventListener('pointercancel',up);
+svg.addEventListener('wheel',e=>{e.preventDefault();
+  if(e.ctrlKey||e.metaKey||Math.abs(e.deltaY)>Math.abs(e.deltaX)*2){
+    const k=Math.min(4,Math.max(.12,V.k*(1-e.deltaY*.0016)));
+    V.x=e.clientX-(e.clientX-V.x)*(k/V.k); V.y=e.clientY-(e.clientY-V.y)*(k/V.k); V.k=k;
+  } else {V.x-=e.deltaX; V.y-=e.deltaY;}
+  apply(); autoLevel();
+},{passive:false});
+
+/* 放大越过阈值自动下钻，缩小越过阈值自动回全景 */
+let lock=0;
+/* 缩放只是缩放。换层一律靠点击 —— 放大到一半被弹走很烦。 */
+function autoLevel(){}
+$('zi').onclick=()=>{const k=Math.min(4,V.k*1.35);
+  V.x=innerWidth/2-(innerWidth/2-V.x)*(k/V.k);V.y=innerHeight/2-(innerHeight/2-V.y)*(k/V.k);V.k=k;apply();autoLevel()};
+$('zo').onclick=()=>{const k=Math.max(.12,V.k/1.35);
+  V.x=innerWidth/2-(innerWidth/2-V.x)*(k/V.k);V.y=innerHeight/2-(innerHeight/2-V.y)*(k/V.k);V.k=k;apply();autoLevel()};
+$('zf').onclick=()=>{
+  if(LEVEL.startsWith('node:'))return draw();
+  const {nodes,pos}=layoutFor();
+  fly(fit(bboxPts(nodes.map(n=>pos[n.id])),70));};
+
+/* 坐标反查：即使事件目标被指针捕获改写，也能找回真正点到的方块 */
+function atPoint(x,y){
+  const el=document.elementFromPoint(x,y);
+  return el||document.body;
+}
+let lastAct=0;
+function activate(t,x,y){
+  const now=performance.now();
+  if(now-lastAct<120)return;          // 同一次点击别触发两遍
+  lastAct=now;
+  if((!t||!t.closest||!t.closest('.nd,[data-ego],[data-drill],[data-rg]'))&&x!=null)
+    t=atPoint(x,y);
+  if(!t||!t.closest)return;
+  _activate(t);
+}
+function _activate(t){
+  const d=t.closest('[data-drill]'); if(d){drillInto(d.dataset.drill);return}
+  const eg=t.closest('[data-ego]'); if(eg){enterEgo(eg.dataset.ego);return}
+  const n=t.closest('.nd');
+  if(n){
+    const id=n.dataset.id, now=performance.now();
+    if(id===lastTapId && now-lastTap<380){ lastTap=0; lastTapId=''; enterEgo(id); return; }
+    lastTap=now; lastTapId=id; openNode(id); return;
+  }
+  const rg=t.closest('[data-rg]');
+  if(rg&&LEVEL==='world'&&kids(rg.dataset.rg).length){drillInto(rg.dataset.rg);return}
+}
+svg.addEventListener('click',e=>{
+  if(moved>9)return;
+  activate(e.target,e.clientX,e.clientY);
+});
+svg.addEventListener('dblclick',e=>{
+  const n=(downEl||e.target).closest?.('.nd'); if(n&&n.dataset.id)enterEgo(n.dataset.id);
+});
+svg.addEventListener('mousemove',e=>{
+  const n=e.target.closest('.nd');
+  document.querySelectorAll('.ed').forEach(p=>p.classList.remove('on'));
+  if(!n){$('tip').style.opacity=0;return}
+  const nd=CN.find(x=>x.id===n.dataset.id);
+  document.querySelectorAll(`.ed[data-a="${nd.id}"],.ed[data-b="${nd.id}"]`)
+    .forEach(p=>p.classList.add('on'));
+  const t=$('tip');
+  t.textContent=(nd.fields?.mp||nd.fields?.one||nd.body||'').replace(/\*\*/g,'').slice(0,96);
+  t.style.left=Math.min(e.clientX+14,innerWidth-280)+'px';
+  t.style.top=(e.clientY+16)+'px'; t.style.opacity=1;
+});
+
+/* ---------- 搜索：跨两层 ---------- */
+$('q').oninput=e=>{
+  const q=e.target.value.trim().toLowerCase();
+  HIT=new Set(); if(!q){applyHit();return}
+  for(const n of CN) if((n.title+n.en+(n.body||'')).toLowerCase().includes(q)) HIT.add(n.id);
+  applyHit();
+  /* 命中不在当前层时，跳到命中最多的那一层 */
+  const {nodes}=inView();
+  if(HIT.size&&!nodes.some(n=>HIT.has(n.id))){
+    const cnt={};
+    for(const id of HIT){const n=CN.find(x=>x.id===id);
+      const r=RG.find(x=>x.id===n.region); const key=r.level===1?'world':r.parent;
+      cnt[key]=(cnt[key]||0)+1;}
+    const best=Object.entries(cnt).sort((a,b)=>b[1]-a[1])[0][0];
+    lock=performance.now()+1400;
+    best==='world'?goWorld():drillInto(best);
+  }
+};
+function applyHit(){
+  document.querySelectorAll('.nd').forEach(g=>{
+    g.classList.toggle('hit',HIT.has(g.dataset.id));
+    g.classList.toggle('dim',HIT.size>0&&!HIT.has(g.dataset.id));
+  });
+}
+
+/* ---------- 详情 ---------- */
+const TZH={concept:'概念',paper:'论文',instrument:'仪器',reagent:'试剂',protocol:'流程',
+  person:'人',question:'问题',idea:'想法',region:'园区'};
+let ntmr=null, PEND=null;      /* PEND = {id, v} 还没写进服务器的草稿 */
+const noteKey=id=>'lab.note.'+id;
+async function flushNote(){
+  if(!PEND)return;
+  const {id,v}=PEND; PEND=null; clearTimeout(ntmr);
+  const n=NM[id]; if(!n)return;
+  try{
+    n.note=v; await API.save(n);
+    try{ localStorage.removeItem(noteKey(id)); }catch(e){}
+    if(SEL&&SEL.id===id&&$('nsv'))
+      $('nsv').textContent='已保存 '+new Date().toLocaleTimeString('zh-CN',{hour:'2-digit',minute:'2-digit'});
+  }catch(e){
+    PEND={id,v};                                   /* 存不进去就留着，别丢 */
+    try{ localStorage.setItem(noteKey(id),v); }catch(_){}
+    if($('nsv'))$('nsv').textContent='存不进服务器，已留在本机 · 服务开着再改一个字就会重试';
+  }
+}
+/* 关页面/切走之前兜底 */
+addEventListener('beforeunload',()=>{ if(!PEND)return;
+  try{ localStorage.setItem(noteKey(PEND.id),PEND.v);
+    navigator.sendBeacon('/api/nodes', new Blob([JSON.stringify({...NM[PEND.id],note:PEND.v})],
+      {type:'application/json'})); }catch(e){}
+});
+addEventListener('visibilitychange',()=>{ if(document.hidden)flushNote(); });
+async function openNode(id){
+  await flushNote();                     /* 换节点前先把上一条存了，别被重绘吃掉 */
+  const n=NM[id]; if(!n)return; SEL=n;
+  const nm=NM;
+  $('drt').textContent=TZH[n.type]||n.type; $('drt').className='chip t-'+n.type;
+  $('drh').textContent=n.title; $('dre').textContent=n.en||'';
+  const out=(n.links||[]).filter(l=>nm[l.to]);
+  const inc=NS.filter(x=>(x.links||[]).some(l=>l.to===n.id));
+  const r=RG.find(x=>x.id===n.region);
+  const FD=[['one','一句话 IN ONE LINE'],['fp','第一性原理 FIRST PRINCIPLES'],['mp','比喻 THE METAPHOR'],
+            ['see','看什么 WHAT IT SEES'],['act','做什么 WHAT IT DOES'],
+            ['mol','关键分子与数字 KEY FACTS'],['reg','调控与背景 CONTEXT'],
+            ['trap','关键洞察 · 易错点 KEY INSIGHT']];
+  const f=n.fields||{};
+  let h=`<div class="chip" style="margin-bottom:10px">${API.esc(r?r.title:'')}</div>`;
+  if(n.figsrc) h+=`<div class="fig3"><div class="cap">立体动图 · 拖着转 · 滚轮缩放
+     <span style="float:right">
+     <button id="figbig" class="figbtn">放大 ⤢</button>
+     <button id="figfs" class="figbtn">全屏 ⛶</button>
+     <button id="figx" class="figbtn" style="color:#FF8FA3;border-color:rgba(255,143,163,.3);background:rgba(255,143,163,.1)">关掉 ✕</button>
+     </span></div>
+     <iframe id="figframe" src="${String(n.figsrc).replace(/^\/?lab\/web\//,'')}" height="${n.figh||360}" loading="lazy"></iframe></div>`;
+  if(n.fig) h+=`<div class="fig"><div class="cap">一图看懂 AT A GLANCE</div>${n.fig}</div>`;
+  const cards=FD.filter(([k])=>f[k]).map(([k,lab])=>
+    `<div class="fd ${k}"><div class="k">${lab}</div><div class="v">${API.md(f[k])}</div></div>`).join('');
+  h+= cards || `<div class="fd"><div class="v">${API.md(n.body||'—')}</div></div>`;
+  if(out.length) h+=`<div class="label" style="margin:15px 0 5px">指向 ${out.length}</div><div class="lk">`+
+    out.map(l=>`<a data-go="${l.to}">${API.esc(nm[l.to].title)}<span style="opacity:.5"> ${API.esc(l.note||l.rel)}</span></a>`).join('')+'</div>';
+  if(inc.length) h+=`<div class="label" style="margin:15px 0 5px">被指向 ${inc.length}</div><div class="lk">`+
+    inc.map(x=>`<a data-go="${x.id}">${API.esc(x.title)}</a>`).join('')+'</div>';
+  h+=`<div class="fd note"><div class="k">我的笔记 MY NOTES</div>
+     <textarea id="nt" placeholder="想到什么就写 —— 自动存，切走、刷新、关页面都不会丢。">${
+       API.esc((()=>{ try{ return localStorage.getItem(noteKey(n.id)) ?? (n.note||''); }
+                      catch(e){ return n.note||''; } })())}</textarea>
+     <div style="font-size:11px;color:var(--muted);margin-top:6px" id="nsv"></div></div>`;
+  const nb=neighbours(n.id);
+  h=`<button class="btn pri" id="goego" style="width:100%;justify-content:center;margin-bottom:12px">
+       展开关系网 ⤢ &nbsp;<span style="opacity:.7">${nb.length} 个关联 · ${nb.filter(x=>x.n.type==='paper').length} 篇论文</span>
+     </button>`+h;
+  $('drb').innerHTML=h; $('dr').classList.add('on');
+  const ge=$('goego'); if(ge) ge.onclick=()=>enterEgo(n.id);
+  const fb=$('figbig'); if(fb) fb.onclick=()=>{
+    const f=$('figframe'); const big=f.style.height==='72vh';
+    f.style.height=big?'':'72vh'; fb.textContent=big?'放大 ⤢':'收起 ⤡'; };
+  const wrap=document.querySelector('.fig3'), ffs=$('figfs'), fx=$('figx');
+  const exitFS=()=>{ if(!wrap)return; wrap.classList.remove('fs');
+    if(ffs)ffs.textContent='全屏 ⛶'; if(fb)fb.style.display=''; };
+  if(ffs) ffs.onclick=()=>{
+    const on=wrap.classList.toggle('fs');
+    ffs.textContent=on?'退出全屏 ⤡':'全屏 ⛶';
+    if(fb)fb.style.display=on?'none':'';   /* 全屏了就没必要再有半屏放大 */
+  };
+  if(fx) fx.onclick=()=>{ exitFS(); wrap.remove(); };
+  document.addEventListener('keydown',function esc(e){
+    if(e.key==='Escape'&&wrap&&wrap.classList.contains('fs')){e.stopPropagation();exitFS();}
+    if(!document.body.contains(wrap))document.removeEventListener('keydown',esc);
+  },true);
+  centerFor(n);
+  const nt=$('nt');
+  if(nt){
+    const stash=v=>{ PEND={id:n.id,v};
+      try{ localStorage.setItem(noteKey(n.id),v); }catch(e){}   /* 先落本机，再慢慢写服务器 */
+      $('nsv').textContent='写着…'; };
+    nt.oninput=ev=>{ clearTimeout(ntmr); stash(ev.target.value);
+      ntmr=setTimeout(flushNote,400); };
+    nt.onblur=()=>flushNote();
+    nt.onkeydown=ev=>{ if((ev.metaKey||ev.ctrlKey)&&ev.key.toLowerCase()==='s'){
+      ev.preventDefault(); stash(nt.value); flushNote(); } };
+    /* 本机草稿比服务器新，提示一下 */
+    try{ const local=localStorage.getItem(noteKey(n.id));
+      if(local!=null&&local!==(n.note||'')){ PEND={id:n.id,v:local};
+        $('nsv').textContent='有一份还没同步的草稿，正在写回…'; flushNote(); } }catch(e){}
+  }
+}
+function enterEgo(id){
+  if(!LEVEL.startsWith('node:')) BACK=LEVEL;
+  $('dr').classList.remove('on');
+  LEVEL='node:'+id; EGOTAB='paper'; $('plq').value=''; draw();
+}
+$('pltabs').onclick=e=>{const b=e.target.closest('[data-t]'); if(b){EGOTAB=b.dataset.t;drawPanel()}};
+$('plq').oninput=drawPanel;
+$('plx').onclick=()=>{const b=BACK; b==='world'?goWorld():drillInto(b)};
+$('plls').onclick=e=>{
+  const eg=e.target.closest('[data-ego]'); if(eg){enterEgo(eg.dataset.ego);return}
+  const p=e.target.closest('[data-p]');
+  if(p){ if(e.altKey){openNode(p.dataset.p);return}
+    parent.postMessage({lab:'openPaper',id:p.dataset.p},'*'); }
+};
+$('drx').onclick=()=>{flushNote();$('dr').classList.remove('on')};
+$('drb').onclick=e=>{const a=e.target.closest('[data-go]'); if(!a)return;
+  const t=NS.find(x=>x.id===a.dataset.go);
+  if(t&&t.region){ const r=RG.find(x=>x.id===t.region);
+    const want=r.level===1?'world':r.parent;
+    if(want!==LEVEL){lock=performance.now()+1400; want==='world'?goWorld():drillInto(want);
+      setTimeout(()=>openNode(t.id),900); return;} }
+  openNode(a.dataset.go);
+};
+/* ================= 场景巡游 ================= */
+let TOURS=[], TR=null, TI=0, playT=null;
+let TCAT='全部', TALL=false;
+/* 一个站点属于哪一层 */
+function layerOf(id){
+  let n=NM[id]; if(!n)return 'world';
+  if(!n.region) n=(n.links||[]).map(l=>NM[l.to]).find(x=>x&&x.region)||n;
+  if(!n.region)return 'world';
+  const r=RG.find(x=>x.id===n.region);
+  return r? (r.level===1?'world':r.parent) : 'world';
+}
+function tourScope(t){
+  const c={}; for(const st of t.steps){const k=layerOf(st.id); c[k]=(c[k]||0)+1;}
+  return c;
+}
+function tourList(){
+  TOURS=NS.filter(n=>n.type==='tour');
+  const here=LEVEL.startsWith('node:')?null:LEVEL;
+  const nodeId=LEVEL.startsWith('node:')?LEVEL.slice(5):null;
+  let list=TOURS, scopeTxt='';
+  if(TALL||here==='world'){
+    scopeTxt=here==='world'
+      ? '在<b>免疫全景</b>，13 条路线全给你，可以按分类筛'
+      : '正在看<b>全部路线</b>';
+  } else if(nodeId){
+    list=TOURS.filter(t=>t.steps.some(st=>st.id===nodeId));
+    scopeTxt=`只显示经过<b>${API.esc(NM[nodeId]?.title||'')}</b>的路线`;
+  } else {
+    /* 二级层：只留在这一层有站的路线，按站数排 */
+    list=TOURS.map(t=>({t,n:tourScope(t)[here]||0})).filter(x=>x.n>0)
+              .sort((a,b)=>b.n-a.n).map(x=>x.t);
+    scopeTxt=`只显示走过<b>${API.esc(RG.find(r=>r.id===here)?.title||'')}</b>的路线`;
+  }
+  $('tlscope').innerHTML=scopeTxt+
+    (here==='world'&&!TALL?'':'<button id="tlall">'+(TALL?'← 回到本层':'看全部 13 条')+'</button>');
+  if($('tlall'))$('tlall').onclick=()=>{TALL=!TALL;TCAT='全部';tourList()};
+
+  const showCats=(TALL||here==='world');
+  $('tlcats').classList.toggle('off',!showCats);
+  if(showCats){
+    const cats=['全部',...new Set(list.map(t=>t.cat))];
+    $('tlcats').innerHTML=cats.map(c=>`<button data-tc="${c}" class="${TCAT===c?'on':''}">${c}${
+      c==='全部'?' '+list.length:' '+list.filter(t=>t.cat===c).length}</button>`).join('');
+    if(TCAT!=='全部')list=list.filter(t=>t.cat===TCAT);
+  }
+  if(!list.length){ $('tlls').innerHTML='<div class="empty">这一层没有专门的路线。<br>点上面「看全部 13 条」。</div>'; return; }
+  const by={};
+  for(const t of list)(by[t.cat] ||= []).push(t);
+  let html=Object.entries(by).map(([c,ts])=>
+    `<div class="cat">${API.esc(c)}</div>`+ts.map(t=>{
+      const sc=tourScope(t), n=here&&here!=='world'?(sc[here]||0):0;
+      return `<div class="tr" data-t="${t.id}">
+      ${t.once?'<button class="del" data-del="'+t.id+'" title="走完就删">🗑</button>':''}
+      <div class="t">${t.once?'<span class="once">一次性</span>':''}${API.esc(t.title)}</div>
+      <div class="s">${API.esc(t.body||'')}</div>
+      <div class="n">${t.steps.length} 站${n?` · 其中 ${n} 站在这一层`:''} · 点开始走</div></div>`;
+    }).join('')).join('');
+  /* 自测区，排在巡游下面 */
+  const qs=NS.filter(n=>n.type==='quiz');
+  if(qs.length) html+=`<div class="cat">自测 SELF-CHECK</div>`+qs.map(q=>
+    `<div class="tr" data-q="${q.id}">
+      ${q.once?'<button class="del" data-del="'+q.id+'" title="用完就删">🗑</button>':''}
+      <div class="t">${q.once?'<span class="once">一次性</span>':''}${API.esc(q.title)}</div>
+      <div class="s">${API.esc(q.body||'')}</div>
+      <div class="n">${(q.items||[]).length} 题 · 点开始测</div></div>`).join('');
+  $('tlls').innerHTML=html;
+}
+
+$('tourbtn').onclick=()=>{ TALL=false; TCAT='全部'; tourList(); $('tl').classList.add('on'); };
+$('tlx').onclick=()=>$('tl').classList.remove('on');
+$('tlcats').onclick=e=>{const b=e.target.closest('[data-tc]'); if(b){TCAT=b.dataset.tc; tourList()}};
+$('tlls').onclick=async e=>{
+  const d=e.target.closest('[data-del]');
+  if(d){ e.stopPropagation();
+    const n=NM[d.dataset.del];
+    if(confirm('删掉「'+(n?n.title:'')+'」？\n知识点都留在术语表和图里，删的只是这条流程。')){
+      await API.remove(d.dataset.del); NS=await API.nodes(true);
+      NM=Object.fromEntries(NS.map(x=>[x.id,x])); tourList(); }
+    return; }
+  const q=e.target.closest('[data-q]'); if(q){quizStart(q.dataset.q);return}
+  const r=e.target.closest('[data-t]'); if(r)tourStart(r.dataset.t);
+};
+function tourStart(id){
+  TR=TOURS.find(t=>t.id===id); if(!TR)return;
+  TI=0; $('tl').classList.remove('on'); $('tb').classList.add('on');
+  $('tbnm').textContent=TR.title; tourStep();
+}
+async function tourStep(){
+  if(!TR)return;
+  const st=TR.steps[TI], n=NM[st.id];
+  $('tbct').textContent=(TI+1)+' / '+TR.steps.length;
+  $('tbsay').innerHTML=`<b>${API.esc(n?n.title:'')}</b> —— ${API.esc(st.say)}`;
+  $('tbprog').style.width=((TI+1)/TR.steps.length*100)+'%';
+  $('tbprev').disabled=TI===0;
+  $('tbnext').textContent=TI===TR.steps.length-1?'走完了 ✓':'下一步 →';
+  if(!n)return;
+  /* 术语没有坐标，就飞到它解释的那个概念上 */
+  const anchor=n.region?n:(n.links||[]).map(l=>NM[l.to]).find(x=>x&&x.region);
+  if(!anchor)return;
+  const r=RG.find(x=>x.id===anchor.region);
+  const want=r? (r.level===1?'world':r.parent) : 'world';
+  if(LEVEL!==want){ lock=performance.now()+1500;
+    want==='world'?goWorld():drillInto(want);
+    await new Promise(z=>setTimeout(z,780));
+  }
+  spot(anchor);
+  if(!n.region) openNode(n.id);   /* 是术语就把讲解也弹出来 */
+}
+function spot(n){
+  const {pos}=layoutFor(); const p=pos[n.id]; if(!p)return;
+  document.querySelectorAll('.nd.spot').forEach(g=>g.classList.remove('spot'));
+  const g=document.querySelector(`.nd[data-id="${n.id}"]`); if(g)g.classList.add('spot');
+  const k=Math.max(V.k,.75);
+  fly({k, x:innerWidth/2-p[0]*k, y:(innerHeight-190)/2-p[1]*k},520);
+}
+function tourGo(d){
+  if(!TR)return;
+  const i=TI+d;
+  if(i<0)return;
+  if(i>=TR.steps.length){ tourExit(); return; }
+  TI=i; tourStep();
+}
+function tourExit(){
+  flushNote();
+  TR=null; clearInterval(playT); playT=null;
+  $('tb').classList.remove('on'); $('tbplay').textContent='自动播放';
+  document.querySelectorAll('.nd.spot').forEach(g=>g.classList.remove('spot'));
+}
+$('tbnext').onclick=()=>tourGo(1);
+$('tbprev').onclick=()=>tourGo(-1);
+$('tbexit').onclick=tourExit;
+$('tbplay').onclick=()=>{
+  if(playT){clearInterval(playT);playT=null;$('tbplay').textContent='自动播放';return}
+  $('tbplay').textContent='暂停';
+  playT=setInterval(()=>{ if(!TR){clearInterval(playT);playT=null;return} tourGo(1); },6500);
+};
+
+/* ================= 术语表 ================= */
+let GLC='全部';
+function glDraw(){
+  const terms=NS.filter(n=>n.type==='term');
+  const cats=['全部',...new Set(terms.map(t=>t.cat))];
+  $('glcats').innerHTML=cats.map(c=>`<button data-c="${c}" class="${GLC===c?'on':''}">${c}${
+    c==='全部'?' '+terms.length:' '+terms.filter(t=>t.cat===c).length}</button>`).join('');
+  const q=$('glq').value.trim().toLowerCase();
+  const list=terms.filter(t=>(GLC==='全部'||t.cat===GLC)&&
+    (!q||(t.title+t.en+JSON.stringify(t.fields||{})).toLowerCase().includes(q)));
+  $('glcount').textContent=list.length+' 条 · 每条都有比喻和学术关系';
+  const groups={};
+  for(const t of list)(groups[t.cat] ||= []).push(t);
+  const rows=Object.entries(groups).map(([c,ts])=>
+    (GLC==='全部'?`<tr class="grp"><td colspan="4">${API.esc(c)} · ${ts.length}</td></tr>`:'')
+    + ts.map(t=>`<tr>
+      <td class="tm"><b>${API.esc(t.title)}</b><i>${API.esc(t.en||'')}</i>
+        ${GLC==='全部'?'':`<span class="c">${API.esc(t.cat)}</span>`}</td>
+      <td class="mp">${API.md(t.fields.mp)}</td>
+      <td class="ac">${API.md(t.fields.ac)}</td>
+      <td class="lk">${t.links.filter(l=>NM[l.to]).map(l=>
+        `<a data-go="${l.to}">${API.esc(NM[l.to].title)}</a>`).join('')}</td></tr>`).join('')
+  ).join('');
+  $('glls').innerHTML=list.length?`<table class="gtab">
+    <thead><tr><th style="width:16%">术语 TERM</th><th style="width:27%">比喻 · 故事线</th>
+      <th style="width:41%">学术关系 ACADEMIC</th><th style="width:16%">跳到图里</th></tr></thead>
+    <tbody>${rows}</tbody></table>`:'<div class="empty">没有匹配</div>';
+}
+$('glbtn').onclick=()=>{ $('gl').classList.add('on'); glDraw(); $('glq').focus(); };
+$('glx').onclick=()=>$('gl').classList.remove('on');
+$('glq').oninput=glDraw;
+$('glcats').onclick=e=>{const b=e.target.closest('[data-c]'); if(b){GLC=b.dataset.c; glDraw()}};
+$('glls').onclick=e=>{const a=e.target.closest('[data-go]'); if(!a)return;
+  $('gl').classList.remove('on');
+  const t=NM[a.dataset.go]; if(!t)return;
+  const r=RG.find(x=>x.id===t.region);
+  const want=r?(r.level===1?'world':r.parent):'world';
+  if(want!==LEVEL){lock=performance.now()+1400; want==='world'?goWorld():drillInto(want);
+    setTimeout(()=>openNode(t.id),900);} else openNode(t.id);
+};
+
+/* ================= 自测 ================= */
+let QZ=null, QI=0;
+function quizStart(id){
+  QZ=NM[id]; if(!QZ||!QZ.items)return;
+  QI=0; $('tl').classList.remove('on'); $('qz').classList.add('on'); quizStep();
+}
+function quizStep(){
+  const it=QZ.items[QI];
+  $('qzh').textContent=QZ.title+' · '+(QI+1)+' / '+QZ.items.length;
+  $('qzq').textContent=it.q;
+  $('qza').textContent=it.a; $('qza').classList.remove('on');
+  $('qzsc').textContent='先自己答一遍，再点显示答案。答不上就点「去图上看这一站」。';
+  $('qzgo').style.display=it.ref&&NM[it.ref]?'':'none';
+  $('qzprev').disabled=QI===0;
+  $('qznext').textContent=QI===QZ.items.length-1?'做完了 ✓':'下一题 →';
+}
+$('qzshow').onclick=()=>$('qza').classList.add('on');
+$('qznext').onclick=()=>{ if(QI>=QZ.items.length-1){quizExit();return} QI++; quizStep(); };
+$('qzprev').onclick=()=>{ if(QI>0){QI--; quizStep();} };
+$('qzx').onclick=quizExit;
+$('qzgo').onclick=()=>{ const it=QZ.items[QI]; quizExit();
+  const t=NM[it.ref]; if(!t)return;
+  const anchor=t.region?t:(t.links||[]).map(l=>NM[l.to]).find(x=>x&&x.region);
+  if(!anchor)return openNode(t.id);
+  const r=RG.find(x=>x.id===anchor.region);
+  const want=r?(r.level===1?'world':r.parent):'world';
+  if(want!==LEVEL){lock=performance.now()+1400; want==='world'?goWorld():drillInto(want);
+    setTimeout(()=>openNode(t.id),900);} else openNode(t.id);
+};
+function quizExit(){ QZ=null; $('qz').classList.remove('on'); }
+
+addEventListener('keydown',e=>{
+  if((e.metaKey||e.ctrlKey)&&e.key.toLowerCase()==='k'){e.preventDefault();parent.postMessage({lab:'search'},'*');return}
+  if(QZ){ if(e.key==='ArrowRight'){e.preventDefault();$('qznext').click()}
+          if(e.key==='ArrowLeft'){e.preventDefault();$('qzprev').click()}
+          if(e.key===' '){e.preventDefault();$('qzshow').click()} }
+  if(e.key==='Escape'){ if($('qz').classList.contains('on')){quizExit();return}
+    if($('gl').classList.contains('on')){$('gl').classList.remove('on');return}
+    if($('tl').classList.contains('on')){$('tl').classList.remove('on');return}
+    if(TR){tourExit();return}
+    if($('dr').classList.contains('on'))$('dr').classList.remove('on');
+    else if(LEVEL.startsWith('node:')){const b=BACK; b==='world'?goWorld():drillInto(b)}
+    else if(LEVEL!=='world')goWorld(); }
+  if(e.key==='/'&&document.activeElement!==$('q')){e.preventDefault();$('q').focus()}
+  if(TR){ if(e.key==='ArrowRight'){e.preventDefault();tourGo(1)}
+          if(e.key==='ArrowLeft'){e.preventDefault();tourGo(-1)} }
+});
+addEventListener('resize',()=>{
+  if(LEVEL.startsWith('node:'))return draw();
+  const {nodes,pos}=layoutFor();
+  if(nodes.length){V=fit(bboxPts(nodes.map(n=>pos[n.id])),70); apply();}
+});
+</script></body></html>

@@ -1,0 +1,1860 @@
+<meta charset="utf-8"><title>动图</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{background:#070a12;color:#E8EEFB;font:13px/1.5 -apple-system,"PingFang SC",system-ui,sans-serif;
+  overflow:hidden;-webkit-user-select:none;user-select:none}
+#w{position:relative;width:100%;height:100vh;min-height:300px}
+canvas{display:block;width:100%;height:100%;touch-action:none;cursor:grab}
+canvas.drag{cursor:grabbing}
+#cap{position:absolute;left:10px;right:10px;bottom:8px;z-index:3;padding:9px 13px 11px;
+  border-radius:12px;background:rgba(10,15,28,.94);border:.5px solid rgba(126,178,255,.22);
+  font-size:13px;line-height:1.6}
+#cap .bar{display:flex;align-items:center;gap:9px;margin-bottom:7px}
+#cap .ttl{color:#8ef4ff;font-weight:660}
+#cap .now{color:#E8EEFB;margin-top:3px}
+#cap .now i{font-style:normal;color:#FFC46B;font-weight:650;margin-right:6px}
+#cap .sub{color:#7E90B4;font-size:11.5px;margin-top:3px}
+#dots{display:flex;gap:5px}
+#dots i{width:24px;height:5px;border-radius:3px;background:#2b3550;display:block;cursor:pointer}
+#dots i:hover{background:#4a5a7e}
+#dots i.on{background:#3BE8FF}
+#nav{display:flex;gap:6px;align-items:center;margin-left:auto}
+#nav button{padding:5px 12px;border-radius:9px;border:.5px solid rgba(59,232,255,.35);
+  background:rgba(59,232,255,.12);color:#CFF6FF;font:inherit;font-size:12.5px;font-weight:580;
+  cursor:pointer}
+#nav button:hover{background:rgba(59,232,255,.22)}
+#nav button:disabled{opacity:.35;cursor:default;border-color:rgba(126,178,255,.2);
+  background:rgba(255,255,255,.04);color:#5C6B8A}
+#ncnt{font-size:11.5px;color:#7E90B4;font-family:ui-monospace,Menlo,monospace;min-width:36px;
+  text-align:center}
+#ctl{position:absolute;top:9px;right:10px;z-index:2;display:flex;gap:6px}
+#ctl button{padding:5px 11px;border-radius:8px;border:.5px solid rgba(126,178,255,.25);
+  background:rgba(10,15,28,.8);color:#93A4C4;font:inherit;font-size:11.5px;cursor:pointer}
+#ctl button:hover{color:#E8EEFB}
+</style>
+<div id="w"><canvas id="c"></canvas>
+  <div id="ctl"><button id="bl">放大镜 开</button><button id="bs">自转 开</button><button id="bh">正视</button>
+    <button id="bp">暂停</button><button id="br">重放</button></div>
+    <div id="cap">
+    <div class="bar"><div id="dots"></div>
+      <div id="nav"><button id="np">← 上一步</button><span id="ncnt"></span>
+        <button id="nn">下一步 →</button></div></div>
+    <div id="capbody"></div>
+  </div></div>
+<script>
+const cv=document.getElementById('c'),x=cv.getContext('2d');
+let W,H,DPR,t=0,playing=true;
+function fit(){DPR=Math.min(devicePixelRatio||1,2);W=cv.clientWidth;H=cv.clientHeight;
+  cv.width=W*DPR;cv.height=H*DPR;x.setTransform(DPR,0,0,DPR,0,0);}
+addEventListener('resize',fit);fit();
+
+/* ===== 调色 ===== */
+const CY='#3BE8FF',AM='#FFC46B',GR='#5CE8A8',VI='#8B6CFF',RD='#FF6B8A',MUT='#93A4C4',INK='#E8EEFB';
+const sh=(hex,d)=>{const n=parseInt(hex.slice(1),16),f=v=>Math.max(0,Math.min(255,v+d));
+  return '#'+((f(n>>16)<<16)|(f((n>>8)&255)<<8)|f(n&255)).toString(16).padStart(6,'0');};
+const ease=p=>p<0?0:p>1?1:1-Math.pow(1-p,3);
+const clamp=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+/* ===== 画笔 ===== */
+function box(cx,cy,w,h,d,fill,label,lc,fs){
+  const dx=d*.62,dy=-d*.45;
+  x.beginPath();x.roundRect(cx-w/2,cy-h/2,w,h,Math.min(8,h/3));
+  const g=x.createLinearGradient(cx-w/2,cy-h/2,cx+w/2,cy+h/2);
+  g.addColorStop(0,fill);g.addColorStop(1,sh(fill,-30));x.fillStyle=g;x.fill();
+  x.beginPath();x.moveTo(cx-w/2,cy-h/2);x.lineTo(cx-w/2+dx,cy-h/2+dy);
+  x.lineTo(cx+w/2+dx,cy-h/2+dy);x.lineTo(cx+w/2,cy-h/2);x.closePath();x.fillStyle=sh(fill,28);x.fill();
+  x.beginPath();x.moveTo(cx+w/2,cy-h/2);x.lineTo(cx+w/2+dx,cy-h/2+dy);
+  x.lineTo(cx+w/2+dx,cy+h/2+dy);x.lineTo(cx+w/2,cy+h/2);x.closePath();x.fillStyle=sh(fill,-42);x.fill();
+  if(label){x.fillStyle=lc||'#0b1020';x.font='700 '+(fs||11)+'px -apple-system,system-ui';
+    x.textAlign='center';x.textBaseline='middle';x.fillText(label,cx,cy);}
+}
+function T(s,px,py,c,size,w,align){x.fillStyle=c||MUT;
+  x.font=(w||500)+' '+(size||11)+'px -apple-system,system-ui';
+  x.textAlign=align||'center';x.textBaseline='middle';x.fillText(s,px,py);}
+function dot(px,py,r,c,glow){if(glow){x.save();x.shadowColor=c;x.shadowBlur=glow;}
+  x.beginPath();x.arc(px,py,r,0,7);x.fillStyle=c;x.fill();if(glow)x.restore();}
+function line(x1,y1,x2,y2,c,w,a,dash){x.save();x.globalAlpha=a==null?1:a;x.strokeStyle=c;
+  x.lineWidth=w||2;if(dash)x.setLineDash(dash);x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);
+  x.stroke();x.restore();}
+function glow(x1,y1,x2,y2,c,w,a){x.save();x.globalAlpha=a==null?1:a;x.strokeStyle=c;x.lineWidth=w||2;
+  x.shadowColor=c;x.shadowBlur=12;x.beginPath();x.moveTo(x1,y1);x.lineTo(x2,y2);x.stroke();x.restore();}
+function memb(cy,w,cx,flip,label){const d=14,dx=d*.62,dy=-d*.45*(flip?-1:1);
+  x.beginPath();x.moveTo(cx-w/2,cy);x.lineTo(cx-w/2+dx,cy+dy);x.lineTo(cx+w/2+dx,cy+dy);
+  x.lineTo(cx+w/2,cy);x.closePath();x.fillStyle='#33405e';x.fill();
+  x.fillStyle='#1a2338';x.fillRect(cx-w/2,cy,w,flip?-11:11);
+  if(label)T(label,cx-w/2+2,cy+(flip?-20:23),'#5C6B8A',10,600,'left');}
+function cellArc(cy,label){x.beginPath();x.moveTo(20,cy);x.quadraticCurveTo(320,cy-26,620,cy);
+  x.lineTo(620,cy+46);x.quadraticCurveTo(320,cy+20,20,cy+46);x.closePath();
+  x.fillStyle='#2b3550';x.fill();
+  if(label)T(label,320,cy+66,'#5C6B8A',10.5,600);}
+function frameIcon(cx,cy,s,c,pep){x.save();x.translate(cx,cy);x.scale(s,s);
+  x.fillStyle=c;x.beginPath();x.moveTo(-7,-4);x.quadraticCurveTo(0,-11,7,-4);x.lineTo(7,-1);
+  x.quadraticCurveTo(0,-7,-7,-1);x.closePath();x.fill();
+  x.globalAlpha=.5;x.fillRect(-2.2,-4,4.4,11);x.globalAlpha=1;
+  if(pep!==false)dot(0,-9,2.6,'#DCE9FF');x.restore();}
+/* 时间轴：返回 [第几步, 该步进度] */
+function stage(dur){let a=0;for(let i=0;i<dur.length;i++){if(t<a+dur[i])return[i,(t-a)/dur[i]];a+=dur[i];}
+  return [dur.length-1,1];}
+const total=d=>d.reduce((a,b)=>a+b,0);
+
+/* ===== 迷你 3D 引擎：可拖转 · 可缩放 · 画家算法排序 ===== */
+let yaw=-0.55, pitch=-0.32, dist=760, autoSpin=true;
+const CAM={fov:620};
+/* 镜头平移：大图太宽，得让镜头跟着步骤走 */
+let PAN=[0,0,0];
+let USERPAN=[0,0,0], userCam=false;   /* 用户自己拖出来的视角，优先于场景镜头 */
+function rot(p){                       /* 世界坐标 → 相机坐标 */
+  const cy=Math.cos(yaw),sy=Math.sin(yaw),cp=Math.cos(pitch),sp=Math.sin(pitch);
+  const px=p[0]-PAN[0], py=p[1]-PAN[1], pz=p[2]-PAN[2];
+  let X=px*cy - pz*sy, Z=px*sy + pz*cy, Y=py;
+  const Y2=Y*cp - Z*sp, Z2=Y*sp + Z*cp;
+  return [X,Y2,Z2+dist];
+}
+function proj(p){const c=rot(p);const k=CAM.fov/Math.max(60,c[2]);
+  return [c[0]*k, c[1]*k, c[2], k];}
+const QUE=[];                          /* 本帧要画的东西，按深度排 */
+const push=(z,fn)=>QUE.push({z,fn});
+function flush(){QUE.sort((a,b)=>b.z-a.z);for(const q of QUE)q.fn();QUE.length=0;}
+
+const shade3=(hex,f)=>{const n=parseInt(hex.slice(1),16);
+  const g=v=>Math.max(0,Math.min(255,Math.round(v*f)));
+  return 'rgb('+g(n>>16)+','+g((n>>8)&255)+','+g(n&255)+')';};
+const LIGHT=[0.4,-0.75,-0.5];
+function faceShade(nrm,col){
+  const c=rot([nrm[0],nrm[1],nrm[2]]), o=rot([0,0,0]);
+  const v=[c[0]-o[0],c[1]-o[1],c[2]-o[2]];
+  const L=Math.hypot(...v)||1;
+  const d=(v[0]*LIGHT[0]+v[1]*LIGHT[1]+v[2]*LIGHT[2])/L;
+  return shade3(col,0.55+0.55*Math.max(0,-d));
+}
+/* 长方体 */
+function box3(cx,cy,cz,w,h,d,col,label,lc){
+  const hx=w/2,hy=h/2,hz=d/2;
+  const V=[[-hx,-hy,-hz],[hx,-hy,-hz],[hx,hy,-hz],[-hx,hy,-hz],
+           [-hx,-hy,hz],[hx,-hy,hz],[hx,hy,hz],[-hx,hy,hz]]
+    .map(v=>[v[0]+cx,v[1]+cy,v[2]+cz]);
+  const F=[[[0,1,2,3],[0,0,-1]],[[4,5,6,7],[0,0,1]],[[0,1,5,4],[0,-1,0]],
+           [[3,2,6,7],[0,1,0]],[[0,3,7,4],[-1,0,0]],[[1,2,6,5],[1,0,0]]];
+  for(const [idx,nrm] of F){
+    const ps=idx.map(i=>proj(V[i]));
+    const zc=ps.reduce((a,p)=>a+p[2],0)/4;
+    /* 背面剔除 */
+    const ax=ps[1][0]-ps[0][0], ay=ps[1][1]-ps[0][1];
+    const bx=ps[2][0]-ps[1][0], by=ps[2][1]-ps[1][1];
+    if(ax*by-ay*bx<=0) continue;
+    const fill=faceShade(nrm,col);
+    push(zc,()=>{x.beginPath();x.moveTo(ps[0][0],ps[0][1]);
+      for(let i=1;i<4;i++)x.lineTo(ps[i][0],ps[i][1]);x.closePath();
+      x.fillStyle=fill;x.fill();
+      x.strokeStyle='rgba(0,0,0,.28)';x.lineWidth=.8;x.stroke();});
+  }
+  if(label){const p=proj([cx,cy,cz-hz-1]);
+    push(p[2]-1,()=>{x.fillStyle=lc||'#0b1020';
+      x.font='700 '+Math.max(8,12*p[3])+'px -apple-system,system-ui';
+      x.textAlign='center';x.textBaseline='middle';x.fillText(label,p[0],p[1]);});}
+}
+/* 球 */
+function ball3(cx,cy,cz,r,col,glowR){
+  const p=proj([cx,cy,cz]), rr=r*p[3];
+  push(p[2],()=>{
+    if(glowR){x.save();x.shadowColor=col;x.shadowBlur=glowR;}
+    const g=x.createRadialGradient(p[0]-rr*.35,p[1]-rr*.4,rr*.1,p[0],p[1],rr);
+    g.addColorStop(0,shade3(col,1.5));g.addColorStop(1,shade3(col,.55));
+    x.beginPath();x.arc(p[0],p[1],rr,0,7);x.fillStyle=g;x.fill();
+    if(glowR)x.restore();});
+}
+/* 圆柱（用来做杆/链） */
+function rod3(a,b,r,col){
+  const pa=proj(a),pb=proj(b);
+  push((pa[2]+pb[2])/2,()=>{
+    x.strokeStyle=shade3(col,.9);x.lineWidth=Math.max(1.4,r*2*((pa[3]+pb[3])/2));
+    x.lineCap='round';x.beginPath();x.moveTo(pa[0],pa[1]);x.lineTo(pb[0],pb[1]);x.stroke();});
+}
+/* 膜：一大块薄板 */
+function slab3(cy,w,d,col,thick){
+  box3(0,cy,0,w,thick||10,d,col);
+}
+/* 三维空间里的文字（始终面向相机） */
+function lab3(px,py,pz,s,col,size,weight){
+  const p=proj([px,py,pz]);
+  push(p[2]-2,()=>{x.fillStyle=col||'#C7D3E8';
+    x.font=(weight||600)+' '+Math.max(8,(size||12)*p[3])+'px -apple-system,system-ui';
+    x.textAlign='center';x.textBaseline='middle';x.fillText(s,p[0],p[1]);});
+}
+/* 发光连线 */
+function beam3(a,b,col,w,alpha){
+  const pa=proj(a),pb=proj(b);
+  push(-1e6,()=>{x.save();x.globalAlpha=alpha==null?1:alpha;
+    x.strokeStyle=col;x.lineWidth=w||2;x.shadowColor=col;x.shadowBlur=12;
+    x.beginPath();x.moveTo(pa[0],pa[1]);x.lineTo(pb[0],pb[1]);x.stroke();x.restore();});
+}
+
+/* 球冠状的细胞膜：让人一眼看出这是个细胞，不是一块板 */
+function cellCap3(cy,R,half,col,flip,step){
+  const st=step||70, sign=flip?-1:1;
+  const h=(x,z)=>{const d2=x*x+z*z; const q=Math.max(0,R*R-d2);
+    return cy+sign*(R-Math.sqrt(q));};
+  for(let x0=-half;x0<=half;x0+=st){
+    let prev=null;
+    for(let z0=-half;z0<=half;z0+=st/2){
+      const p=[x0,h(x0,z0),z0];
+      if(prev)rod3(prev,p,2.2,col); prev=p;}}
+  for(let z0=-half;z0<=half;z0+=st){
+    let prev=null;
+    for(let x0=-half;x0<=half;x0+=st/2){
+      const p=[x0,h(x0,z0),z0];
+      if(prev)rod3(prev,p,2.2,col); prev=p;}}
+}
+/* 角落小地图：两个细胞 + 当前视野框 */
+function minimap(cx,cy,r,spot,tip){
+  x.save();
+  x.beginPath(); x.roundRect(cx-r*1.5,cy-r*1.9,r*3,r*3.8,12);
+  x.fillStyle='rgba(6,10,18,.9)'; x.fill();
+  x.strokeStyle='rgba(126,178,255,.25)'; x.lineWidth=1; x.stroke();
+  x.beginPath(); x.arc(cx,cy-r*0.95,r*0.92,0,7);
+  x.fillStyle='rgba(59,232,255,.16)'; x.fill();
+  x.strokeStyle='rgba(59,232,255,.5)'; x.stroke();
+  x.beginPath(); x.arc(cx,cy+r*0.95,r*1.02,0,7);
+  x.fillStyle='rgba(196,160,255,.14)'; x.fill();
+  x.strokeStyle='rgba(196,160,255,.5)'; x.stroke();
+  const sx=cx+(spot?spot[0]*r:0), sy=cy+(spot?spot[1]*r:0);
+  x.strokeStyle='#FFC46B'; x.lineWidth=1.6;
+  x.strokeRect(sx-r*0.30,sy-r*0.30,r*0.60,r*0.60);
+  x.fillStyle='#8ef4ff'; x.font='700 10px -apple-system,system-ui';
+  x.textAlign='center'; x.textBaseline='middle';
+  x.fillText('T 细胞',cx,cy-r*0.95);
+  x.fillStyle='#C4A0FF'; x.fillText('APC',cx,cy+r*0.95);
+  x.fillStyle='#FFC46B'; x.font='600 9.5px -apple-system,system-ui';
+  x.fillText(tip||'你在这',sx,sy+r*0.02);
+  x.restore();
+}
+/* ===== 可拖动的放大镜 ===== */
+let LENS={x:170,y:-40,r:130,m:3.0,on:true};
+/* 真放大镜：以镜心为中心，把同一幅画放大重画一遍 */
+function lensDraw(drawFn,detailFn){
+  if(!LENS.on)return;
+  const {x:cx,y:cy,r,m}=LENS;
+  x.save();
+  x.beginPath(); x.arc(cx,cy,r,0,7); x.clip();
+  x.fillStyle='#05080f'; x.fillRect(cx-r,cy-r,r*2,r*2);
+  x.translate(cx,cy); x.scale(m,m); x.translate(-cx,-cy);
+  QUE.length=0; (detailFn||drawFn)(); flush();
+  x.restore();
+  /* 镜框 */
+  x.save();
+  x.beginPath(); x.arc(cx,cy,r,0,7);
+  x.strokeStyle='rgba(59,232,255,.65)'; x.lineWidth=2.4; x.stroke();
+  x.beginPath(); x.arc(cx,cy,r+5,0,7);
+  x.strokeStyle='rgba(59,232,255,.18)'; x.lineWidth=1.2; x.stroke();
+  /* 手柄 */
+  const a=Math.PI*0.25;
+  x.strokeStyle='rgba(59,232,255,.5)'; x.lineWidth=7; x.lineCap='round';
+  x.beginPath(); x.moveTo(cx+Math.cos(a)*(r+4),cy+Math.sin(a)*(r+4));
+  x.lineTo(cx+Math.cos(a)*(r+42),cy+Math.sin(a)*(r+42)); x.stroke();
+  x.fillStyle='#3BE8FF'; x.font='700 11px -apple-system,system-ui';
+  x.textAlign='center'; x.textBaseline='middle';
+  x.fillText(m.toFixed(1)+'×  拖我', cx, cy-r+16);
+  x.restore();
+}
+/* 旧的固定小窗，保留给别的场景用 */
+function magnifier(cx,cy,w,h,near,drawFn,title){
+  x.save();
+  x.beginPath(); x.roundRect(cx-w/2,cy-h/2,w,h,14); x.clip();
+  x.fillStyle='rgba(6,10,18,.94)'; x.fillRect(cx-w/2,cy-h/2,w,h);
+  x.translate(cx,cy+h*0.06);
+  const d0=dist,y0=yaw,p0=pitch;
+  dist=near; QUE.length=0; drawFn(); flush();
+  dist=d0; yaw=y0; pitch=p0;
+  x.restore();
+  x.save();
+  x.beginPath(); x.roundRect(cx-w/2,cy-h/2,w,h,14);
+  x.strokeStyle='rgba(59,232,255,.45)'; x.lineWidth=1.4; x.stroke();
+  x.fillStyle='#3BE8FF'; x.font='700 11px -apple-system,system-ui';
+  x.textAlign='left'; x.textBaseline='middle';
+  x.fillText(title||'放大镜', cx-w/2+10, cy-h/2+14);
+  x.restore();
+}
+/* ===== 更像分子的几何：螺旋 / 折叠片 / 骨架 / 侧链 ===== */
+const V3={
+  sub:(a,b)=>[a[0]-b[0],a[1]-b[1],a[2]-b[2]],
+  add:(a,b)=>[a[0]+b[0],a[1]+b[1],a[2]+b[2]],
+  mul:(a,s)=>[a[0]*s,a[1]*s,a[2]*s],
+  len:a=>Math.hypot(a[0],a[1],a[2]),
+  norm(a){const l=this.len(a)||1;return this.mul(a,1/l)},
+  cross:(a,b)=>[a[1]*b[2]-a[2]*b[1],a[2]*b[0]-a[0]*b[2],a[0]*b[1]-a[1]*b[0]]
+};
+/* α 螺旋：沿轴缠一条管 */
+function helix3(p0,p1,r,turns,col,thick){
+  const d=V3.sub(p1,p0), L=V3.len(d), ax=V3.norm(d);
+  let up=Math.abs(ax[1])>0.9?[1,0,0]:[0,1,0];
+  const u=V3.norm(V3.cross(ax,up)), v=V3.cross(ax,u);
+  const N=Math.max(24,Math.round(turns*14));
+  let prev=null;
+  for(let i=0;i<=N;i++){
+    const s=i/N, ang=s*turns*Math.PI*2;
+    const c=V3.add(V3.add(p0,V3.mul(ax,L*s)),
+      V3.add(V3.mul(u,Math.cos(ang)*r),V3.mul(v,Math.sin(ang)*r)));
+    if(prev)rod3(prev,c,thick||3.2,col);
+    prev=c;
+  }
+}
+/* β 折叠片：几条并排的扁带 */
+function sheet3(cx,cy,cz,w,d,n,col,thick){
+  for(let i=0;i<n;i++){
+    const z=cz-d/2+d*(i/(n-1||1));
+    rod3([cx-w/2,cy,z],[cx+w/2,cy,z],thick||4.5,i%2?sh(col,-14):col);
+  }
+}
+/* 肽骨架 + 侧链。res = [{aa,size,col,anchor}] */
+function peptide3(cx,cy,cz,len,res,glowAnchor){
+  const step=len/(res.length-1||1);
+  let prev=null;
+  res.forEach((r,i)=>{
+    const px=cx-len/2+step*i;
+    const py=cy+Math.sin(i*1.1)*3.5;          // 骨架微微起伏
+    const p=[px,py,cz];
+    if(prev)rod3(prev,p,3.4,'#9fb4d8');       // 主链
+    prev=p;
+    ball3(px,py,cz,3.4,'#c8d6ef');            // Cα
+    const up=r.anchor?-1:1;                   // 锚定残基朝下插口袋
+    const sy=py+(r.anchor?16:-13);
+    rod3([px,py,cz],[px,sy,cz],2.4,r.col);
+    ball3(px,sy,cz,r.size,r.col,(r.anchor&&glowAnchor)?14:0);
+  });
+}
+/* Ig 折叠结构域：画成一个桶（两片 β 夹心） */
+function igfold3(cx,cy,cz,w,h,d,col,label,lc){
+  for(const dz of [-d/2,d/2])
+    sheet3(cx,cy,cz+dz,w,h*0.8,4,col,3.4);
+  rod3([cx-w/2,cy-h*0.42,cz-d/2],[cx-w/2,cy-h*0.42,cz+d/2],3,sh(col,-20));
+  rod3([cx+w/2,cy+h*0.42,cz-d/2],[cx+w/2,cy+h*0.42,cz+d/2],3,sh(col,-20));
+  if(label)lab3(cx,cy,cz+d/2+8,label,lc||'#E8EEFB',12,700);
+}
+/* CDR 环：一条弯曲的小环 */
+function loop3(cx,cy,cz,r,col,phase,thick){
+  const N=16; let prev=null;
+  for(let i=0;i<=N;i++){
+    const a=Math.PI*(i/N)+(phase||0);
+    const p=[cx+Math.cos(a)*r, cy+Math.sin(a)*r*0.75, cz+Math.sin(a*2)*r*0.35];
+    if(prev)rod3(prev,p,thick||2.6,col);
+    prev=p;
+  }
+}
+
+const S={};   /* 场景注册表 */
+/* ===== 六个 HLA 型号：口袋形状不同，装的肽也不同 ===== */
+const HLA6=[
+ {n:'A*02:01',c:'#5CE8A8',pk:[9,12],mot:'P2 L/M · P9 V/L',
+  seq:[['S',4,'#7FA6E8'],['L',7,'#FFC46B',1],['I',5,'#7FA6E8'],['D',5,'#FF6B8A'],
+       ['T',4,'#7FA6E8'],['G',3,'#9fb4d8'],['F',6,'#C4A0FF'],['E',5,'#FF6B8A'],['V',7,'#FFC46B',1]]},
+ {n:'A*01:01',c:'#3BE8FF',pk:[7,13],mot:'P3 D/E · P9 Y',
+  seq:[['Y',6,'#C4A0FF'],['S',4,'#7FA6E8'],['E',7,'#FF6B8A',1],['H',5,'#8B6CFF'],
+       ['G',3,'#9fb4d8'],['A',4,'#7FA6E8'],['I',5,'#7FA6E8'],['Q',5,'#5CE8A8'],['Y',8,'#C4A0FF',1]]},
+ {n:'B*07:02',c:'#8B6CFF',pk:[13,10],mot:'P2 P · P9 L',
+  seq:[['A',4,'#7FA6E8'],['P',8,'#5CE8A8',1],['R',6,'#8B6CFF'],['T',4,'#7FA6E8'],
+       ['L',5,'#FFC46B'],['N',4,'#5CE8A8'],['A',4,'#7FA6E8'],['W',6,'#C4A0FF'],['L',7,'#FFC46B',1]]},
+ {n:'B*44:02',c:'#C4A0FF',pk:[11,11],mot:'P2 E · P9 F/Y',
+  seq:[['E',5,'#FF6B8A'],['E',8,'#FF6B8A',1],['F',6,'#C4A0FF'],['G',3,'#9fb4d8'],
+       ['R',5,'#8B6CFF'],['A',4,'#7FA6E8'],['F',5,'#C4A0FF'],['S',4,'#7FA6E8'],['F',8,'#C4A0FF',1]]},
+ {n:'C*07:01',c:'#FFC46B',pk:[6,8],mot:'窄口袋 · P2 R/Y',
+  seq:[['R',7,'#8B6CFF',1],['Y',5,'#C4A0FF'],['R',5,'#8B6CFF'],['P',4,'#5CE8A8'],
+       ['G',3,'#9fb4d8'],['A',4,'#7FA6E8'],['V',5,'#FFC46B'],['L',5,'#FFC46B'],['Y',7,'#C4A0FF',1]]},
+ {n:'C*05:01',c:'#FF9BB0',pk:[14,9],mot:'深口袋 · P2 A/D',
+  seq:[['A',4,'#7FA6E8'],['D',8,'#FF6B8A',1],['V',5,'#FFC46B'],['T',4,'#7FA6E8'],
+       ['G',3,'#9fb4d8'],['L',5,'#FFC46B'],['K',5,'#8B6CFF'],['A',4,'#7FA6E8'],['L',7,'#FFC46B',1]]}
+];
+/* 一串字母 → 残基对象：按化学性质上色，首尾当锚 */
+const AAC={D:'#FF6B8A',E:'#FF6B8A',K:'#8B6CFF',R:'#8B6CFF',H:'#8B6CFF',
+ S:'#7FA6E8',T:'#7FA6E8',N:'#5CE8A8',Q:'#5CE8A8',C:'#5CE8A8',
+ A:'#7FA6E8',V:'#FFC46B',L:'#FFC46B',I:'#FFC46B',M:'#FFC46B',P:'#5CE8A8',
+ F:'#C4A0FF',W:'#C4A0FF',Y:'#C4A0FF',G:'#9fb4d8'};
+const strRes=str=>[...str].map((aa,i,a)=>({aa,size:(i===1||i===a.length-1)?7:5,
+  col:AAC[aa]||'#9fb4d8',anchor:(i===1||i===a.length-1)}));
+const toRes=seq=>seq.map(([aa,size,col,anchor])=>({aa,size,col,anchor:!!anchor}));
+
+/* 一个完整的 pMHC（真螺旋 + 折叠底板 + 肽 + 支柱） */
+function pmhc3(cx,cy,cz,col,res,scale,showAnchor,pocket,noSub){
+  const S=scale||1;
+  helix3([cx-130*S,cy,cz-34*S],[cx+130*S,cy,cz-34*S],13*S,5.5,'#d9a24e',3.4*S);
+  helix3([cx-130*S,cy,cz+34*S],[cx+130*S,cy,cz+34*S],13*S,5.5,'#c08f3f',3.4*S);
+  sheet3(cx,cy+26*S,cz,262*S,64*S,7,'#8a6a33',4*S);
+  if(pocket){ pocket.forEach(([px,dep])=>{
+      box3(cx+px*S,cy+18*S+dep*S/2,cz,15*S,dep*S,17*S,'#6b5326'); }); }
+  peptide3(cx,cy-12*S,cz,200*S,res,showAnchor);
+  igfold3(cx-24*S,cy+92*S,cz,60*S,66*S,46*S,'#5C6B8A',noSub?'':'α3','#E8EEFB');
+  igfold3(cx+54*S,cy+96*S,cz+6*S,46*S,52*S,40*S,'#465577',noSub?'':'β2m','#C7D3E8');
+}
+/* 一个完整的 TCR。约定：+y 朝下（朝 APC），所以环朝下垂、C 区在上。 */
+function tcr3full(cx,cy,cz,S,D){
+  /* V 区（认脸的那一头，最靠近 pMHC） */
+  igfold3(cx-34*S,cy,cz,58*S,60*S,50*S,'#2f6b4f','Vα','#DCFFEE');
+  igfold3(cx+34*S,cy,cz,58*S,60*S,50*S,'#33507f','Vβ','#DCE9FF');
+  /* C 区在上（远离 pMHC） */
+  igfold3(cx-34*S,cy-68*S,cz,58*S,62*S,50*S,'#265843','Cα','#9DFFD0');
+  igfold3(cx+34*S,cy-68*S,cz,58*S,62*S,50*S,'#2a4269','Cβ','#7FA6E8');
+  return CDR6.map(([nm,c,dx,dz,grp])=>{
+    const lx=cx+dx*S, ly=cy+40*S, lz=cz+dz*S;
+    loop3(lx,ly,lz,11*S,c,0,3.2*S);
+    rod3([lx,ly-10*S,lz],[cx+dx*0.45*S,cy+24*S,cz+dz*0.45*S],1.8*S,c);
+    if(D>1) lab3(lx,ly-26*S,lz,nm,c,10.5,800);
+    return [nm,c,lx,ly,lz,grp];
+  });
+}
+const CDR6=[
+ ['CDR1α','#6BA8FF',-62, 30,1],['CDR2α','#8B6CFF',-96, 15,1],['CDR3α','#FF6B8A',-15,  6,3],
+ ['CDR1β','#6BA8FF', 62,-30,1],['CDR2β','#8B6CFF', 96,-15,1],['CDR3β','#FF6B8A', 15, -6,3]];
+
+
+S['tcrmap']={is3d:true,lens:true,view:[-0.46,-0.24,880,false],
+ cap:['两个细胞的接触点 · 全景','画面不动，拖放大镜去看细节'],
+ steps:[
+  '上下两张弯曲的网是两个细胞的膜，中间那条缝就是识别发生的地方。左下角小地图告诉你在哪。',
+  '把镜子移到接触面：六个环垂下来。蓝的 CDR1、紫的 CDR2 落在两条黄色螺旋上 —— 那是"握"。',
+  '红的 CDR3α 和 CDR3β 是唯一伸到中间、压在肽上的 —— 那是"认"。六个环里只有这两个碰到肽。',
+  '握得住（CDR1/2 对螺旋）＋ 认得出（CDR3 对肽），两关都过才激活。右上角有读数板。',
+  '移到下半边：两条 α 螺旋是真螺旋，底下是 β 折叠板；肽的侧链按化学性质上色，朝下那两根是锚定残基。',
+  '移到上半边：Cα/Cβ 在上面支撑，CD3 和 ζζ 拉开在两侧和上方 —— 它们才是传信号的，TCR 自己胞内几乎没尾巴。',
+  '移到左边那排：同一个细胞表面挂着六种 HLA，口袋形状不同、装的肽也不同 —— 这就是人和人不一样的地方。'],
+ dur:[1,1,1,1,1,1,1],
+ world(D){
+  const TM=-150;                       /* T 细胞膜 */
+  cellCap3(TM,900,470,'#3d5480',false,80);
+  cellCap3(330,900,520,'#4a3a68',true,80);
+  if(!D){lab3(-470,TM-70,0,'T 细胞','#8ef4ff',15,700);
+         lab3(-470,400,0,'APC / 被感染的细胞','#C4A0FF',15,700);}
+
+  /* --- APC 侧 --- */
+  pmhc3(0,150,0,'#5CE8A8',toRes(HLA6[0].seq),1.0,true,D?[[-66,12],[66,14]]:null);
+
+  /* --- T 细胞侧：V 区贴着 pMHC，C 区在上，环朝下 --- */
+  const loops=tcr3full(0,66,0,1.0,D?2:1);
+  rod3([-34,-2,0],[-34,TM+10,0],5,'#3a4a70');
+  rod3([ 34,-2,0],[ 34,TM+10,0],5,'#3a4a70');
+
+  /* 环落点：亮在螺旋 / 肽上 */
+  if(D) loops.forEach(([nm,c,lx,ly,lz,grp])=>{
+    ball3(lx, grp===3?134:150, grp===3?lz*0.5:lz, 5, c, 12);
+  });
+
+  /* CD3 / ζζ：拉开，别挤 */
+  box3(-185,TM+6,60,58,46,48,'#3a4a70','CD3γε','#C7D3E8');
+  box3( 185,TM+6,-60,58,46,48,'#3a4a70','CD3δε','#C7D3E8');
+  box3(0,TM-58,90,74,40,46,'#3a4a70','ζζ','#C7D3E8');
+  rod3([-34,-2,0],[-185,TM-20,60],3,'#33405e');
+  rod3([ 34,-2,0],[ 185,TM-20,-60],3,'#33405e');
+  if(D){
+    [[-185,TM-40,60],[185,TM-40,-60],[-22,TM-102,90],[22,TM-102,90]].forEach(q=>{
+      ball3(q[0],q[1],q[2],6,'#3BE8FF',12); ball3(q[0],q[1]-18,q[2],6,'#3BE8FF',12);});
+    lab3(0,TM-140,90,'ITAM · 信号全靠它们','#3BE8FF',11,700);
+  }
+  /* CD8 抓 α3 */
+  box3(-250,120,80,58,42,46,'#7a3347','CD8','#FFE3EE');
+  rod3([-250,98,80],[-250,TM+10,80],5,'#5a2a38');
+  if(D){ beam3([-222,138,80],[-46,236,0],'#FF6B8A',2.4,.8);
+         lab3(-160,190,60,'CD8 抓 α3','#FF9BB0',10.5,700);
+         lab3(-200,150,-46,'α1 螺旋','#FFD9A3',11,650);
+         lab3(-200,150,46,'α2 螺旋','#FFD9A3',11,650);
+         lab3(0,232,0,'β 折叠底板','#8a6a33',10.5,650); }
+
+  /* 两道关的读数板 */
+  if(D){
+    [['握得住吗','CDR1/2 ←→ 两条螺旋','#6BA8FF'],
+     ['认得出吗','CDR3 ←→ 凹槽里的肽','#FF6B8A']].forEach(([t,sub,c],i)=>{
+      const ry=-10+i*84, rx=430;
+      box3(rx,ry,-120,262,70,10,'#12321f');
+      lab3(rx-90,ry-14,-114,t,'#E8EEFB',12.5,800);
+      lab3(rx-90,ry+10,-114,sub,c,10,650);
+      lab3(rx+100,ry-2,-114,'✓','#5CE8A8',22,800);});
+    lab3(430,132,-120,'两关都过 → 激活','#5CE8A8',12.5,800);
+  }
+
+  /* 左边一排：六种型号 */
+  HLA6.forEach((h,i)=>{
+    const pz=(i-2.5)*168;
+    pmhc3(-660,150,pz,h.c,toRes(h.seq),0.40,D,D?[[-58,h.pk[0]],[58,h.pk[1]]]:null,true);
+    lab3(-660,196,pz,h.n,h.c,D?12:10.5,800);
+    if(D) lab3(-660,216,pz,h.mot,'#7E90B4',9.5,600);});
+  lab3(-660,64,0,'同一个细胞表面的六种 HLA','#C4A0FF',13,800);
+ },
+ draw(){
+  this.world(false); flush();
+  lensDraw(()=>this.world(false), ()=>this.world(true));
+  minimap(-300,250,54);
+ }};
+
+
+
+
+
+S['rag']={is3d:true,view:[-0.12,-0.20,940,false],
+ cap:['V(D)J 重排','一个 TCR = 两条链，各自一套基因库'],
+ steps:[
+  '先看清楚：一个 TCR 是 α 和 β 两条链拼起来的。两条链在不同染色体上，各有一套基因库 —— β 有 V-D-J，α 只有 V-J（没有 D）。顺序是硬的：先 β，验货过了才轮到 α。',
+  'β 先开工。α 位点这时还锁着 —— 要等 β 做完、pre-TCR 验货通过，RAG 重新开启后才轮到它。',
+  '各选一段。选哪个是随机的，但每个片段有自己的权重（usage bias）。',
+  '① 牵手 synapse：12 和 23 指 RSS 里 spacer 的碱基数（≈ 一圈 / 两圈螺旋）。差这一圈，两个 RSS 才转得到同一侧对齐，RAG 同时抓住，中间鼓成一个环。',
+  '② 切 cleavage：剪口在七聚体与编码段的交界，紧贴 V 的右端、J 的左端 —— 不是剪隆起的顶上。切之前两端已经被抓在一起。',
+  '③ 丢弃：整个环脱落，两个 RSS 也在环里一起丢掉，成品基因里没有 RSS。这个环叫 TREC，不复制，随分裂被稀释。',
+  '④ 缝 join：两个编码端形成发夹 → Artemis 打开（切偏产生 P 核苷酸）→ 啃掉 0–5 个 → TdT 随机加 N 核苷酸 → 这就是 CDR3。',
+  '⑤ β 过了 pre-TCR 检查点，才轮到 α 用同一套流程跑一遍（少一个 D）。最后两条链随机凑成一对 —— 多样性是相乘的，这是第三层。'],
+ dur:[1.8,1.3,1.3,1.8,1.5,1.5,1.9,2.2],
+ draw(){
+  const [k,p]=stage(this.dur);
+  const YB=-30, YA=110;                 // β 在上，α 在下
+  const XA=-120, XB=140;
+
+  /* ---------- α 位点：全程都在，跟着 β 一起跑 ---------- */
+  const aActive=k>=1;
+  const aDone=k>=7;
+  rod3([-320,YA,0],[300,YA,0],3,'#232c44');
+  if(!aDone){
+    for(let i=0;i<8;i++)box3(-290+i*26,YA,0,18,14,20,(k>=2&&i===5)?'#2f6b4f':'#1f3b30');
+    for(let i=0;i<5;i++)box3(60+i*26,YA,0,18,14,20,(k>=2&&i===2)?'#4a3f6b':'#221d33');
+    box3(236,YA,0,40,14,20,'#2b3550','C','#5C6B8A');
+    lab3(-190,YA+28,0,'V','#3f7a5e',10.5,650);
+    lab3(112,YA+28,0,'J（α 没有 D）','#4a3f6b',10.5,650);
+  } else {
+    box3(-40,YA,0,150,26,38,'#2f6b4f','α 链 重排完成','#DCFFEE');
+  }
+  lab3(-300,YA-26,0,aDone?'TCRα · 14 号染色体 ✓ 后开工':'TCRα · 14 号染色体（后开工）',
+       aDone?'#5CE8A8':'#5C6B8A',11,650,'left');
+  if(!aDone)lab3(300,YA-26,0, k<=1?'还锁着':'等 β 验货通过才开工','#5C6B8A',10.5,600);
+
+  /* ---------- β 位点 ---------- */
+  lab3(-300,YB-58,0,'TCRβ · 7 号染色体','#8ef4ff',11,650,'left');
+  if(k<=2){
+    rod3([-320,YB,0],[300,YB,0],3,'#2b3550');
+    for(let i=0;i<10;i++)box3(-290+i*24,YB,0,18,16,22,(k>=2&&i===7)?'#5CE8A8':'#2f6b4f');
+    for(let i=0;i<3;i++)box3(-20+i*24,YB,0,18,16,22,(k>=2&&i===1)?'#FFC46B':'#7a6a3f');
+    for(let i=0;i<5;i++)box3(80+i*24,YB,0,18,16,22,(k>=2&&i===3)?'#8B6CFF':'#4a3f6b');
+    box3(236,YB,0,44,16,22,'#3a4a70','C','#C7D3E8');
+    lab3(-170,YB-30,0,'V ×~40','#5CE8A8',11.5,650);
+    lab3(4,YB-30,0,'D','#FFC46B',11.5,650);
+    lab3(152,YB-30,0,'J ×~13','#8B6CFF',11.5,650);
+    if(k===0)lab3(0,YB-92,0,'两条链 · 两套基因库 · 先 β 后 α','#3BE8FF',13,700);
+    return;
+  }
+  /* ---------- 牵手 / 切 / 丢 / 缝 ---------- */
+  const q2=k===3?ease(p):1;
+  const chord=(XB-XA)*(1-0.86*q2);
+  const amp=(XB-XA)*0.62*q2;
+  const gone=k>=5?ease(k===5?p:1):0;
+  rod3([-320,YB,0],[XA,YB,0],3,'#2b3550');
+  rod3([XA+chord,YB,0],[300,YB,0],3,'#2b3550');
+  box3(XA-20,YB,0,34,18,24,'#5CE8A8','V','#0b1020');
+  box3(XA+chord+20,YB,0,34,18,24,'#8B6CFF','J','#0b1020');
+  if(gone<1){
+    const N=26,pts=[];
+    for(let i=0;i<=N;i++){const u=i/N;
+      pts.push([XA+chord*u, YB-amp*Math.sin(Math.PI*u), Math.sin(Math.PI*u)*amp*0.35]);}
+    const fly=gone*190;
+    for(let i=0;i<N;i++){const a1=pts[i],b1=pts[i+1];
+      rod3([a1[0],a1[1]-fly,a1[2]],[b1[0],b1[1]-fly,b1[2]],2.6,gone>0?'#5C6B8A':'#3a4a70');}
+    if(q2>.35){const m=pts[Math.round(N/2)];
+      lab3(m[0],m[1]-fly-22,m[2],
+        gone>0?'TREC · 整个环丢掉（两个 RSS 也在里面）':'中间这一大段','#7E90B4',11,600);}
+  }
+  const rA=XA+4, rB=XA+chord-4;
+  if(gone<1){
+    box3(rA,YB,14,16,14,14,'#2f6b4f');
+    lab3(rA,YB+30,14,'12 bp 间隔','#9DFFD0',9.5,700);
+    box3(rB,YB,14,22,14,14,'#7a3347');
+    lab3(rB,YB+30,14,'23 bp 间隔','#FF9BB0',9.5,700);
+  }
+  if(k===3&&q2>.75)lab3((XA+XB)/2,YB-amp-40,0,'RAG 把两个 RSS 拉到面对面','#3BE8FF',12,700);
+  if(k===4){
+    const f=.4+.6*Math.abs(Math.sin(t*10));
+    beam3([rA,YB-26,0],[rA,YB+26,0],'#FF6B8A',3,f);
+    beam3([rB,YB-26,0],[rB,YB+26,0],'#FF6B8A',3,f);
+    lab3((rA+rB)/2,YB-70,0,'剪口紧贴编码段，不是剪隆起的顶上','#FF6B8A',12,700);
+  }
+  if(k>=6){
+    const q=k===6?ease(p):1;
+    for(let i=0;i<5;i++){const a=clamp(q*5-i,0,1);
+      if(a>0)ball3(XA+6+i*9,YB,16,4.2*a,i<2?'#FF6B8A':'#FFC46B',a*12);}
+    if(q>.5){lab3(XA-34,YB-34,16,'啃掉','#FF6B8A',10.5,650);
+             lab3(XA+52,YB-34,16,'TdT 加上','#FFC46B',10.5,650);}
+    if(q>.8)lab3(XA+12,YB+42,16,'CDR3','#3BE8FF',12,700);
+  }
+  /* ---------- 配对 ---------- */
+  if(k>=7){
+    const q=ease(p);
+    box3(-40,YB,0,150,26,38,'#33507f','β 链 重排完成','#DCE9FF');
+    if(q>.4){
+      const f=.5+.5*Math.abs(Math.sin(t*3));
+      beam3([-40,YB+13,0],[-40,YA-13,0],'#3BE8FF',3,f*q);
+      box3(-40,(YB+YA)/2,0,240,34,50,'#3BE8FF','αβ 异二聚体 = 一副眼睛','#0b1020');
+    }
+    if(q>.4)lab3(-40,YB-46,0,'β 先过 pre-TCR 检查点','#9DFFD0',10.5,600);
+    if(q>.7){
+      lab3(0,YA+70,0,'~10⁶ 种 β  ×  ~10⁶ 种 α','#FFC46B',12.5,700);
+      lab3(0,YA+96,0,'多样性是相乘的 —— 第三层','#7E90B4',11,600);}
+  }
+ }};
+
+/* ========== ① V(D)J 与库容 ========== */
+
+
+
+
+
+
+
+
+
+
+
+
+/* ========== ② 库容与检测 ========== */
+
+
+
+
+
+
+/* ========== ③ TCR 信号 ========== */
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+/* ========== 3D 场景：可拖着转 ========== */
+const MEM='#28324c', APC='#1e2a44';
+
+/* MHC-I 分子（3D）：α1/α2 平台 + 肽 + α3 + β2m */
+function mhc3(cx,cz,y,cls,pepN,hi){
+  box3(cx,y-6,cz,120,14,58,'#d9a24e');                 // α1/α2 平台
+  for(let i=0;i<pepN;i++){
+    const px=cx-((pepN-1)/2-i)*(96/(pepN-1||1));
+    const an=cls===1&&(i===1||i===pepN-1);
+    ball3(px,y-16,cz,an?7:5,an?'#ffd27a':'#3BE8FF',an&&hi?14:0);}
+  box3(cx-16,y+30,cz,44,52,40,'#5C6B8A',cls===1?'α3':'β2','#E8EEFB');
+  if(cls===1)box3(cx+38,y+34,cz+4,36,40,34,'#465577','β2m','#C7D3E8');
+  rod3([cx,y+56,cz],[cx,y+92,cz],5,'#3a4a70');
+}
+/* T 细胞侧：TCR + 两个 CD3 */
+function tcr3(cx,cz,y,glowITAM){
+  box3(cx,y,cz,66,34,52,'#33507f','TCR','#DCE9FF');
+  rod3([cx-14,y+17,cz],[cx-14,y+70,cz],4,'#3a4a70');
+  rod3([cx+14,y+17,cz],[cx+14,y+70,cz],4,'#3a4a70');
+  [-52,52].forEach(dx=>{
+    box3(cx+dx,y+34,cz,36,26,34,'#3a4a70','CD3','#C7D3E8');
+    if(glowITAM)for(let j=0;j<2;j++)
+      ball3(cx+dx,y+56+j*16,cz,5,'#3BE8FF',14);});
+}
+
+S['tcr-cplx']={is3d:true,cap:['TCR–CD3 复合体','TCR 自己不传信号，靠 CD3 与 ζ 链上的 ITAM'],
+ steps:['TCRαβ 在胞外认 pMHC。','但它的胞内段极短，自己传不了信号。','信号靠 CD3 与 ζ 链上的 10 个 ITAM。'],
+ dur:[1.4,1.5,1.8], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(120,520,300,MEM,14);
+  tcr3(0,0,-10,k>=2);
+  lab3(0,-70,0,'TCRαβ · 认 pMHC','#8ef4ff',13,700);
+  if(k>=1)lab3(0,64,60,'胞内段极短','#FF6B8A',12,650);
+  if(k>=2){lab3(0,132,60,'ITAM × 10','#3BE8FF',13,700);}
+ }};
+
+S['synapse']={is3d:true,view:[-0.6,-0.55,820],cap:['免疫突触','先抱住，才听得见'],
+ steps:['TCR 和黏附分子一开始散在整个接触面。','inside-out 让 LFA-1 变高亲和，分子开始重排。','形成三层：中央 cSMAC、外圈 pSMAC、最外 dSMAC。'],
+ dur:[1.5,1.6,2.0], draw(){
+  const [k,p]=stage(this.dur);
+  const q=k>=1?ease(k===1?p:1):0;
+  slab3(90,460,460,APC,12); slab3(-90,460,460,MEM,12);
+  for(let i=0;i<30;i++){
+    const a=i*2.399, r0=190, r1=i%3===0?42:120;
+    const r=r0+(r1-r0)*q;
+    const px=Math.cos(a)*r, pz=Math.sin(a)*r;
+    const c=i%3===0?'#3BE8FF':'#5CE8A8';
+    rod3([px,-78,pz],[px,78,pz],3.4,c);
+    ball3(px,0,pz,7,c,q>.7?10:0);}
+  if(k>=2){
+    lab3(0,-4,0,'cSMAC · TCR-pMHC','#0b1020',12,700);
+    lab3(0,120,150,'pSMAC · LFA-1 / ICAM-1','#5CE8A8',12,650);}
+ }};
+
+S['mhc1-load']={is3d:true,view:[-0.20,-0.26,860,false],cap:['class I 装载流水线','胞质蛋白 → 蛋白酶体 → TAP → ER → 表面'],
+ steps:['胞质里的蛋白，自己的或病毒的。','蛋白酶体切成小段。','TAP 转进内质网。','在 ER 里装进 MHC-I。','摆到细胞表面，给 CD8 看。'],
+ dur:[1.2,1.3,1.3,1.3,1.8], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(150,560,220,MEM,14);
+  const st=[[-210,'蛋白','#5C6B8A'],[-105,'蛋白酶体','#8B6CFF'],[0,'TAP','#3BE8FF'],
+            [105,'ER 装载','#FFC46B'],[210,'表面','#5CE8A8']];
+  st.forEach(([px,lab,c],i)=>{
+    const on=k>=i;
+    box3(px,60,0,84,40,58,on?c:'#2b3550',lab,on?'#0b1020':'#5C6B8A');});
+  /* 肽沿流水线跑 */
+  const prog=clamp((t-1.2)/4.0,0,1);
+  ball3(-210+prog*420,10,0,8,'#ffd27a',16);
+  if(k>=4){ mhc3(210,0,-30,1,9,true);
+    lab3(210,-70,0,'8–10 aa · 两端封闭','#FFC46B',12,650);}
+ }};
+
+S['cd28']={is3d:true,cap:['信号 2 与它的竞争者','CD28 拿到 B7 才算数；CTLA-4 抢同一只手'],
+ steps:['B7 只在成熟 APC 上高表达。','CD28 结合 B7 → 信号 2 成立。','CTLA-4 抢同一个 B7，亲和力高 10–20 倍。','没有信号 2 就激活 = anergy，永久的。'],
+ dur:[1.3,1.5,1.5,1.8], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(110,520,300,APC,12); slab3(-110,520,300,MEM,12);
+  box3(-90,72,0,60,34,48,'#FFC46B','B7','#0b1020');
+  box3(90,72,0,60,34,48,'#FFC46B','B7','#0b1020');
+  const q=k>=1?ease(k===1?p:1):0;
+  box3(-90,-70+120*q,0,66,32,46,'#33507f','CD28','#DCE9FF');
+  if(q>.85)beam3([-90,20,0],[-90,50,0],'#5CE8A8',3,1);
+  if(k>=2){const q2=ease(k===2?p:1);
+    box3(90,-70+120*q2,0,74,32,46,'#7a3347','CTLA-4','#FFE3EE');
+    if(q2>.8)beam3([90,20,0],[90,50,0],'#FF6B8A',3,1);}
+  if(k>=3)lab3(0,-120,0,'两个信号必须同一次接触、同一颗粒子','#FFC46B',12.5,650);
+ }};
+
+S['il2r']={is3d:true,cap:['IL-2R 三条链','孔越全，越轻轻一碰就通电'],
+ steps:['βγ 二聚体：中亲和 Kd ~10⁻⁹ M。','加上 α（CD25）变三聚体：高亲和 ~10⁻¹¹ M，差约 100 倍。','Treg 靠组成性 CD25 优先夺取 IL-2。'],
+ dur:[1.4,1.6,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(110,540,260,MEM,12);
+  const set=(cx,chains,on)=>{chains.forEach((c,i)=>{
+    const dx=(i-(chains.length-1)/2)*40;
+    box3(cx+dx,40,0,34,90,34,on?c[1]:'#2b3550',c[0],on?'#0b1020':'#5C6B8A');});};
+  set(-150,[['β','#5C6B8A'],['γ','#5C6B8A']],true);
+  set(150,[['α','#FFC46B'],['β','#5C6B8A'],['γ','#5C6B8A']],k>=1);
+  lab3(-150,-40,0,'βγ · 中亲和','#93A4C4',12,650);
+  if(k>=1)lab3(150,-40,0,'αβγ · 高亲和','#5CE8A8',12,650);
+  if(k>=2){ball3(150,-100+Math.sin(t*3)*8,0,12,'#3BE8FF',18);
+    lab3(150,-140,0,'IL-2','#3BE8FF',12,700);}
+ }};
+
+S['cross']={is3d:true,cap:['交叉呈递','给规则开的一个口子'],
+ steps:['外源抗原被 DC 吞进来。','按规则该走 class II —— 但有通道让它绕进 MHC-I。','于是被 CD8 看见。','主力是 cDC1。没有这条路，不感染 DC 的病毒 CD8 永远看不到。'],
+ dur:[1.3,1.6,1.5,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(150,540,260,APC,14);
+  ball3(-190,60,0,26,'#8B6CFF',k>=0?10:0);
+  lab3(-190,10,0,'外源抗原','#C4B0FF',12,650);
+  if(k>=1){const q=ease(k===1?p:1);
+    const px=-190+q*380, py=60-Math.sin(q*Math.PI)*110;
+    ball3(px,py,0,14,'#8B6CFF',14);
+    lab3(0,-90,0,'绕道','#8B6CFF',12,700);}
+  if(k>=2){mhc3(190,0,20,1,9,true);
+    lab3(190,-72,0,'装进 MHC-I','#FF6B8A',12.5,700);}
+  if(k>=3)lab3(0,150,0,'主力是 cDC1','#93A4C4',12,600);
+ }};
+
+S['mhc-hla']={is3d:true,cap:['MHC / HLA / H-2','同一个概念的三个名字'],
+ steps:['MHC 是跨物种的通用概念。','人的叫 HLA（6 号，A/B/C），小鼠的叫 H-2（17 号，K/D/L）。','说人的 MHC 没错，说小鼠的 HLA 就露怯了。'],
+ dur:[1.3,1.6,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(150,560,300,MEM,14);
+  mhc3(-150,0,0,1,9,k>=1);
+  mhc3(150,0,0,1,9,k>=1);
+  lab3(-150,-80,0,'HLA · 人','#3BE8FF',14,700);
+  lab3(150,-80,0,'H-2 · 小鼠','#FFC46B',14,700);
+  if(k>=1){lab3(-150,-56,0,'6 号染色体 · A B C','#93A4C4',11,600);
+    lab3(150,-56,0,'17 号染色体 · K D L','#93A4C4',11,600);}
+  if(k>=2)lab3(0,150,0,'长相一样，序列不同 —— 人的 CD8 接不上小鼠 α3','#FF9BB0',12,650);
+ }};
+
+S['cdr3']={is3d:true,view:[-0.62,-0.52,900,false],
+ cap:['六个 CDR 环怎么压上去','TCR 是斜着扣在 pMHC 上的'],
+ steps:[
+  '同一个细胞表面挂着 6 种 HLA（A/B/C 各两个）。它们的凹槽口袋形状各不相同 —— 所以能装的肽也不同。',
+  'TCR 降下来，只有形状对得上的那一个才结合得住。',
+  'TCR 不是正着压下去的，是斜着扣上去：Vα 压在一边，Vβ 压在另一边，大约 45–70 度。',
+  '六个环各就各位：CDR1/2 分踞两侧贴 MHC 的两条螺旋，CDR3α 和 CDR3β 在正中间压住肽。',
+  '局部放大：接触面约 2/3 在 MHC 螺旋上，但决定认不认的是中间那两个 CDR3 和肽的贴合。'],
+ dur:[2.0,1.6,1.8,2.0,2.4],
+ draw(){
+  const [k,p]=stage(this.dur);
+  const AL=[['A*02:01','#5CE8A8',[2,9],'浅疏水'],['A*01:01','#3BE8FF',[3,9],'带负电'],
+            ['B*07:02','#8B6CFF',[2,9],'脯氨酸'],['B*44:02','#C4A0FF',[2,9],'带电'],
+            ['C*07:01','#FFC46B',[2,9],'窄'],['C*05:01','#FF9BB0',[2,9],'深']];
+
+  /* ---------- 第 1 步：细胞表面六种型号，口袋形状不同 ---------- */
+  if(k===0){
+    slab3(150,620,260,'#28324c',14);
+    AL.forEach((a,i)=>{
+      const px=(i-2.5)*105;
+      /* 两条螺旋 */
+      box3(px,60,-15,74,12,12,a[1]);
+      box3(px,60,15,74,12,12,a[1]);
+      /* 口袋：每个型号深浅宽窄不同 */
+      const dep=[7,10,13,9,5,15][i], wid=[9,11,8,12,6,13][i];
+      box3(px-18,66+dep/2,0,wid,dep,14,shade3(a[1],.55));
+      box3(px+18,66+dep/2,0,wid+2,dep-2,14,shade3(a[1],.55));
+      lab3(px,20,0,a[0],a[1],10.5,700);
+      lab3(px,38,0,a[3],'#7E90B4',9.5,500);});
+    lab3(0,-40,0,'六个型号 · 六种口袋形状','#3BE8FF',13.5,700);
+    return;
+  }
+
+  /* ---------- 之后：只看其中一个 ---------- */
+  const C=AL[0][1];
+  /* MHC 两条螺旋 + 肽 */
+  box3(0,40,-30,300,20,26,'#d9a24e');   lab3(-170,40,-30,'α1 螺旋','#FFD9A3',11,650);
+  box3(0,40,30,300,20,26,'#c08f3f');    lab3(-170,40,30,'α2 螺旋','#FFD9A3',11,650);
+  for(let i=0;i<9;i++){
+    const px=-108+i*27, an=(i===1||i===8);
+    ball3(px,34,0,an?9:6.5,an?'#ffd27a':'#3BE8FF',an&&k>=4?12:0);
+    if(an&&k>=4)lab3(px,58,0,'P'+(i+1),'#FFC46B',9.5,700);}
+  if(k>=1)lab3(0,86,0,'pMHC','#C7D3E8',11.5,650);
+
+  /* ---------- TCR：斜着扣上去 ---------- */
+  const drop=k>=1?ease(k===1?p:1):0;
+  const tilt=k>=2?ease(k===2?p:1):0;
+  const ty=-140+drop*95;
+  /* Vα 偏一侧，Vβ 偏另一侧 —— 对角式结合 */
+  const ax=-52-18*tilt, az=26*tilt;
+  const bx=52+18*tilt,  bz=-26*tilt;
+  box3(ax,ty,az,84,42,58,'#2f6b4f','Vα','#DCFFEE');
+  box3(bx,ty,bz,84,42,58,'#33507f','Vβ','#DCE9FF');
+  rod3([ax,ty+21,az],[ax,ty+70,az],5,'#3a4a70');
+  rod3([bx,ty+21,bz],[bx,ty+70,bz],5,'#3a4a70');
+  if(k===2&&tilt>.6)lab3(0,ty-52,0,'斜着扣 · 约 45–70 度','#3BE8FF',12.5,700);
+
+  /* ---------- 六个 CDR 环 ---------- */
+  if(k>=3){
+    const q=ease(k===3?p:1);
+    const loops=[
+      ['CDR1α','#5CE8A8',ax-30,az+26,-118,34,30],
+      ['CDR2α','#9DFFD0',ax+6, az+30,-46, 34,30],
+      ['CDR3α','#3BE8FF',ax+30,az-2,  -40,30,0],
+      ['CDR1β','#33507f',bx+30,bz-26, 118,34,-30],
+      ['CDR2β','#7FA6E8',bx-6, bz-30, 46, 34,-30],
+      ['CDR3β','#8ef4ff',bx-30,bz+2,  40, 30,0]];
+    loops.forEach(([lab,c,lx,lz,tx,tyy,tz],i)=>{
+      const a=clamp(q*6-i*0.6,0,1);
+      if(a<=0)return;
+      ball3(lx,ty+26,lz,8,c,10);
+      lab3(lx,ty+48,lz,lab,c,9.5,700);
+      beam3([lx,ty+30,lz],[tx,tyy,tz],c,2,a*.85);});
+    if(q>.9){
+      lab3(-190,-40,0,'CDR1/2 → 贴螺旋','#9DFFD0',11.5,650);
+      lab3(190,-40,0,'CDR3 → 压肽','#3BE8FF',11.5,650);}
+  }
+
+  /* ---------- 局部放大 ---------- */
+  if(k>=4){
+    const q=ease(p), Z=250;                 // 放大区画在右下角
+    x.save();
+    /* 放大的凹槽 */
+    box3(0,240,-46,220,16,20,'#d9a24e');
+    box3(0,240,46,220,16,20,'#c08f3f');
+    for(let i=0;i<9;i++){const px=-88+i*22, an=(i===1||i===8);
+      ball3(px,234,0,an?11:8,an?'#ffd27a':'#3BE8FF',an?14:0);}
+    /* 两个 CDR3 压在中间 */
+    ball3(-26,200,0,13,'#3BE8FF',16); lab3(-26,178,0,'CDR3α','#3BE8FF',10.5,700);
+    ball3(26,200,0,13,'#8ef4ff',16);  lab3(26,178,0,'CDR3β','#8ef4ff',10.5,700);
+    beam3([-26,208,0],[-44,230,0],'#3BE8FF',2.4,q);
+    beam3([26,208,0],[44,230,0],'#8ef4ff',2.4,q);
+    /* CDR1/2 压两侧螺旋 */
+    ball3(-95,205,-40,10,'#9DFFD0',10); lab3(-95,185,-40,'CDR1/2α','#9DFFD0',10,650);
+    ball3(95,205,40,10,'#7FA6E8',10);   lab3(95,185,40,'CDR1/2β','#7FA6E8',10,650);
+    beam3([-95,213,-40],[-70,234,-40],'#9DFFD0',2,q*.8);
+    beam3([95,213,40],[70,234,40],'#7FA6E8',2,q*.8);
+    lab3(0,290,0,'局部放大 · 接触面','#93A4C4',11,650);
+    lab3(0,312,0,'面积 2/3 在螺旋上，判定靠中间那两个 CDR3','#FFC46B',11.5,650);
+    x.restore();
+  }
+ }};
+/* ===== 第二批 3D 场景 ===== */
+function cellBall(cx,cy,cz,r,col,dead,glowR){
+  ball3(cx,cy,cz,r,dead?'#3a4356':col,glowR);
+  if(!dead)ball3(cx-r*.35,cy-r*.35,cz+r*.5,r*.22,'#0b1020');
+}
+/* 一条染色体：底杆 + 一排片段方块 */
+function locus3(y,z,x0,x1,segs){
+  rod3([x0-20,y,z],[x1+20,y,z],3,'#2b3550');
+  segs.forEach(s=>box3(s.x,y,z,s.w,16,22,s.c,s.lab,'#0b1020'));
+}
+
+S['tfactory']={is3d:true,cap:['胸腺 = 警校','随机配眼睛，两道关，毕业率不到 5%'],
+ steps:['每天造出大量新兵，每人随机配一副眼睛。','第一关 正选择：连相框都看不见的，淘汰。',
+        '第二关 负选择：强烈认自己的，当场删除。','活着出厂的不到 5%。'],
+ dur:[1.4,1.5,1.5,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(120,560,220,'#28324c',12);
+  for(let i=0;i<16;i++){
+    const px=-260+i*35;
+    const failA=i%3===0, failB=i%5===1&&!failA;
+    let drop=0,dead=false;
+    if(k>=1&&failA){dead=true;drop=ease(k===1?p:1)*130;}
+    if(k>=2&&failB){dead=true;drop=ease(k===2?p:1)*130;}
+    cellBall(px,60+drop,0,13,'#3BE8FF',dead,(!dead&&k>=3)?14:0);}
+  [[-90,'正选择',1],[90,'负选择',2]].forEach(([px,lab,st])=>{
+    box3(px,20,0,10,120,90,k>=st?'#7a3347':'#2b3550');
+    lab3(px,-56,0,lab,k>=st?'#FF9BB0':'#5C6B8A',12,650);});
+  if(k>=3)lab3(230,-30,0,'活着出厂 <5%','#5CE8A8',13,700);
+ }};
+
+
+
+S['pretcr']={is3d:true,cap:['β-selection','先考一半：能亮灯才准继续'],
+ steps:['β 链先重排好。','配上一条不变的 pTα，组成 pre-TCR。','不需要配体就自发亮灯 → 存活、增殖、关掉另一条 β、暂时关掉 RAG；进入 DP 期后 RAG 重开，这时才轮到 α。'],
+ dur:[1.3,1.5,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(110,520,260,'#28324c',12);
+  const q=k>=1?ease(k===1?p:1):0;
+  box3(-60+40*q,30,0,54,44,44,'#2f6b4f','β','#DCFFEE');
+  box3(60-40*q,30,0,54,44,44,'#5C6B8A','pTα','#E8EEFB');
+  if(k>=2){ball3(0,-40,0,16+Math.sin(t*4)*2,'#3BE8FF',22);
+    lab3(0,-84,0,'自发信号 · 不需要配体','#3BE8FF',12,650);}
+ }};
+
+S['allelic']={is3d:true,view:[-0.15,-0.25,800,false],cap:['等位排斥','一个细胞只准一副眼睛'],
+ steps:['父母各给一条 TCRβ 等位基因。','其中一条重排成功，pre-TCR 亮灯。','反馈关掉 RAG，另一条停工。α 链排斥不完全，10–30% 带两条 α。'],
+ dur:[1.3,1.5,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  const off=k>=2?ease(k===2?p:1):0;
+  locus3(-60,0,-260,-40,[{x:-150,w:180,c:k>=1?'#2f6b4f':'#3a4a70',lab:'重排成功'}]);
+  locus3(60,0,40,260,[{x:150,w:180,c:off>.3?'#33384a':'#3a4a70',lab:'另一条'}]);
+  lab3(-150,-100,0,'父给','#93A4C4',11.5,600);
+  lab3(150,110,0,'母给','#93A4C4',11.5,600);
+  if(k>=1)ball3(-150,-24,0,12,'#5CE8A8',16);
+  if(k>=2){beam3([-150,-24,0],[150,26,0],'#FF6B8A',2.4,.85*off);
+    lab3(0,-10,0,'反馈关闭 RAG','#FF6B8A',12,650);}
+ }};
+
+S['clone']={is3d:true,cap:['克隆扩增','特异性靠挑，强度靠复制'],
+ steps:['一个被点名的克隆。','开始分裂扩增。','一周可达 10³ 倍，全都认同一张脸。'],
+ dur:[1.3,1.9,1.7], draw(){
+  const [k,p]=stage(this.dur);
+  const q=k===0?0:(k===1?ease(p):1);
+  const n=Math.round(1+q*59);
+  for(let i=0;i<n;i++){
+    const a=i*2.399, r=q*(14+Math.sqrt(i)*20), yy=Math.sin(i*1.7)*q*70;
+    cellBall(Math.cos(a)*r,yy,Math.sin(a)*r,11,'#5CE8A8',false,i===0?14:0);}
+  if(k>=2)lab3(0,-150,0,'一周 10³ 倍','#5CE8A8',14,700);
+ }};
+
+S['repertoire']={is3d:true,view:[-0.35,-0.30,820],cap:['richness ≠ clonality','数量多不等于均匀'],
+ steps:['初始库：很多克隆型，分布均匀。','应答后：少数克隆霸占。','richness 降、clonality 升。比较前必须按测序深度归一化。'],
+ dur:[1.5,1.6,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(120,560,260,'#1e2a44',10);
+  const flat=[.5,.55,.48,.6,.52,.58,.5,.54,.47,.56];
+  const spiky=[.14,.1,1,.12,.08,.62,.1,.14,.09,.11];
+  const q=k>=1?ease(k===1?p:1):0;
+  flat.forEach((v,i)=>{
+    const h=v*150, px=-250+i*26;
+    box3(px,110-h/2,-60,18,h,18,'#3BE8FF');});
+  spiky.forEach((v,i)=>{
+    const h=(flat[i]+(v-flat[i])*q)*150, px=60+i*26;
+    box3(px,110-h/2,-60,18,h,18,'#FFC46B');});
+  lab3(-120,-100,-60,'初始库 · 均匀','#3BE8FF',12,650);
+  if(k>=1)lab3(180,-100,-60,'被少数克隆霸占','#FFC46B',12,650);
+ }};
+
+S['cdr6']={is3d:true,view:[-0.22,-0.52,760,false],
+ cap:['六个环 · 两道关','握得住吗（CDR1/2 对螺旋）· 认得出吗（CDR3 对肽）'],
+ steps:[
+  '先只看 APC 那一侧的上表面：两条 α 螺旋像两道栏杆，中间的凹槽里躺着 9 个氨基酸的肽。这就是 TCR 要看的"脸"。',
+  'TCR 的头部是两个桶：Vα 和 Vβ。它们斜着压下来 —— 不是正对，是对角，这个角度是固定的。',
+  '每个桶的底部垂下三个环。Vα 出 CDR1α/2α/3α，Vβ 出 CDR1β/2β/3β。三 + 三 = 六个环。',
+  'CDR1 和 CDR2 全部落在两条螺旋上 —— 由 V 基因编码，出厂就长成贴螺旋的形状。它们负责"握住"。',
+  'CDR3α 和 CDR3β 是唯一伸到中间、直接压在肽上的。来自 V(D)J 焊缝，每个克隆都不一样。认不认得全看这两个。',
+  '两道关都亮绿 → 激活。右边那两行就是这两道关的读数。',
+  '关卡一失败：换成别人的 HLA。螺旋的形状变了，CDR1/2 贴不上去 —— 手都握不上，后面根本轮不到。这就是 MHC restriction。',
+  '关卡二失败：HLA 没变，握得稳稳的，但凹槽里换了一个肽。CDR3 伸下去一摸，不认识 —— 松手走人。绝大多数擦肩而过都是这一种。',
+  '所以：CDR1/2 从 V 基因里选，种类有限（人约 45 个 TRAV / 48 个 TRBV）；CDR3 是现场随机拼的，种类近乎无限。差异几乎全在 CDR3 上 —— 这就是为什么只比 CDR3 也能分得开克隆。'],
+ dur:[1.6,1.7,1.9,1.9,2.0,1.8,2.0,2.0,2.2],
+ draw(){
+  const [k,p]=stage(this.dur);
+  const drop=k>=1?ease(k===1?p:1):0;
+  const badHLA=(k===6), badPEP=(k===7);
+  const gripOK=!badHLA, seeOK=!badHLA&&!badPEP;
+
+  /* --- MHC 两条螺旋（换人时形状变） --- */
+  const hz = badHLA?86:62, ht = badHLA?11:7, hr = badHLA?30:20;
+  const hc = badHLA?'#FF8FA3':'#FFC46B';
+  helix3([-240,badHLA?-16:0,-hz],[240,badHLA?12:0,-hz],hr,ht,hc,4);
+  helix3([-240,badHLA?12:0, hz],[240,badHLA?-16:0, hz],hr,ht,hc,4);
+  lab3(-306,0,-hz,'α1 螺旋',hc,12,700);
+  lab3(-306,0, hz,'α2 螺旋',hc,12,700);
+  if(badHLA) lab3(0,-176,0,'换成别人的 HLA：螺旋形状变了','#FF8FA3',13,800);
+
+  /* --- 肽（换肽时颜色/大小全变） --- */
+  const pepC = badPEP?['#8B6CFF','#FF8FA3','#6BA8FF']:['#5CE8A8','#5CE8A8','#5CE8A8'];
+  for(let i=0;i<9;i++)
+    ball3((i-4)*48,-8,0, badPEP?(10+(i%3)*5):13, pepC[i%3], (k>=4&&!badHLA)?12:0);
+  lab3(0,58,0, badPEP?'换了一个肽':'肽 · 9 个氨基酸', badPEP?'#FF8FA3':'#5CE8A8',12.5,700);
+  for(let i=-4;i<=4;i++) rod3([i*48,-8,-hz],[i*48,-8,hz],0.8,'#1c2438');
+
+  if(k<1) return;
+
+  /* --- 两个 V 桶 --- */
+  const by=-100-40*(1-drop)+(badHLA?-34:0);
+  igfold3(-95,by,38,86,72,64,'#2f6b4f','Vα','#DCFFEE');
+  igfold3( 95,by,-38,86,72,64,'#2b4a86','Vβ','#CFE0FF');
+  if(k===1) lab3(0,by-72,0,'斜着压下来 · 对角对接','#C7D3E8',12,650);
+
+  if(k<2) return;
+
+  /* --- 六个环 --- */
+  const L=[['CDR1α',-140,52,1],['CDR2α',-190,20,1],['CDR3α',-34,10,3],
+           ['CDR1β',140,-52,2],['CDR2β',190,-20,2],['CDR3β',34,-10,3]];
+  const C1='#6BA8FF',C2='#8B6CFF',C3='#FF6B8A';
+  const grow=ease(k===2?p:1);
+  L.forEach(([nm,lx,lz,grp])=>{
+    const base = grp===3?C3:(nm[3]==='1'?C1:C2);
+    const focus = (k<3)||(k===3&&grp<3)||(k===4&&grp===3)||k>=5;
+    const fail  = (badHLA&&grp<3)||(badPEP&&grp===3);
+    const col = fail?'#5C6B8A':(focus?base:'#26304a');
+    const ly = -46 + (1-grow)*40 + (badHLA?-34:0);
+    const lzz = lz*(badHLA?1.38:1);
+    loop3(lx,ly,lzz,22,col,0,focus?3.4:2);
+    rod3([lx,ly-4,lzz],[lx*0.62,by+34,lzz*0.62],2.2,fail?'#1e2740':col);
+    if(focus) lab3(lx,ly-40,lzz,nm,col,11.5,800);
+    if(focus&&!fail&&k>=3&&grp<3) ball3(lx,-4,lz,5,base,10);
+    if(focus&&!fail&&k>=4&&grp===3) ball3(lx,-14,0,5,base,12);
+    if(fail) lab3(lx,ly-62,lzz,'✕','#FF6B8A',17,800);
+  });
+
+  if(k===2) lab3(0,124,0,'3 + 3 = 6 个环','#C7D3E8',13,700);
+  if(k===3) lab3(0,124,0,'CDR1/2 → 落在螺旋上 · V 基因编码 · 出厂就定了','#6BA8FF',12,700);
+  if(k===4) lab3(0,124,0,'CDR3 → 唯一碰到肽的 · V(D)J 焊缝 · 每个克隆都不同','#FF6B8A',12,700);
+
+  /* --- 右边两道关的读数板 --- */
+  if(k>=5){
+    const rows=[['握得住吗','CDR1/2 ←→ 两条螺旋',gripOK,C1],
+                ['认得出吗','CDR3 ←→ 凹槽里的肽',seeOK,C3]];
+    rows.forEach(([t,sub,ok,c],i)=>{
+      const ry=-70+i*92, rx=372;
+      box3(rx,ry,0,270,74,10, ok?'#12321f':'#3a1622');
+      lab3(rx-96,ry-16,6,t,'#E8EEFB',13,800);
+      lab3(rx-96,ry+10,6,sub,'#8FA0BE',10.5,600);
+      lab3(rx+104,ry-2,6, ok?'✓':'✕', ok?'#5CE8A8':'#FF6B8A',26,800);
+    });
+    const pass=gripOK&&seeOK;
+    lab3(372,66,0, pass?'两关都过 → 激活':'有一关没过 → 松手走人',
+         pass?'#5CE8A8':'#FF6B8A',13,800);
+  }
+
+  if(k>=8){
+    lab3(0,150,0,'CDR1/2：从 V 基因里选，约 45 TRAV / 48 TRBV —— 种类有限','#6BA8FF',12,700);
+    lab3(0,178,0,'CDR3：现场随机拼接 —— 种类近乎无限','#FF6B8A',12,700);
+    lab3(0,206,0,'所以克隆之间的差异，几乎全部落在 CDR3 上','#FFC46B',12.5,800);
+  }
+ }};
+
+S['immunomap']={is3d:true,view:[-0.30,-0.16,760,false],
+ cap:['ImmunoMap · 什么是"加权序列距离"','两条只差一个字母的 CDR3，凭什么一个近一个远'],
+ steps:[
+  '每个字母 = 一个氨基酸的缩写。CASS 是 CDR3β 几乎人人都有的固定开头（C 来自 V 段末端，ASS 是保守 motif），后面那几位才是真正变的。三条克隆，长度一样，肉眼几乎看不出区别。',
+  '对齐，逐位比。三条都只在第 5 位不同：I / L / D。',
+  '朴素做法是数错配个数（Hamming）。A-B 错 1 个，A-C 也错 1 个 —— 两根柱子一样高，距离相同。这就丢信息了。',
+  '看侧链：I 和 L 都是疏水的枝杈，换了几乎不改环的形状；D 带负电，把那个位置的化学性质整个换掉了。',
+  '于是查替换矩阵给每一列一个罚分：I→L 罚 0.4，I→D 罚 3.2。加起来就是"加权距离"。柱子分开了。',
+  '所有序列两两算完，按这个距离聚类 —— 浮现出三个 motif 簇。这就是 ImmunoMap。'],
+ dur:[1.4,1.6,1.7,1.8,1.9,2.0],
+ draw(){
+  const [k,p]=stage(this.dur);
+  const SEQ=[['C','A','S','S','I','R','S','S','Y'],
+             ['C','A','S','S','L','R','S','S','Y'],
+             ['C','A','S','S','D','R','S','S','Y']];
+  const NAME=['克隆 A','克隆 B','克隆 C'], CC=['#3BE8FF','#5CE8A8','#FF6B8A'];
+  const HYD={I:1,L:1,A:1,Y:1}, NEG={D:1,E:1}, POL={S:1,C:1}, POS={R:1,K:1};
+  const rcol=r=>NEG[r]?'#6BA8FF':POS[r]?'#FF8FA3':HYD[r]?'#FFC46B':POL[r]?'#5CE8A8':'#8B6CFF';
+  const DIF=4;
+
+  if(k<5){
+    /* 三条序列 */
+    for(let s=0;s<3;s++){
+      const ry=(s-1)*118;
+      for(let i=0;i<9;i++){
+        const r=SEQ[s][i], hot=(k>=1&&i===DIF);
+        const dim=(k>=1&&i!==DIF);
+        const c=hot?rcol(r):(dim?'#26304a':rcol(r));
+        box3((i-4)*60,ry,0,50,38,40,c,r,hot?'#04060c':(dim?'#4a5670':'#04060c'));
+        if(hot&&k>=3) lab3((i-4)*60,ry+40,0,
+          NEG[r]?'带负电':'疏水枝杈', NEG[r]?'#6BA8FF':'#FFC46B',11,700);
+      }
+      lab3(-350,ry,0,NAME[s],CC[s],13,700,'left');
+    }
+    if(k>=1) lab3(0,-198,0,'第 5 位','#FFC46B',12.5,700);
+
+    /* 右边两根柱子 */
+    if(k>=2){
+      const t=k>=4?ease(k===4?p:1):0;
+      const bars=[['A · B',0,1,1,0.4,'#5CE8A8'],['A · C',1,0,2,3.2,'#FF6B8A']];
+      bars.forEach(([lab,ix,_,__,w,col])=>{
+        const bx=300+ix*95;
+        const h=(1*(1-t)+w*t)*44;
+        const c=t<.15?'#5C6B8A':col;
+        box3(bx,150-h/2,0,58,h,50,c);
+        lab3(bx,178,0,lab,'#C7D3E8',11.5,700);
+        lab3(bx,150-h-16,0,(t<.15?'1':(w).toFixed(1)),c,13,800);
+      });
+      lab3(348,214,0,k>=4?'加权距离':'错配个数',k>=4?'#FFC46B':'#7E90B4',12,700);
+      if(k===2) lab3(348,-176,0,'一样高 = 分不出来','#FF6B8A',11.5,700);
+      if(k>=4) lab3(348,-176,0,'分开了','#5CE8A8',11.5,700);
+    }
+    if(k>=4) lab3(-350,206,0,'d = Σ 每一列的罚分','#FFC46B',12.5,700,'left');
+  } else {
+    /* 最后一步：聚类 */
+    const q=ease(p);
+    const cols=['#5CE8A8','#8B6CFF','#FFC46B'];
+    for(let i=0;i<36;i++){
+      const a=i*2.399, g=i%3, r0=170+((i*31)%70);
+      const x0=Math.cos(a)*r0, y0=Math.sin(a*1.3)*70, z0=Math.sin(a)*r0;
+      const cx=(g-1)*170, cy=((i*17)%60)-30, cz=((i*23)%80)-40;
+      ball3(x0+(cx-x0)*q,y0+(cy-y0)*q,z0+(cz-z0)*q,8,q>.4?cols[g]:'#3BE8FF',q>.6?10:0);}
+    if(q>.6)['motif 1','motif 2','motif 3'].forEach((s,i)=>
+      lab3((i-1)*170,-118,0,s,cols[i],12,700));
+    if(q>.8) lab3(0,168,0,'距离近的自动抱团 —— 序列不同也能聚到一起','#C7D3E8',12,650);
+  }
+ }};
+
+S['multimer']={is3d:true,cap:['多聚体','把弱结合变成抓住不放'],
+ steps:['左边单价 pMHC，右边四价多聚体。','冲洗。','单价掉光，四价还挂着 —— 用几何多价换 avidity。'],
+ dur:[1.5,1.7,1.8], draw(){
+  const [k,p]=stage(this.dur);
+  const wash=k>=1?ease(k===1?p:1):0;
+  [[-170,1,'#3BE8FF','单价'],[170,4,'#5CE8A8','四价']].forEach(([cx,n,c,lab])=>{
+    ball3(cx,0,0,58,'#1e2a44',0);
+    for(let i=0;i<n;i++){
+      const a=-Math.PI/2+(i-(n-1)/2)*0.42;
+      const off=(n===1)?wash*130:0;
+      const rx=cx+Math.cos(a)*62, ry=Math.sin(a)*62-off, rz=(i-1.5)*10;
+      if(n===1&&wash>.95)return;
+      rod3([cx,0,0],[rx,ry,rz],3,'#3a4a70');
+      box3(rx,ry-8,rz,26,10,20,c);}
+    lab3(cx,92,0,lab,c,12.5,700);});
+  if(k>=1)lab3(0,-140,0,'冲洗','#3BE8FF',13,700);
+  if(k>=2){lab3(-170,-96,0,'掉光','#FF6B8A',12,650);
+    lab3(170,-96,0,'还挂着','#5CE8A8',12,650);}
+ }};
+S['bigmap']={is3d:true,lens:true,view:[-0.10,-0.13,1400,false],px:[900,620],
+ /* 每一步镜头落在哪：[x, y, dist]。dist 越小越近 */
+ CAM18:[[120,-180,1500],[440,-170,900],[440,-190,1150],[-30,-250,640],
+        [150,-30,720],[-70,120,900],[190,110,700],[190,240,700],
+        [540,150,900],[330,320,820],[140,440,780],[80,760,1250],
+        [-330,-110,820],[-560,200,980],[-600,-190,940],[-680,-60,1150],
+        [-680,40,1050],[600,130,1350]],
+ cap:['一整条路 · 从两个细胞贴上到细胞核开工','上面是 APC，下面是 T 细胞。所有分子都在它们该在的位置'],
+ steps:[
+  '先看清楚这是两个细胞。上面弯的紫网是 APC 的膜，下面弯的蓝网是 T 细胞的膜。中间那条缝，接下来所有事情都发生在这条缝里，以及下面那片胞浆里。',
+  '第一件事不是识别，是粘住。LFA-1（T 细胞上）抓住 ICAM-1（APC 上），像两只手先扣在一起。这不提供任何特异性 —— 它只提供时间。没有它，两个细胞擦一下就分开，根本来不及扫描。',
+  '粘住之后，接触面自动分层，叫免疫突触。中心 cSMAC 是 TCR 和 CD28；外面一圈 pSMAC 是 LFA-1／ICAM-1 那道封条；最外面 dSMAC，个子最大的 CD45 被挤到这里 —— 它离 ITAM 越远，信号越攒得住。',
+  '信号一 · 中心。APC 举着 pMHC，TCR 六个环压下来，红色的 CDR3 压在肽上。CD8 抓住 MHC 的 α3，顺手把 Lck 拖到现场。',
+  'TCR 自己胞内尾巴只有 3 个氨基酸，喊不出去。旁边的 CD3（γε／δε／ζζ）才有长尾巴，一共 10 个 ITAM。',
+  'Lck 是那把枪。Csk 磷酸化 Y505 给它上锁，CD45 拆掉那个磷酸给它开锁。默认是锁着的 —— 不然贴着 CD3 会走火。',
+  'Lck 开火：把每个 ITAM 上的两个酪氨酸都磷酸化。注意是"双"磷酸化，这个细节马上有用。',
+  'ZAP-70 登场。它有两个 SH2 结构域，必须同时咬住同一个 ITAM 上的两个磷酸才能停住 —— 单磷酸化抓不牢。这是一道天然的防误触闸门。停住之后 Lck 再把它磷酸化激活。',
+  'ZAP-70 被激活后去磷酸化 LAT。LAT 是插在膜上的一根"晾衣绳"，本身没有酶活性，它的价值全在于：被磷酸化后能同时挂住一大堆下游分子。SLP-76 也被挂上来。这一整坨叫 signalosome，信号体。',
+  'PLCγ1 被招募到 LAT／SLP-76 上，再被 ITK 磷酸化激活。它是这条链的出口 —— 前面全是"传话"，从这里开始变成"干活"。它切开膜上的 PIP2。',
+  'PIP2 被切成两半，正好分出三条下游。IP3 是水溶的，飘走去开钙库；DAG 是油的，留在膜上。师兄说读到这里就够了，下面知道有这三条就行。',
+  '三条下游：IP3 → 钙内流 → calcineurin → NFAT；DAG → PKCθ → NF-κB；DAG → RasGRP → Ras → ERK → AP-1。三个转录因子最后都进核。',
+  '但只有信号一，进核之后转录不出 IL-2，还会把这个细胞废掉（anergy）。必须同时有信号二：CD28 抓住 APC 上的 B7（CD80／CD86）。B7 只有专业 APC 在炎症时才挂出来 —— 这就是"授权"。',
+  'CD28 走 PI3K／Akt，做三件事：降低激活阈值、开 IL-2 的转录、稳定 IL-2 的 mRNA，还上调 Bcl-xL 和糖代谢。所以信号二不是并列的第二个信号，它是信号三的前提。',
+  '信号三 · IL-2 被分泌出来，回头作用在自己和邻居身上。IL-2R 有三条链：α（CD25）、β（CD122）、γc（CD132）。',
+  'IL-2R 的三档亲和力：只有 γ 或 β —— 基本不结合；βγ 两条链 —— 中亲和力，约 1 nM，静息 T 细胞就是这档；αβγ 三条链齐了 —— 高亲和力，约 10 pM，差一百倍。',
+  '关键在于：α 链（CD25）平时不表达，是被激活之后才上调的。所以是"先被激活 → 装上 CD25 → 对 IL-2 敏感一百倍 → 疯狂增殖"。这是一个正反馈，也是为什么 CD25 是活化 T 细胞的标志物。',
+  '整条路走完了。回头看：LFA-1 给时间，TCR 给特异性，Lck 决定喊不喊得响，ZAP-70 是防误触闸门，LAT 是晾衣绳，PLCγ1 是出口，CD28 是授权，IL-2 是燃料。缺任何一环，这个 T 细胞都不会真正干活。'],
+ dur:[2.2,2.4,2.6,2.4,2.3,2.5,2.2,2.8,2.8,2.6,2.4,2.6,2.7,2.7,2.4,2.7,2.8,3.0],
+ draw(){
+  const [kk]=stage(this.dur);
+  const c=this.CAM18[Math.min(kk,this.CAM18.length-1)];
+  if(this._k!==kk){ this._k=kk; USERPAN=[0,0,0]; userCam=false; }   /* 换一步，镜头收回 */
+  this._c=this._c||c.slice();
+  for(let i=0;i<3;i++) this._c[i]+=(c[i]-this._c[i])*0.12;
+  PAN=[this._c[0]+USERPAN[0], this._c[1]+USERPAN[1], USERPAN[2]];
+  if(!userCam) dist=this._c[2];                                     /* 你动过就不抢 */
+  this.body(); flush();
+  lensDraw(()=>this.body());          /* 每一层都能拿放大镜怼上去看 */
+  minimap(-330,215,46,[0,-0.12],'我们在这');
+ },
+ body(){
+  const [k,p]=stage(this.dur);
+  const on=(a,b)=> k>=a && (b===undefined||k<=b);          /* 这一步该亮吗 */
+  const D=(a,b,col)=> on(a,b)?col:'#232c44';               /* 不该亮就压暗 */
+  const T=(a,b,col)=> on(a,b)?col:'#3a4560';
+
+  const APCY=-300, TY=-60;                                  /* 两张膜 */
+
+  /* ===== 楼层底色：一眼分清膜上 / 缝里 / 胞内 ===== */
+  box3(100,(APCY+TY)/2,-260,2600,Math.abs(TY-APCY),8,'#0a1020');   /* 细胞之间的缝 */
+  box3(100,TY+620,-260,2600,1240,8,'#0c1424');                     /* T 细胞胞浆 */
+  box3(100,APCY-160,-260,2600,320,8,'#140e22');                    /* APC 胞浆 */
+
+  /* ===== 两张膜 ===== */
+  cellCap3(APCY,2200,1180,'#4a3a68',true,150);
+  cellCap3(TY,  2200,1180,'#3d5480',false,150);
+
+  /* ===== 左边的楼层标尺：每一步都在 ===== */
+  const FLOOR=[
+   [APCY-170,'APC 胞内','#8B6CFF',''],
+   [APCY,    'APC 的膜 · 膜上','#C4A0FF','pMHC / B7 / ICAM-1 都插在这儿'],
+   [(APCY+TY)/2,'两个细胞之间的缝 · 膜外','#8ef4ff','所有"抓握"都发生在这条缝里'],
+   [TY,      'T 细胞的膜 · 膜上','#6BA8FF','TCR / CD3 / CD28 / LFA-1 / CD45 / LAT / IL-2R'],
+   [TY+520,  'T 细胞胞内 · 胞浆','#FFC46B','Lck / Csk / ZAP-70 / SLP-76 / PLCγ1 / 三条下游'],
+   [TY+1090, '细胞核内','#5CE8A8','NFAT / NF-κB / AP-1 在这里开转录']];
+  FLOOR.forEach(([fy,t,c,sub])=>{
+    lab3(-1180,fy,0,t,c,15,800);
+    if(sub) lab3(-1180,fy+28,0,sub,'#5a6a88',10.5,650);
+  });
+  /* 两条分界虚线，横穿整张图 */
+  [[APCY,'#8B6CFF'],[TY,'#6BA8FF']].forEach(([fy,c])=>{
+    for(let bx=-1000;bx<1400;bx+=70) rod3([bx,fy,-240],[bx+34,fy,-240],2,c);
+  });
+  lab3(-1020,APCY-250,0,'APC / 被感染的细胞','#C4A0FF',17,800);
+  lab3(-1020,TY+700,0,'T 细胞','#8ef4ff',17,800);
+
+  /* ================= 突触分区 ================= */
+  if(on(2,2)){
+    lab3(0,TY-150,0,'cSMAC · 中心','#FFC46B',14,800);
+    lab3(430,TY-150,0,'pSMAC · 封条环','#5CE8A8',14,800);
+    lab3(760,TY-150,0,'dSMAC · 最外圈','#FF8FA3',14,800);
+    lab3(760,TY-120,0,'CD45 个子最大，被挤到这里','#FF8FA3',11.5,700);
+  }
+
+  /* ================= 粘住：LFA-1 ↔ ICAM-1 ================= */
+  [[430,1],[560,-1]].forEach(([lx,sg])=>{
+    box3(lx,TY-40,sg*60,74,74,60,D(1,undefined,'#2f6b4f'),'LFA-1',T(1,undefined,'#DCFFEE'));
+    box3(lx,APCY+40,sg*60,74,74,60,D(1,undefined,'#5a3a72'),'ICAM-1',T(1,undefined,'#EBD9FF'));
+    rod3([lx,TY-76,sg*60],[lx,APCY+76,sg*60],5,on(1)?'#3f5a7a':'#232c44');
+  });
+  if(on(1,1)){
+    lab3(495,TY-190,0,'先粘住 · 只给时间，不给特异性','#5CE8A8',14,800);
+    lab3(495,TY-160,0,'没有它，两个细胞擦一下就散了','#8FA0BE',11.5,650);
+  }
+
+  /* ================= 信号一：pMHC + TCR ================= */
+  pmhc3(0,APCY+180,0,'#5CE8A8',strRes('SIINFEKL'),0.82,true,null,true);
+  lab3(0,APCY+118,0,'pMHC',D(3,undefined,'#C4A0FF')==='#232c44'?'#3a4560':'#C4A0FF',13,800);
+  igfold3(-56,TY-176,36,76,80,64,D(3,undefined,'#2f6b4f'),'Vα',T(3,undefined,'#DCFFEE'));
+  igfold3( 56,TY-176,-36,76,80,64,D(3,undefined,'#33507f'),'Vβ',T(3,undefined,'#DCE9FF'));
+  [['CDR1',-96, 30,'#6BA8FF'],['CDR2',-134, 14,'#8B6CFF'],['CDR3α',-22,6,'#FF6B8A'],
+   ['CDR1', 96,-30,'#6BA8FF'],['CDR2', 134,-14,'#8B6CFF'],['CDR3β', 22,-6,'#FF6B8A']]
+   .forEach(([nm,dx,dz,c])=>{
+     loop3(dx,TY-236,dz,13,on(3)?c:'#232c44',0,3.4);
+     if(on(3,3)&&nm[3]==='3') lab3(dx,TY-268,dz,nm,c,12,800);
+   });
+  rod3([-56,TY-140,36],[-56,TY-6,36],6,'#3a4a70');
+  rod3([ 56,TY-140,-36],[ 56,TY-6,-36],6,'#3a4a70');
+  if(on(3,3)) lab3(-300,TY-236,0,'CDR3 压在肽上 → 认出来了','#FF6B8A',14,800);
+
+  /* CD8 拖 Lck 过来 */
+  box3(-250,TY-70,80,72,66,58,D(3,undefined,'#7a3347'),'CD8',T(3,undefined,'#FFE3EE'));
+  rod3([-250,TY-36,80],[-250,TY-6,80],6,'#5a2a38');
+  if(on(3,3)){ beam3([-214,APCY+250,60],[-58,APCY+266,0],'#FF6B8A',3,.85);
+               lab3(-320,TY-130,0,'抓 α3 · 顺手把 Lck 拖过来','#FF9BB0',11.5,700); }
+
+  /* ================= CD3 ================= */
+  const CX=200;
+  box3(CX,TY,0,110,96,86,D(4,undefined,'#3a4a70'),'CD3',T(4,undefined,'#C7D3E8'));
+  rod3([56,TY,-36],[CX-56,TY,0],5,'#33405e');
+  rod3([CX,TY+48,0],[CX,TY+190,0],9,on(4)?'#33405e':'#232c44');
+  if(on(4,4)){
+    lab3(CX+180,TY-40,0,'TCR 尾巴只有 3 个氨基酸','#FF6B8A',13,800);
+    lab3(CX+180,TY-10,0,'喊不出去 → 必须交给 CD3','#FF6B8A',13,800);
+    lab3(CX,TY+230,0,'γε · δε · ζζ　共 10 个 ITAM','#3BE8FF',12.5,700);
+  }
+
+  /* ITAM：第 7 步开始双磷酸化 */
+  const ph=on(6);
+  const ITAM=[[CX-30,TY+150],[CX+30,TY+150],[CX-30,TY+200],[CX+30,TY+200]];
+  ITAM.forEach(([bx,by])=>ball3(bx,by,0,12, ph?'#3BE8FF':'#2b3550', ph?18:0));
+  lab3(CX,TY+250,0,'ITAM',on(4)?'#3BE8FF':'#3a4560',14,800);
+  if(on(6,6)) lab3(CX,TY+284,0,'每个 ITAM 上两个酪氨酸都被磷酸化 —— 记住是"双"','#3BE8FF',12.5,800);
+
+  /* ================= Lck / Csk / CD45 ================= */
+  const safety=(k===5&&p<.55);
+  box3(-330,TY+150,0,180,86,80, on(5)?(safety?'#4a5570':'#2f6b4f'):'#232c44',
+       'Lck', T(5,undefined,safety?'#9aa8c4':'#DCFFEE'));
+  if(on(5)){
+    ball3(-274,TY+104,0,12,safety?'#2b3550':'#5CE8A8',safety?0:16);
+    ball3(-394,TY+200,0,12,safety?'#FF6B8A':'#2b3550',safety?16:0);
+    if(on(5,5)){
+      lab3(-274,TY+76,0,'Y394 扳机','#5CE8A8',11.5,800);
+      lab3(-436,TY+232,0,'Y505 保险栓','#FF6B8A',11.5,800);
+      box3(-620,TY+180,0,140,70,64,'#7a3347','Csk','#FFE3EE');
+      lab3(-620,TY+228,0,'上锁','#FF8FA3',11.5,800);
+      beam3([-554,TY+192,0],[-410,TY+200,0],'#FF6B8A',3,safety?1:.15);
+      box3(830,TY+80,0,120,240,86,'#2b4a86','CD45','#CFE0FF');
+      lab3(830,TY+214,0,'磷酸酶 · 拆锁 · 被挤在外圈','#6BA8FF',11.5,800);
+      beam3([772,TY+180,0],[-376,TY+200,0],'#6BA8FF',3,safety?.15:1);
+      lab3(-330,TY+96,0, safety?'锁着 · 打不响':'开锁 · 随时能响',
+           safety?'#FF6B8A':'#5CE8A8',14,800);
+    }
+  }
+  if(on(6)) beam3([-244,TY+150,0],[CX-64,TY+170,0],'#5CE8A8',3.4,.95);
+
+  /* ================= ZAP-70 ================= */
+  if(on(7)){
+    box3(CX,TY+360,0,190,88,80,'#2b6b5a','ZAP-70','#B8FFE8');
+    ball3(CX-60,TY+316,0,10,'#5CE8A8',12); ball3(CX+60,TY+316,0,10,'#5CE8A8',12);
+    rod3([CX-60,TY+316,0],[CX-30,TY+212,0],3,'#5CE8A8');
+    rod3([CX+60,TY+316,0],[CX+30,TY+212,0],3,'#5CE8A8');
+    if(on(7,7)){
+      lab3(CX-320,TY+340,0,'两个 SH2 必须同时咬住同一个 ITAM 上的两个磷酸','#5CE8A8',13,800);
+      lab3(CX-320,TY+372,0,'单磷酸化抓不牢 → 天然的防误触闸门','#8FA0BE',11.5,650);
+    }
+  }
+
+  /* ================= LAT / SLP-76 信号体 ================= */
+  if(on(8)){
+    box3(560,TY,0,120,90,70,'#3b6ea8','LAT','#DCE9FF');
+    rod3([560,TY+46,0],[560,TY+300,0],7,'#33405e');
+    [80,150,220,290].forEach(dy=>ball3(560,TY+dy,0,10,'#3BE8FF',12));
+    beam3([CX+96,TY+360,0],[540,TY+220,0],'#5CE8A8',3,.9);
+    box3(790,TY+330,0,190,80,72,'#5a3a72','SLP-76','#EBD9FF');
+    rod3([600,TY+250,0],[720,TY+320,0],4,'#33405e');
+    if(on(8,8)){
+      lab3(560,TY-70,0,'LAT · 插在膜上的晾衣绳','#6BA8FF',13.5,800);
+      lab3(700,TY-40,0,'自己没有酶活性，价值全在"能同时挂住一堆人"','#8FA0BE',11.5,650);
+      lab3(660,TY+420,0,'这一整坨 = signalosome 信号体','#C4A0FF',13,800);
+    }
+  }
+
+  /* ================= PLCγ1 ================= */
+  if(on(9)){
+    box3(400,TY+470,0,200,86,76,'#7a5a2a','PLCγ1','#FFE9C0');
+    beam3([700,TY+366,0],[490,TY+446,0],'#C4A0FF',3,.9);
+    box3(120,TY+20,0,110,60,60,'#4a5570','PIP2','#DCE9FF');
+    beam3([330,TY+440,0],[150,TY+56,0],'#FFC46B',3.2,.95);
+    if(on(9,9)){
+      lab3(400,TY+540,0,'这条链的出口 —— 前面全是传话，从这里开始干活','#FFC46B',13,800);
+      lab3(400,TY+572,0,'被 ITK 磷酸化后激活，切开膜上的 PIP2','#8FA0BE',11.5,650);
+    }
+  }
+
+  /* ================= 三条下游 ================= */
+  if(on(10)){
+    ball3(-60,TY+560,0,22,'#3BE8FF',18); lab3(-60,TY+600,0,'IP3 · 水溶 · 飘走','#3BE8FF',12.5,800);
+    ball3(280,TY+560,0,22,'#FFC46B',18); lab3(280,TY+600,0,'DAG · 油 · 留在膜上','#FFC46B',12.5,800);
+    if(on(10,10)) lab3(120,TY+520,0,'PIP2 被切成两半','#C7D3E8',13,800);
+  }
+  if(on(11)){
+    const br=(bx,col,chain,end)=>{
+      chain.forEach((s,i)=>{
+        box3(bx,TY+680+i*92,0,220,72,64,'#1e2a44',s,col);
+        if(i) rod3([bx,TY+644+i*92,0],[bx,TY+680+i*92-36,0],4,col);
+      });
+      lab3(bx,TY+680+chain.length*92,0,end,col,14,800);
+    };
+    br(-420,'#3BE8FF',['钙内流 Ca²⁺','calcineurin'],'NFAT');
+    br(  60,'#FFC46B',['PKCθ','IKK'],'NF-κB');
+    br( 540,'#FF8FA3',['RasGRP','Ras → ERK'],'AP-1');
+    if(on(11,11)) lab3(60,TY+640,0,'三条下游 —— 师兄说读到 PLCγ1 就够，这三条知道有就行','#8FA0BE',12,650);
+  }
+
+  /* ================= 细胞核 ================= */
+  if(on(11)){
+    ball3(60,TY+1090,0,150,'#141c30',0);
+    lab3(60,TY+1090,0,'细胞核','#C7D3E8',16,800);
+    [-420,60,540].forEach(bx=>beam3([bx,TY+890,0],[60,TY+960,0],'#5a6a88',2.4,.6));
+    if(on(12)) lab3(60,TY+1136,0, on(13)?'IL-2 转录开工':'三个转录因子都进核了，但还差一样东西',
+                    on(13)?'#5CE8A8':'#FF6B8A',14,800);
+  }
+
+  /* ================= 信号二：CD28 ↔ B7 ================= */
+  if(on(12)){
+    box3(-460,TY-60,60,110,90,76,'#2b6b5a','CD28','#B8FFE8');
+    box3(-460,APCY+60,60,110,90,76,'#5a3a72','B7','#EBD9FF');
+    lab3(-460,APCY+20,60,'CD80 / CD86','#C4A0FF',11.5,700);
+    rod3([-460,TY-106,60],[-460,APCY+106,60],6,'#3f5a7a');
+    if(on(12,12)){
+      lab3(-460,TY-150,0,'信号二 · 授权','#5CE8A8',15,800);
+      lab3(-460,TY-118,0,'B7 只有专业 APC 在炎症时才挂出来','#8FA0BE',11.5,650);
+      lab3(-460,TY+40,0,'只有信号一 → anergy 当场作废','#FF6B8A',13,800);
+    }
+    if(on(13)){
+      beam3([-460,TY+20,60],[60,TY+1000,0],'#5CE8A8',2.6,.7);
+      if(on(13,13)){
+        lab3(-760,TY+300,0,'CD28 → PI3K / Akt','#5CE8A8',13,800);
+        lab3(-760,TY+336,0,'降阈值 · 开 IL-2 转录','#B8FFE8',12,700);
+        lab3(-760,TY+368,0,'稳定 IL-2 的 mRNA','#B8FFE8',12,700);
+        lab3(-760,TY+400,0,'上调 Bcl-xL（别死）','#B8FFE8',12,700);
+        lab3(-760,TY+432,0,'上调糖代谢（有燃料）','#B8FFE8',12,700);
+        lab3(-760,TY+476,0,'所以信号二不是并列的第二个信号','#FFC46B',12.5,800);
+        lab3(-760,TY+508,0,'它是信号三的前提','#FFC46B',12.5,800);
+      }
+    }
+  }
+
+  /* ================= 信号三：IL-2 / IL-2R ================= */
+  if(on(14)){
+    /* 分泌出去的 IL-2 */
+    for(let i=0;i<7;i++)
+      ball3(-700+i*22,TY-220+Math.sin(i)*24,120,11,'#FFC46B',12);
+    lab3(-700,TY-266,120,'IL-2 分泌出来','#FFC46B',13.5,800);
+
+    const R=(rx,chains,aff,note,col)=>{
+      chains.forEach(([nm,dx,c],i)=>{
+        box3(rx+dx,TY-56,120,80,86,60,c,nm,'#04060c');
+      });
+      lab3(rx,TY+40,120,aff,col,13.5,800);
+      if(note) lab3(rx,TY+72,120,note,'#8FA0BE',11,650);
+    };
+    if(on(15)){
+      R(-980,[['γc',0,'#4a5570']],'几乎不结合','','#6d7c99');
+      R(-720,[['β',-46,'#3b6ea8'],['γc',46,'#4a5570']],'中亲和力 ≈ 1 nM','静息 T 细胞就是这档','#6BA8FF');
+      R(-380,[['α',-92,'#7a3347'],['β',0,'#3b6ea8'],['γc',92,'#4a5570']],
+            '高亲和力 ≈ 10 pM','差一百倍','#5CE8A8');
+      lab3(-700,TY-120,120,'α = CD25　β = CD122　γc = CD132','#C7D3E8',13,800);
+    }else{
+      R(-500,[['α',-92,'#7a3347'],['β',0,'#3b6ea8'],['γc',92,'#4a5570']],
+            'IL-2R 三条链','α = CD25　β = CD122　γc = CD132','#C7D3E8');
+    }
+    if(on(16)){
+      lab3(-700,TY+130,120,'α（CD25）平时不表达 —— 被激活之后才装上','#FFC46B',13.5,800);
+      lab3(-700,TY+164,120,'先被激活 → 装 CD25 → 对 IL-2 敏感一百倍 → 疯狂增殖','#FFC46B',12.5,800);
+      lab3(-700,TY+196,120,'一个正反馈。也是为什么 CD25 是活化 T 细胞的标志物','#8FA0BE',11.5,650);
+    }
+  }
+
+  /* ================= 收尾 ================= */
+  if(on(17)){
+    const S=[['LFA-1 / ICAM-1','给时间','#5CE8A8'],['TCR · CDR3','给特异性','#FF6B8A'],
+             ['Lck / Csk / CD45','决定喊不喊得响','#6BA8FF'],['ZAP-70','防误触闸门','#B8FFE8'],
+             ['LAT / SLP-76','晾衣绳 · 信号体','#8B6CFF'],['PLCγ1','出口','#FFC46B'],
+             ['CD28 / B7','授权','#5CE8A8'],['IL-2 / IL-2R','燃料','#FFC46B']];
+    S.forEach(([a,b,c],i)=>{
+      lab3(1200,TY-160+i*54,0,a,c,14,800);
+      lab3(1200,TY-134+i*54,0,b,'#8FA0BE',11.5,650);
+    });
+    lab3(1200,TY+306,0,'缺任何一环，这个 T 细胞都不会真正干活','#FFC46B',13.5,800);
+  }
+ }};
+
+S['lck-csk']={is3d:true,view:[-0.12,-0.18,900,false],
+ cap:['从"看见"到"喊出去"','CDR3 认脸 → CD3 传话 → Lck / Csk / CD45 决定喊不喊得响'],
+ steps:[
+  '上半截是"看见"：对面举着 pMHC，TCR 的六个环压下来，红色的 CDR3 压在肽上 —— 认出来了。',
+  '但 TCR 自己胞内尾巴只有 3 个氨基酸，喊不出去。旁边的 CD3 才有长尾巴，尾巴上挂着 ITAM。整条信号必须从 TCR 交给 CD3。',
+  '往下看胞内。Lck 是一把激酶——那把枪。身上两个开关：Y394 是扳机，Y505 是保险栓。',
+  'Csk 磷酸化 Y505 → 保险上了。Lck 自己的 SH2 域反手抓住这个磷酸，把分子折起来，扳机埋住，打不响。默认就是这个状态 —— 不然 Lck 贴着 CD3 会走火。',
+  'CD45 是磷酸酶，把 Y505 上的磷拆掉 → 把手没了 → Lck 展开 → 随时能响。',
+  'Lck 开火：磷酸化 CD3 尾巴上的 ITAM。这就是"CDR3 看见了"终于变成一个化学反应的那一刻。往下才轮到 ZAP-70。',
+  '但 CD45 也去磷酸化 ITAM —— 它是双向的。所以"CD45 是正调还是负调"的答案是：看底物，也看位置。'],
+ dur:[1.9,2.0,1.9,2.2,2.0,2.0,2.2],
+ draw(){ this.body(); flush(); minimap(-300,240,54,[0,-0.45],'我们在这'); },
+ body(){
+  const [k,p]=stage(this.dur);
+  const safety = (k===3)||(k===4&&p<.5);
+  const fire   = (k>=5);
+
+  /* ---- 弯曲的 T 细胞膜 ---- */
+  cellCap3(-40,1400,620,'#3d5480',false,100);
+  lab3(-560,-150,0,'膜外 · 接触面','#8ef4ff',12.5,800);
+  lab3(-560,70,0,'胞内','#FFC46B',12.5,800);
+
+  /* ================= 上半截：看见 ================= */
+  const TX=140;
+  pmhc3(TX,-330,0,'#5CE8A8',strRes('SIINFEKL'),0.52,true,null,true);
+  lab3(TX,-268,0,'pMHC · 对面 APC 举着的照片','#C4A0FF',11.5,800);
+
+  /* TCR：V 区 + 六个环 */
+  igfold3(TX-40,-186,26,54,58,46,'#2f6b4f','Vα','#DCFFEE');
+  igfold3(TX+40,-186,-26,54,58,46,'#33507f','Vβ','#DCE9FF');
+  const seen=(k===0);
+  [['CDR1',-72, 22,'#6BA8FF'],['CDR2',-104, 10,'#8B6CFF'],['CDR3α',-16,4,'#FF6B8A'],
+   ['CDR1', 72,-22,'#6BA8FF'],['CDR2', 104,-10,'#8B6CFF'],['CDR3β', 16,-4,'#FF6B8A']]
+   .forEach(([nm,dx,dz,c])=>{
+     loop3(TX+dx,-244,dz,10,c,0,3);
+     if(seen&&nm[3]==='3') lab3(TX+dx,-212,dz,nm,c,11,800);
+   });
+  if(k===0){
+    lab3(TX,-152,0,'CDR3 压在肽上 → 认出来了','#FF6B8A',13,800);
+    lab3(TX,-126,0,'但到这里为止，还只是"贴住"，没有任何化学反应发生','#8FA0BE',11,650);
+  }
+  /* TCR 的两根短柄插进膜 */
+  rod3([TX-40,-156,26],[TX-40,-46,26],5,'#3a4a70');
+  rod3([TX+40,-156,-26],[TX+40,-46,-26],5,'#3a4a70');
+  if(k===1) lab3(TX-140,-96,0,'TCR 胞内尾巴只有 3 个氨基酸','#FF6B8A',12,800);
+
+  /* ---- CD3：嘴 ---- */
+  const CX=330;
+  box3(CX,-40,0,96,86,76,'#3a4a70','CD3','#C7D3E8');
+  rod3([TX+40,-40,-26],[CX-48,-40,0],4,'#33405e');
+  rod3([CX,4,0],[CX,150,0],8,'#33405e');
+  const itamOn = fire && !(k===6&&p>.55);
+  [[CX-18,88],[CX+18,88],[CX-18,134],[CX+18,134]].forEach(([bx,byy])=>
+    ball3(bx,byy,0,10, itamOn?'#3BE8FF':'#3a4a70', itamOn?16:0));
+  lab3(CX,182,0,'ITAM','#3BE8FF',14,800);
+  if(k===1) lab3(CX,208,0,'CD3 有长尾巴 · 一共 10 个 ITAM','#3BE8FF',11.5,700);
+  if(fire) lab3(CX,208,0, itamOn?'被磷酸化 → 交给 ZAP-70':'又被 CD45 抹掉了',
+                itamOn?'#3BE8FF':'#FF6B8A',11.5,700);
+
+  if(k<2) return;
+
+  /* ================= 下半截：喊不喊得响 ================= */
+  const lckCol = safety?'#4a5570':'#2f6b4f';
+  box3(-120,96,0,180,88,84,lckCol,'Lck', safety?'#9aa8c4':'#DCFFEE');
+  lab3(-120,152,0,'激酶 · 那把枪','#8FA0BE',11,700);
+  ball3(-64,48,0,11, (!safety)?'#5CE8A8':'#3a4a70', (!safety)?16:0);
+  lab3(-64,20,0,'Y394 扳机','#5CE8A8',11.5,800);
+  ball3(-186,150,0,11, safety?'#FF6B8A':'#3a4a70', safety?16:0);
+  lab3(-226,178,0,'Y505 保险栓','#FF6B8A',11.5,800);
+  lab3(-120,-10,0, safety?'保险上着 · 打不响':(fire?'开火':'保险拆了 · 随时能响'),
+       safety?'#FF6B8A':'#5CE8A8',13.5,800);
+
+  if(k>=3){
+    box3(-420,120,0,140,68,68,'#7a3347','Csk','#FFE3EE');
+    lab3(-420,168,0,'上保险','#FF8FA3',11.5,800);
+    beam3([-354,132,0],[-202,150,0],'#FF6B8A',3, safety?1:.15);
+    if(k===3){
+      lab3(-300,214,0,'磷酸化 Y505','#FF6B8A',12.5,800);
+      lab3(-300,240,0,'Lck 自己的 SH2 抓住这个磷酸 → 折起来 → 关','#8FA0BE',11,650);
+    }
+  }
+  if(k>=4){
+    box3(540,20,0,116,210,84,'#2b4a86','CD45','#CFE0FF');
+    lab3(540,142,0,'磷酸酶 · 拆保险','#6BA8FF',11.5,800);
+    beam3([484,116,0],[-168,150,0],'#6BA8FF',3, safety?.15:1);
+    if(k===4) lab3(160,250,0,'去磷酸化 Y505 → 保险拆掉','#6BA8FF',12.5,800);
+    if(k>=6){
+      beam3([484,120,0],[CX+40,110,0],'#FF6B8A',3,.95);
+      lab3(440,180,0,'也拆 ITAM','#FF6B8A',12,800);
+    }
+  }
+  if(fire) beam3([-46,86,0],[CX-34,104,0],'#5CE8A8',3.2,.95);
+
+  if(k>=6){
+    lab3(0,296,0,'CD45 是双向的：作用在 Y505 → 激活；作用在 ITAM → 抑制','#FFC46B',13.5,800);
+    lab3(0,324,0,'CD45 is bidirectional — dephosphorylating Y505 activates Lck, dephosphorylating ITAMs shuts signaling down','#6d7c99',10.5,600);
+  }
+ }
+};
+
+S['zap70']={is3d:true,cap:['ZAP-70','双 SH2 同时插上双磷酸的 ITAM'],
+ steps:['ITAM 被 Lck 磷酸化，一个 ITAM 上两个磷酸。','ZAP-70 用两个 SH2 同时抓住。','构象打开被激活 —— 信号的第一个放大点。'],
+ dur:[1.4,1.6,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(-110,520,240,'#28324c',12);
+  rod3([0,-98,0],[0,110,0],6,'#3a4a70');
+  ball3(0,-10,0,8,'#3BE8FF',14); ball3(0,26,0,8,'#3BE8FF',14);
+  lab3(56,8,0,'ITAM 双磷酸','#3BE8FF',11,600);
+  const q=k>=1?ease(k===1?p:1):0;
+  const zx=-190+150*q, zy=110-104*q;
+  box3(zx,zy,0,96,42,52,q>.8?'#33507f':'#3a4a70','ZAP-70','#DCE9FF');
+  if(q>.2){beam3([zx+30,zy-12,0],[0,-10,0],'#3BE8FF',2,q*.85);
+    beam3([zx+30,zy+6,0],[0,26,0],'#3BE8FF',2,q*.85);}
+  if(k>=2){ball3(zx,zy,0,34+Math.sin(t*4)*3,'rgba(59,232,255,.10)',0);
+    lab3(0,-150,0,'信号的第一个放大点','#3BE8FF',12.5,650);}
+ }};
+
+S['lat-slp']={is3d:true,view:[-0.5,-0.45,820],cap:['signalosome','一块插满插孔的电路板'],
+ steps:['ZAP-70 磷酸化跨膜支架 LAT。','LAT 和 SLP-76 招来一大片分子。','从这里分岔成四路。师兄说读到这里就够。'],
+ dur:[1.3,1.7,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(60,540,240,'#28324c',12);
+  box3(0,20,0,220,22,50,'#d9a24e','LAT','#0b1020');
+  const parts=[['Grb2/SOS',-200,-40,-50],['Gads',-90,-70,30],['SLP-76',40,-70,-30],
+               ['PLCγ1',170,-40,40],['Itk',-30,-130,0],['Vav1',120,-130,-40],['Nck',-160,-120,50]];
+  const q=k>=1?ease(k===1?p:1):0;
+  parts.forEach(([lab,px,py,pz],i)=>{
+    const a=clamp(q*parts.length-i,0,1);
+    if(a<=0)return;
+    const yy=20+(py-20)*a;
+    box3(px,yy,pz,86,26,30,lab==='PLCγ1'?'#2f6b4f':'#3a4a70',lab,
+      lab==='PLCγ1'?'#DCFFEE':'#C7D3E8');
+    rod3([px,yy+13,pz],[px*.4,20,pz*.4],2,'#3a4a70');});
+  if(k>=2)lab3(0,150,0,'钙 · NF-κB · Ras-MAPK · 细胞骨架','#3BE8FF',12.5,650);
+ }};
+
+S['plcg1']={is3d:true,view:[-0.45,-0.30,880],cap:['PLCγ1 = 总闸','三条路汇成三个转录因子'],
+ steps:['PLCγ1 被 Itk 激活。','水解 PIP₂，生成 IP₃ 和 DAG。','三条路通向 NFAT、NF-κB、AP-1。','三个转录因子共同驱动 IL-2 转录。'],
+ dur:[1.2,1.4,1.6,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  box3(0,-140,0,130,38,48,'#2f6b4f','PLCγ1','#DCFFEE');
+  if(k>=1){const q=ease(k===1?p:1);
+    box3(-120*q,-60,0,80,26,32,'#3a4a70','IP₃','#C7D3E8');
+    box3(120*q,-60,0,80,26,32,'#3a4a70','DAG','#C7D3E8');
+    beam3([-30,-122,0],[-100,-72,0],'#3BE8FF',2,q);
+    beam3([30,-122,0],[100,-72,0],'#FFC46B',2,q);}
+  if(k>=2){const q=ease(k===2?p:1);
+    [['NFAT','#3BE8FF',-190,-120],['NF-κB','#FFC46B',0,0],['AP-1','#8B6CFF',190,120]]
+      .forEach(([s,c,px,pz],i)=>{const a=clamp(q*3-i,0,1);if(a<=0)return;
+        box3(px,40,pz,104,30,34,c,s,'#0b1020');
+        rod3([px<0?-120:120,-46,0],[px,26,pz],2,c);});}
+  if(k>=3){ball3(0,150,0,54,'#1e2a44',0);
+    lab3(0,150,56,'IL-2 转录','#DCE9FF',12.5,700);
+    [[-190,-120],[0,0],[190,120]].forEach(([px,pz])=>beam3([px,56,pz],[0,110,0],'#5CE8A8',2,.8));}
+ }};
+
+S['hla-nom']={is3d:true,view:[-0.18,-0.20,760,false],cap:['HLA-A*02:01','像车牌，从左到右越来越具体'],
+ steps:['HLA = 人的 MHC，在 6 号染色体。','A = 位点。class I 有 A、B、C。','02 = 等位基因群，约等于血清型 A2。','01 = 群内具体蛋白。','A*02:01 是欧裔最常见的，所以试剂和预测都先做它。'],
+ dur:[1.1,1.1,1.1,1.1,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  const segs=[['HLA','#3BE8FF',-215,96],['A','#5CE8A8',-110,58],
+              ['*02','#FFC46B',-15,80],[':01','#8B6CFF',95,72]];
+  segs.forEach(([s,c,px,w],i)=>{
+    const on=k>=i;
+    box3(px,0,0,w,58,50,on?c:'#2b3550',s,on?'#0b1020':'#5C6B8A');
+    if(on)lab3(px,-52,0,['人的 MHC','位点','等位基因群','具体蛋白'][i],c,11,650);});
+  if(k>=4)lab3(0,110,0,'欧裔最常见 → 试剂与预测都先做它','#5CE8A8',12.5,650);
+ }};
+
+S['h2kb']={is3d:true,view:[-0.16,-0.22,860,false],
+ cap:['命名拆解 · 小鼠 vs 人','每个位点都是一个真的相框，长得不一样'],
+ steps:[
+  '小鼠那串 H2-Kb，是三段拼起来的：H2 ／ K ／ b。',
+  '人那串 HLA-A*02:01，也是同样三段：HLA ／ A ／ *02:01。竖线连着的就是同一类信息。',
+  '三段分别是：基因复合体的名字 ／ 位点（哪个窗口）／ 型号（哪一款）。',
+  '现在只看第二段 · class I。小鼠 K / D / L，人 A / B / C —— 每一个都是一个真的相框，口袋深浅不同，所以装的肽也不同。',
+  '再看 class II。小鼠 IA / IE，人 DP / DQ / DR。槽两头是开的，装的肽更长。',
+  '第三段：小鼠为什么只用一个字母。近交系里整条 MHC 一起遗传 —— B6 是 b，那 K、D、IA 全是 b，整套配齐，不会混搭。',
+  '要背的只有两个：H2-Kb（B6 小鼠）和 HLA-A*02:01（人）。'],
+ dur:[1.6,1.8,2.0,2.1,2.0,2.2,2.0],
+ draw(){
+  const [k,p]=stage(this.dur);
+  const seg=(cx,cy,w,txt,col,tc)=>box3(cx,cy,0,w,66,54,col,txt,tc);
+
+  /* ===== 0~2 · 命名拆解 ===== */
+  if(k<3){
+    const MY=-90, HY=70;
+    lab3(-430,MY,0,'小鼠','#5CE8A8',16,800);
+    seg(-215,MY,140,'H2','#2f6b4f','#DCFFEE');
+    lab3(-120,MY,0,'-','#7E90B4',22,800);
+    seg(-32,MY,108,'K','#3b6ea8','#DCE9FF');
+    seg(96,MY,108,'b','#7a3347','#FFE3EE');
+    if(k>=1){
+      lab3(-430,HY,0,'人','#C4A0FF',16,800);
+      seg(-215,HY,140,'HLA','#2f6b4f','#DCFFEE');
+      lab3(-120,HY,0,'-','#7E90B4',22,800);
+      seg(-32,HY,108,'A','#3b6ea8','#DCE9FF');
+      seg(132,HY,180,'*02:01','#7a3347','#FFE3EE');
+      [[-215,-215],[-32,-32],[96,132]].forEach(([a,b])=>
+        rod3([a,MY+36,0],[b,HY-36,0],1.8,'#2a3550'));
+    }
+    if(k>=2){
+      lab3(-215,HY+66,0,'基因复合体  gene complex','#5CE8A8',12.5,800);
+      lab3(-215,HY+92,0,'mouse: chr 17 · human: chr 6','#6d7c99',10.5,600);
+      lab3(-32,HY+66,0,'位点  locus','#6BA8FF',12.5,800);
+      lab3(-32,HY+92,0,'哪一个窗口  which window','#6d7c99',10.5,600);
+      lab3(132,HY+66,0,'型号  allele / haplotype','#FF8FA3',12.5,800);
+      lab3(132,HY+92,0,'哪一款  which version','#6d7c99',10.5,600);
+    }
+    if(k===0) lab3(-32,MY-70,0,'H2-Kb  拆成三段','#C7D3E8',13.5,700);
+    return;
+  }
+
+  /* --- 一排真分子：和全景图里那六个一个画法 --- */
+  const row=(cy,tag,tagCol,list)=>{
+    lab3(-560,cy+10,0,tag,tagCol,15,800);
+    const n=list.length;
+    list.forEach(([nm,col,d1,d2,seq,note],i)=>{
+      const px=(i-(n-1)/2)*300;
+      pmhc3(px,cy,0,col,strRes(seq),0.46,true,[[-58,d1],[58,d2]],true);
+      lab3(px,cy+62,0,nm,col,14,800);
+      if(note) lab3(px,cy+86,0,note,'#7E90B4',10.5,650);
+    });
+  };
+
+  /* ===== 3 · class I 位点 ===== */
+  if(k===3){
+    lab3(0,-250,0,'第二段 · 位点 locus · class I　每个都是一个真的相框','#FFC46B',15,800);
+    row(-120,'小鼠 mouse','#5CE8A8',[
+      ['H2-K','#5CE8A8',10,16,'SIINFEKL','shallow pocket'],
+      ['H2-D','#8ef4ff',18,11,'ASNENMETM','deep pocket'],
+      ['H2-L','#4b5468',14,14,'APAAAAAAM','non-functional in B6']]);
+    row(140,'人 human','#C4A0FF',[
+      ['HLA-A','#C4A0FF',12,15,'GILGFVFTL','A*02:01 most used'],
+      ['HLA-B','#FF8FA3',17,10,'RAKFKQLL','most polymorphic'],
+      ['HLA-C','#FFC46B',9,13,'YSEHPTFTSQY','lowest expression']]);
+    return;
+  }
+
+  /* ===== 4 · class II 位点 ===== */
+  if(k===4){
+    lab3(0,-250,0,'第二段 · 位点 locus · class II　groove open at both ends','#FFC46B',15,800);
+    row(-120,'小鼠 mouse','#5CE8A8',[
+      ['H2-IA','#5CE8A8',12,12,'PVSKMRMATPLLMQA','expressed in B6'],
+      ['H2-IE','#4b5468',12,12,'PVSKMRMATPLLMQA','not expressed in B6']]);
+    row(140,'人 human','#C4A0FF',[
+      ['HLA-DP','#C4A0FF',12,12,'PVSKMRMATPLLMQA',''],
+      ['HLA-DQ','#FF8FA3',12,12,'PVSKMRMATPLLMQA','celiac-associated'],
+      ['HLA-DR','#FFC46B',12,12,'PVSKMRMATPLLMQA','most typed']]);
+    return;
+  }
+
+  /* ===== 5 · 单倍型整套 ===== */
+  if(k===5){
+    lab3(0,-250,0,'第三段 · 单倍型 haplotype：一个字母 = 一整套','#FFC46B',15,800);
+    row(-120,'C57BL/6  haplotype b','#5CE8A8',[
+      ['H2-Kb','#5CE8A8',10,16,'SIINFEKL',''],
+      ['H2-Db','#5CE8A8',18,11,'ASNENMETM',''],
+      ['H2-IAb','#5CE8A8',12,12,'PVSKMRMATPLLMQA','']]);
+    row(140,'BALB/c  haplotype d','#FFC46B',[
+      ['H2-Kd','#FFC46B',15,9,'SYIPSAEKI',''],
+      ['H2-Dd','#FFC46B',9,17,'RGPGRAFVTI',''],
+      ['H2-IAd','#FFC46B',13,13,'ISQAVHAAHAEINEA','']]);
+    lab3(0,250,0,'同一只 B6，K / D / IA 全是 b —— inbred strain，整套一起遗传','#C7D3E8',12.5,700);
+    lab3(0,278,0,'人是 outbred：父母各给一套 + 重组，所以每个 locus 单独编号','#8FA0BE',11.5,650);
+    return;
+  }
+
+  /* ===== 6 · 结论 ===== */
+  lab3(0,-250,0,'只需要脱口而出这两个','#FFC46B',16,800);
+  pmhc3(-280,-40,0,'#5CE8A8',strRes('SIINFEKL'),0.62,true,[[-58,10],[58,16]],true);
+  lab3(-280,60,0,'H2-Kb','#5CE8A8',18,800);
+  lab3(-280,90,0,'B6 mouse · class I · K locus · haplotype b','#8FA0BE',11.5,650);
+  pmhc3(280,-40,0,'#C4A0FF',strRes('GILGFVFTL'),0.62,true,[[-58,12],[58,15]],true);
+  lab3(280,60,0,'HLA-A*02:01','#C4A0FF',18,800);
+  lab3(280,90,0,'human · class I · A locus · allele group 02, protein 01','#8FA0BE',11.5,650);
+  lab3(0,160,0,'SIINFEKL is Kb-restricted (from ovalbumin)','#3BE8FF',13,800);
+  lab3(0,192,0,'B6 class I = Kb + Db only (L is non-functional)','#8FA0BE',11.5,650);
+ }};
+
+S['ii-clip']={is3d:true,view:[-0.2,-0.28,780,false],cap:['Ii / CLIP / HLA-DM','先塞废纸占位，到地方再换真照片'],
+ steps:['ER 里不变链 Ii 占住凹槽，防止装内源肽。','进内体，Ii 被切掉只剩 CLIP。','HLA-DM 把 CLIP 换成高亲和外源肽。','13–25 aa、两端开放、只有专业 APC、给 CD4。'],
+ dur:[1.3,1.3,1.5,1.9], draw(){
+  const [k,p]=stage(this.dur);
+  slab3(140,520,240,'#28324c',12);
+  box3(0,30,0,220,16,60,'#d9a24e');
+  box3(-24,66,0,44,52,40,'#5C6B8A','β2','#E8EEFB');
+  if(k===0)box3(0,10,0,190,16,26,'#5C6B8A','不变链 Ii','#E8EEFB');
+  if(k===1)box3(0,10,0,110,16,26,'#7a6a3f','CLIP','#FFE3B4');
+  if(k>=2){const q=k===2?ease(p):1;
+    if(q<1)box3(-q*200,10,0,110,16,26,'#7a6a3f','CLIP','#FFE3B4');
+    for(let i=0;i<15;i++){const a=clamp(q*15-i,0,1);
+      if(a>0)ball3(-98+i*14,10,0,5*a,'#3BE8FF',0);}
+    box3(190,80,0,96,30,36,'#2f6b4f','HLA-DM','#DCFFEE');
+    beam3([146,72,0],[70,24,0],'#5CE8A8',2,q);}
+  if(k>=3)lab3(0,-60,0,'13–25 aa · 两端开放','#5CE8A8',12.5,650);
+ }};
+
+/* ===== 主循环 ===== */
+const id=new URLSearchParams(location.search).get('s')||'tfactory';
+const sc=S[id];
+if(sc&&sc.view){ yaw=sc.view[0]; pitch=sc.view[1]; dist=sc.view[2];
+  if(sc.view[3]===false)autoSpin=false; }
+const HOME=sc&&sc.view?sc.view.slice(0,3):[-0.55,-0.32,760];
+if(!sc){document.getElementById('cap').innerHTML='<b>没有这个场景：'+id+'</b>';}
+function draw(){
+  x.clearRect(0,0,W,H);
+  if(!sc)return;
+  if(sc.is3d){
+    if(autoSpin&&playing) yaw+=0.0035;
+    PAN=USERPAN.slice();               /* 用户拖到哪就是哪，场景镜头再叠加 */
+    x.save(); x.translate(W/2,H/2-14);
+    /* 场景可以声明自己有多大（世界单位），大图就别被放大 */
+    const fw=(sc.px&&sc.px[0])||680, fh=(sc.px&&sc.px[1])||440;
+    const s=Math.min(W/fw,H/fh); x.scale(s,s);
+    sc.draw(); flush(); x.restore();
+  }else{
+    const s=Math.min(W/660,H/420);
+    x.save(); x.translate(W/2,H/2); x.scale(s,s); x.translate(-320,-210);
+    sc.draw(); x.restore();
+  }
+  let k, now;
+  if(sc.lod){ k=Math.max(0,Math.min(sc.steps.length-1,Math.round(sc.lodLevel())));
+              now=sc.steps[k]; }
+  else { k=stage(sc.dur)[0]; now=(sc.steps&&sc.steps[k])||sc.cap[1]; }
+  const NST=sc.lod?sc.steps.length:sc.dur.length;
+  document.getElementById('capbody').innerHTML=
+    '<div class="ttl">'+sc.cap[0]+'</div>'+
+    '<div class="now"><i>'+(k+1)+'/'+NST+'</i>'+now+'</div>'+
+    (sc.steps?'<div class="sub">'+sc.cap[1]+'</div>':'');
+  const arr=sc.lod?sc.steps:sc.dur;
+  document.getElementById('dots').innerHTML=
+    arr.map((_,i)=>'<i class="'+(i===k?'on':'')+'" title="第 '+(i+1)+' 层"></i>').join('');
+  document.getElementById('np').disabled = k===0;
+  document.getElementById('nn').disabled = k===arr.length-1;
+  document.getElementById('ncnt').textContent=(k+1)+'/'+arr.length;
+}
+let last=performance.now();
+(function loop(now){
+  const dt=Math.min((now-last)/1000,.05); last=now;
+  if(playing&&sc){ t+=dt; if(t>total(sc.dur)+1.4) t=0; }
+  draw(); requestAnimationFrame(loop);
+})(last);
+
+/* 拖动旋转 / 滚轮缩放 / 双指 */
+let pts=new Map(),drag=null,pin=null,panDrag=null;
+let lensDrag=null;
+function sceneScale(){
+  const fw=(sc&&sc.px&&sc.px[0])||680, fh=(sc&&sc.px&&sc.px[1])||440;
+  return Math.min(W/fw,H/fh);
+}
+function toScene(e){
+  const s=sceneScale();
+  return [ (e.clientX-W/2)/s, (e.clientY-(H/2-14))/s ];
+}
+function inLens(e){
+  if(!sc||!sc.lens||!LENS.on)return false;
+  const [sx,sy]=toScene(e);
+  return Math.hypot(sx-LENS.x,sy-LENS.y)<=LENS.r+8;
+}
+cv.addEventListener('pointerdown',e=>{pts.set(e.pointerId,e);
+  if(pts.size===2){const[a,b]=[...pts.values()];
+    pin={d:Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY),z:dist};drag=null;lensDrag=null;return;}
+  if(inLens(e)){const [sx,sy]=toScene(e);
+    lensDrag={dx:LENS.x-sx,dy:LENS.y-sy}; cv.classList.add('drag'); return;}
+  if(e.shiftKey||e.button===2||e.button===1){
+    panDrag={x:e.clientX,y:e.clientY,p:USERPAN.slice()};
+    userCam=true; cv.classList.add('drag'); return;
+  }
+  drag={x:e.clientX,y:e.clientY,yaw,pitch};autoSpin=false;
+  document.getElementById('bs').textContent='自转 关';cv.classList.add('drag');});
+cv.addEventListener('pointermove',e=>{if(!pts.has(e.pointerId))return;pts.set(e.pointerId,e);
+  if(panDrag){const sc2=sceneScale();
+    USERPAN[0]=panDrag.p[0]-(e.clientX-panDrag.x)/sc2;
+    USERPAN[1]=panDrag.p[1]-(e.clientY-panDrag.y)/sc2;
+    return;}
+  if(lensDrag){const [sx,sy]=toScene(e);
+    LENS.x=sx+lensDrag.dx; LENS.y=sy+lensDrag.dy; return;}
+  if(pin&&pts.size>=2){const[a,b]=[...pts.values()];
+    const d=Math.hypot(a.clientX-b.clientX,a.clientY-b.clientY);
+    dist=Math.max(120,Math.min(9000,pin.z*pin.d/d)); userCam=true; return;}
+  if(drag){yaw=drag.yaw+(e.clientX-drag.x)*0.008;
+    pitch=Math.max(-1.2,Math.min(1.0,drag.pitch+(e.clientY-drag.y)*0.006));}});
+const up=e=>{pts.delete(e.pointerId);if(pts.size<2)pin=null;
+  if(!pts.size){drag=null;lensDrag=null;panDrag=null;cv.classList.remove('drag');}};
+cv.addEventListener('pointerup',up);cv.addEventListener('pointercancel',up);
+cv.addEventListener('wheel',e=>{e.preventDefault();
+  if(inLens(e)){ LENS.m=Math.max(1.5,Math.min(9,LENS.m*(1-e.deltaY*0.0016))); return; }
+  if(e.shiftKey){                       /* Shift+滚轮 = 横向平移 */
+    USERPAN[0]+=e.deltaY*0.9/sceneScale(); userCam=true; return; }
+  dist=Math.max(120,Math.min(9000,dist*(1+e.deltaY*0.0014))); userCam=true;},{passive:false});
+cv.addEventListener('contextmenu',e=>e.preventDefault());
+document.getElementById('bl').onclick=e=>{ if(!sc||!sc.lens){e.target.textContent='此图无放大镜';return;}
+  LENS.on=!LENS.on; e.target.textContent=LENS.on?'放大镜 开':'放大镜 关'; };
+document.getElementById('bs').onclick=e=>{autoSpin=!autoSpin;
+  e.target.textContent=autoSpin?'自转 开':'自转 关';};
+document.getElementById('bh').onclick=()=>{yaw=HOME[0];pitch=HOME[1];dist=HOME[2];
+  USERPAN=[0,0,0]; userCam=false;};
+/* ---- 手动翻步 ---- */
+function stepStart(i){let a=0;for(let j=0;j<i;j++)a+=sc.dur[j];return a+0.001;}
+function gotoStep(i){
+  if(!sc)return;
+  if(sc.lod){ i=Math.max(0,Math.min(sc.steps.length-1,i)); dist=sc.lodDist(i); return; }
+  i=Math.max(0,Math.min(sc.dur.length-1,i));
+  t=stepStart(i); playing=false;
+  document.getElementById('bp').textContent='继续';
+}
+function curStep(){ if(!sc)return 0;
+  return sc.lod?Math.round(sc.lodLevel()):stage(sc.dur)[0]; }
+document.getElementById('np').onclick=()=>gotoStep(curStep()-1);
+document.getElementById('nn').onclick=()=>gotoStep(curStep()+1);
+document.getElementById('dots').onclick=e=>{
+  const i=[...e.currentTarget.children].indexOf(e.target);
+  if(i>=0)gotoStep(i);};
+addEventListener('keydown',e=>{
+  if(e.key==='ArrowLeft'){e.preventDefault();gotoStep(curStep()-1);}
+  if(e.key==='ArrowRight'){e.preventDefault();gotoStep(curStep()+1);}
+  if(e.key===' '){e.preventDefault();document.getElementById('bp').click();}});
+
+document.getElementById('bp').onclick=e=>{playing=!playing;e.target.textContent=playing?'暂停':'继续';};
+document.getElementById('br').onclick=()=>{t=0;playing=true;document.getElementById('bp').textContent='暂停';};
+</script>
+
