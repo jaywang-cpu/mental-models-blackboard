@@ -1,7 +1,6 @@
-const V = 'mmb-v14-writing-gym';
+const V = 'mmb-v13';
 const FILES = ['./', './index.html', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './models.html', './polya.html', './drill.html', './english.html', './su/math.html', './su/code.html', './su/engine.js', './su/base.css', './su/map.css', './su/star.js',
                './immune/map.html', './immune/api.js', './immune/base.css', './immune/star.js', './immune/nodes.json', './immune/fig.html', './vendor/pdf.min.mjs', './vendor/pdf.worker.min.mjs',
-               './english-flow.html', './english-flow.css', './english-flow-data.js', './english-flow-core.js', './english-flow.js',
                './icon.svg', './manifest.webmanifest'];
 
 self.addEventListener('install', e => {
