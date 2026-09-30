@@ -26,6 +26,7 @@ text{pointer-events:none}
 #bar{position:fixed;top:0;left:0;right:0;padding:max(12px,env(safe-area-inset-top)) 16px 12px;display:flex;gap:8px;
  align-items:center;background:linear-gradient(to bottom,rgba(0,0,0,.85),transparent);z-index:5}
 #bar b{color:#e8eef4;font-size:14px;font-weight:600;letter-spacing:2px;margin-right:auto}
+#bar{flex-wrap:wrap}#bar .writing-link{text-decoration:none;border-color:#789969;color:#bee39a;white-space:nowrap}
 .btn{pointer-events:auto;background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.16);
  color:#c8d4de;font-size:12px;padding:6px 12px;border-radius:20px;cursor:pointer}
 .btn:active{background:rgba(255,255,255,.18)}
@@ -34,6 +35,7 @@ text{pointer-events:none}
 <canvas id="sky"></canvas>
 <svg id="map"></svg>
 <div id="bar"><a class="btn" href="./" style="text-decoration:none;margin-right:10px">←</a><b>英 语 星 图</b>
+ <a class="btn writing-link" href="english-flow.html">写作积木 Gym ↗</a>
  <button class="btn" id="bFit">回到全图</button>
  <button class="btn" id="bRand">随机换词</button></div>
 <div id="hud"><div id="hudCn">—</div><div id="hudEn">—</div>
