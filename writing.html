@@ -1,0 +1,136 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<title>雅思写作</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#000308">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--fg:#e8eef4;--dim:#6b7590;--line:rgba(255,255,255,.14);--ok:#7fd99a;--bad:#ff7b7b;--gold:#e9c46a;--blue:#8fb8ff}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;overflow-x:hidden;max-width:100%;color:var(--fg);font-family:-apple-system,"PingFang SC",sans-serif;background:#000308}
+body{background:radial-gradient(ellipse at 50% 0%,#0b1430 0%,#000308 60%) fixed}
+#bar{position:sticky;top:0;display:flex;gap:8px;align-items:center;padding:max(12px,env(safe-area-inset-top)) 16px 10px;background:rgba(0,3,8,.92);backdrop-filter:blur(8px);z-index:5}
+#bar b{font-size:14px;font-weight:600;letter-spacing:2px;margin-right:auto;white-space:nowrap}
+.btn{background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:7px 12px;font-size:13px;cursor:pointer;text-decoration:none;font-family:inherit;white-space:nowrap}
+.btn:active{background:rgba(255,255,255,.18)}
+.btn.on{border-color:var(--gold);color:var(--gold)}
+#tabs{display:flex;gap:6px;padding:0 16px 10px;overflow-x:auto;position:sticky;top:calc(max(12px,env(safe-area-inset-top)) + 46px);background:rgba(0,3,8,.92);z-index:4}
+main{max-width:640px;width:100%;margin:0 auto;padding:6px 16px calc(40px + env(safe-area-inset-bottom))}
+h2{font-size:15px;color:var(--gold);margin:22px 0 8px;font-weight:600}
+h2:first-child{margin-top:6px}
+.note{font-size:12px;color:var(--dim);line-height:1.7;margin:4px 0 10px}
+.box{border:1px solid var(--line);border-radius:14px;padding:12px 14px;background:rgba(255,255,255,.03);margin-bottom:8px;font-size:14px;line-height:1.65}
+.box .k{color:var(--gold);font-weight:600;margin-right:6px}
+.sk{display:grid;grid-template-columns:72px 1fr;gap:6px 10px;font-size:14px;line-height:1.6}
+.sk span:nth-child(odd){color:var(--gold)}
+.s{border:1px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:8px;background:rgba(255,255,255,.03);cursor:pointer}
+.s .id{font-size:11px;color:var(--dim)}
+.s .en{font-size:15px;line-height:1.6;margin-top:2px}
+.slot{color:var(--blue)}
+.s .cn{font-size:12px;color:var(--dim);margin-top:3px}
+.s .ex{display:none;font-size:13px;color:#c9d2e3;margin-top:8px;padding-top:8px;border-top:1px dashed var(--line);line-height:1.6}
+.s.open .ex{display:block}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-size:12.5px;padding:5px 10px;border-radius:999px;border:1px solid var(--line);color:#d6deeb}
+.map{border-bottom:1px solid var(--line);padding:10px 0;font-size:13.5px;line-height:1.6}
+.map b{font-weight:600}.map .t{display:inline-block;min-width:22px;text-align:center;border-radius:6px;background:rgba(233,196,106,.15);color:var(--gold);font-size:12px;margin-right:6px}
+.map .r{color:#c9d2e3;font-size:12.5px}
+.model p{font-size:14.5px;line-height:1.75;margin:0 0 10px}
+.model code{font-size:10px;color:var(--gold);margin-left:2px}
+/* 打字 */
+.drill{border:1px solid var(--line);border-radius:18px;padding:18px 16px;background:rgba(255,255,255,.03)}
+.drill .cue{font-size:16px;text-align:center}
+.drill .fr{font-size:13px;color:var(--dim);text-align:center;margin-top:6px;line-height:1.6}
+textarea{width:100%;margin-top:14px;font-size:17px;line-height:1.5;padding:12px;border-radius:12px;border:1px solid var(--line);background:#050a18;color:var(--fg);font-family:inherit;resize:none;outline:none;min-height:110px}
+textarea:focus{border-color:rgba(233,196,106,.6)}
+.res{margin-top:12px;font-size:15px;line-height:1.7;min-height:40px}
+.res .w{color:var(--bad);text-decoration:underline}
+.res .m{color:var(--bad);opacity:.8}
+.row{display:flex;gap:8px;justify-content:center;margin-top:10px;flex-wrap:wrap}
+.stat{font-size:12px;color:var(--dim);margin:2px 0 12px}.stat em{font-style:normal;color:var(--fg)}
+</style></head><body>
+<div id="bar"><a class="btn" href="english.html">←</a><b>雅 思 写 作</b><a class="btn" href="spell.html">拼写</a></div>
+<div id="tabs">
+ <button class="btn on" data-t="t2">大作文</button><button class="btn" data-t="t1">小作文</button>
+ <button class="btn" data-t="map">65 题</button><button class="btn" data-t="drill">打字背句</button><button class="btn" data-t="plan">6 天</button>
+</div>
+<main id="main"></main>
+<script src="writing-data.js"></script>
+<script>
+const W=window.W,$=id=>document.getElementById(id),M=$('main');
+const esc=s=>String(s).replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+const slot=s=>esc(s).replace(/\[([^\]]+)\]/g,'<span class="slot">[$1]</span>');
+const KEY='write-v1';let S;try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){S={}}
+S.p=S.p||{};S.tab=S.tab||'t2';S.set=S.set||'all';
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
+
+function sentList(arr){return arr.map(s=>`<div class="s" onclick="this.classList.toggle('open')"><div class="id">${s[0]} · ${esc(s[1])}</div><div class="en">${slot(s[2])}</div><div class="cn">${esc(s[3])}</div><div class="ex">例:${esc(s[4])}</div></div>`).join('')}
+function skel(rows){return '<div class="box"><div class="sk">'+rows.map(r=>`<span>${esc(r[0])}<br><small style="color:var(--dim)">${esc(r[1])}</small></span><span>${esc(r[2])}</span>`).join('')+'</div></div>'}
+function model(q,rows){let h=`<div class="note">${esc(q)}</div><div class="box model">`,cur=null,buf=[];
+ rows.forEach(r=>{if(r[0]!==cur){if(buf.length)h+='<p>'+buf.join(' ')+'</p>';buf=[];cur=r[0]}buf.push(esc(r[2])+`<code>${esc(r[1])}</code>`)});
+ return h+'<p>'+buf.join(' ')+'</p></div>'}
+
+const views={
+ t2(){const ids={};W.T2_SENT.forEach(s=>ids[s[0]]=s);return `
+  <h2>骨架(所有题型都用这一个)</h2>${skel(W.T2_SKELETON)}
+  <h2>6 种题型只换两处</h2><div class="note">开头第二句 + 两段正文放什么</div>
+  ${W.T2_TYPES.map(t=>`<div class="box"><span class="k">${t[0]} ${esc(t[1])}</span><span style="color:var(--dim);font-size:12px">${esc(t[2])}</span><br>开头:<b>${t[3]}</b> · P2:${esc(t[4])}<br>P3:${esc(t[5])}</div>`).join('')}
+  <h2>想理由:三把钥匙</h2>${W.T2_KEYS.map(k=>`<div class="box"><span class="k">${esc(k[0])}</span>${esc(k[1])}</div>`).join('')}
+  <h2>6 维度短语(拼写已核对)</h2>${W.T2_CHUNKS.map(d=>`<div class="box"><span class="k">${esc(d[0])}</span><div class="chips" style="margin-top:6px">${d[1].map(p=>`<span class="chip">${esc(p)}</span>`).join('')}</div></div>`).join('')}
+  <h2>25 句 <span style="font-size:12px;color:var(--dim)">点开看例句</span></h2>${sentList(W.T2_SENT)}
+  <h2>示范作文</h2>${model(W.T2_MODEL_Q,W.T2_MODEL)}
+  <h2>我的 3 个真实例子</h2>${W.T2_EXAMPLES.map(e=>`<div class="box"><span class="k">${esc(e[0])}</span>${esc(e[1])}</div>`).join('')}
+  <h2>7.5 的硬规则</h2><div class="box">${W.RULES_75.map((r,i)=>`${i+1}. ${esc(r)}`).join('<br>')}</div>`},
+ t1(){return `
+  <h2>骨架</h2>${skel(W.T1_SKELETON)}
+  <h2>每种图怎么分段</h2>${W.T1_TYPES.map(t=>`<div class="box"><span class="k">${esc(t[0])}</span>${esc(t[1])}<br><span style="color:var(--dim);font-size:12px">用:${esc(t[2])}</span></div>`).join('')}
+  <h2>23 句 <span style="font-size:12px;color:var(--dim)">点开看例句</span></h2>${sentList(W.T1_SENT)}
+  <h2>示范</h2>${model(W.T1_MODEL_Q,W.T1_MODEL)}
+  <h2>只背这些词</h2>${W.T1_WORDS.map(w=>`<div class="box"><span class="k">${esc(w[0])}</span>${esc(w[1])}</div>`).join('')}`},
+ map(){let cat='',h='<div class="note">括号:钱 时 健 能 情 环 · 【例】= 用我的真实经历<br>题型:O 观点 · D 双方 · A 利弊 · P 原因解决 · N 好坏 · T 两问</div>';
+  W.T2_MAP.forEach(m=>{if(m[0]!==cat){cat=m[0];h+=`<h2>${esc(cat)}</h2>`}
+   h+=`<div class="map"><span class="t">${m[3]}</span><b>${m[1]} ${esc(m[2])}</b><br><span style="color:var(--gold);font-size:12.5px">${esc(m[4])}</span><div class="r">P2 ${esc(m[5])}<br>P3 ${esc(m[6])}</div></div>`});return h},
+ plan(){return `<h2>6 天</h2>${W.PLAN.map(p=>`<div class="box"><span class="k">${esc(p[0])}</span>${esc(p[1])}</div>`).join('')}`},
+ drill(){return `<div class="row" style="margin:4px 0 10px;justify-content:flex-start">
+   <button class="btn ${S.set==='all'?'on':''}" data-set="all">全部 48</button><button class="btn ${S.set==='t2'?'on':''}" data-set="t2">大作文</button>
+   <button class="btn ${S.set==='t1'?'on':''}" data-set="t1">小作文</button><button class="btn ${S.set==='wrong'?'on':''}" data-set="wrong">错句</button></div>
+  <div class="stat" id="dstat"></div>
+  <div class="drill"><div class="cue" id="cue"></div><div class="fr" id="fr"></div>
+   <textarea id="ta" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" placeholder="照着中文和句架,把例句完整打出来"></textarea>
+   <div class="res" id="dres"></div>
+   <div class="row"><button class="btn" id="dChk">检查</button><button class="btn" id="dHint">偷看</button><button class="btn" id="dNext">跳过</button></div></div>
+  <div class="note" style="text-align:center;margin-top:12px">打错的词标红,必须照着再打一遍才过;连续对 3 次算熟</div>`}
+};
+
+/* ---------- 打字背句 ---------- */
+const ALL=[...W.T2_SENT.map(s=>({...arr(s),set:'t2'})),...W.T1_SENT.map(s=>({...arr(s),set:'t1'}))];
+function arr(s){return {id:s[0],use:s[1],fr:s[2],cn:s[3],ex:s[4]}}
+const P=id=>S.p[id]||(S.p[id]={c:0,w:0,st:0});
+let cur=null,retype=false,first=true;
+const words=s=>s.toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9'%.\- ]/g,' ').replace(/\.(?=\s|$)/g,' ').split(/\s+/).filter(Boolean);
+function pool(){let L=ALL.filter(x=>S.set==='all'||x.set===S.set);if(S.set==='wrong')L=ALL.filter(x=>(S.p[x.id]||{}).bad);
+ const notDone=L.filter(x=>(S.p[x.id]||{st:0}).st<3);return notDone.length?notDone:L}
+function dnext(){retype=false;first=true;const L=pool().filter(x=>!cur||x.id!==cur.id||pool().length===1);
+ if(!L.length){$('cue').textContent='错句本空了';$('fr').textContent='';return}
+ L.sort((a,b)=>(P(a.id).st-P(b.id).st)||(Math.random()-.5));cur=L[0];
+ $('cue').textContent=cur.cn;$('fr').innerHTML=cur.id+' · '+slot(cur.fr);$('ta').value='';$('dres').innerHTML='';dstat();
+ if(matchMedia('(pointer:fine)').matches)$('ta').focus()}
+function dstat(){const L=ALL.filter(x=>S.set==='all'||x.set===S.set),done=L.filter(x=>P(x.id).st>=3).length,bad=ALL.filter(x=>(S.p[x.id]||{}).bad).length;
+ $('dstat').innerHTML=`已熟 <em>${done}</em> / ${L.length} · 错句 <em>${bad}</em>`}
+function lcsDiff(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},()=>Array(n+1).fill(0));
+ for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)d[i][j]=a[i]===b[j]?d[i+1][j+1]+1:Math.max(d[i+1][j],d[i][j+1]);
+ const out=[];let i=0,j=0;while(j<n){if(i<m&&a[i]===b[j]){out.push(esc(b[j]));i++;j++}else if(i<m&&d[i+1][j]>=d[i][j+1])i++;else{out.push(`<span class="w">${esc(b[j])}</span>`);j++}}return out.join(' ')}
+function dcheck(){if(!cur)return;const got=words($('ta').value),exp=words(cur.ex);if(!got.length)return;
+ const ok=got.join(' ')===exp.join(' ');const p=P(cur.id);
+ if(retype){if(ok){$('dres').innerHTML='<span style="color:var(--ok)">好,下一句</span>';setTimeout(dnext,700)}else $('dres').innerHTML=lcsDiff(got,exp);return}
+ if(ok){if(first){p.c++;p.st++;if(p.st>=3)p.bad=false}$('dres').innerHTML='<span style="color:var(--ok)">全对</span> · '+esc(cur.ex);save();setTimeout(dnext,1100)}
+ else{p.w++;p.st=0;p.bad=true;first=false;retype=true;$('dres').innerHTML=lcsDiff(got,exp)+'<div style="font-size:12px;color:var(--dim);margin-top:6px">红色 = 拼错或漏掉的词。照着再打一遍</div>';$('ta').value='';$('ta').focus();save();dstat()}}
+
+function show(t){S.tab=t;save();M.innerHTML=views[t]();document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));scrollTo(0,0);
+ if(t==='drill'){$('dChk').onclick=dcheck;$('dNext').onclick=dnext;$('dHint').onclick=()=>{if(cur){$('dres').innerHTML='<span style="color:var(--gold)">'+esc(cur.ex)+'</span>';P(cur.id).bad=true;P(cur.id).st=0;first=false;save()}};
+  $('ta').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();dcheck()}});
+  document.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{S.set=b.dataset.set;save();cur=null;show('drill')});dnext()}}
+document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>show(b.dataset.t));
+show(S.tab);
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script></body></html>
