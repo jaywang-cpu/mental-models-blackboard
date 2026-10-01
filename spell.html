@@ -54,14 +54,26 @@ input.bad{border-color:var(--bad)} input.ok{border-color:var(--ok)}
   <div class="res" id="res"></div>
   <div class="row"><button class="btn" id="bCheck">检查</button><button class="btn" id="bShow">看答案</button><button class="btn" id="bSkip">跳过</button></div>
  </div>
+ <div class="row" style="margin-top:16px"><button class="btn" id="bExp">备份进度</button><button class="btn" id="bImp">恢复进度</button></div>
  <div class="foot">点 ▶ 听发音再拼 · 回车检查 · 拼错要照着正确答案再打一遍才能过<br>错的词进错题本,隔几题再考;连续对 3 次才出错题本<br>进度只存在这台设备的浏览器里</div>
 </main>
 <script src="spell-data.js"></script>
+<script src="spell-v1map.js"></script>
 <script>
 const D=window.SPELL, $=id=>document.getElementById(id);
 const KEY='spell-v2';
 let S;try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){S={}}
 S.p=S.p||{};S.wrong=S.wrong||[];S.mode=S.mode||'freq';S.cn=S.cn!==false;S.day=S.day||'';S.reps=S.reps||0;S.ok=S.ok||0;
+/* 把旧版(spell-v1)的进度搬过来,只搬一次,旧数据不删 */
+try{const o=JSON.parse(localStorage.getItem('spell-v1')||'null');
+ if(o&&!S.mig1&&window.V1MAP){
+  for(const k in (o.p||{})){const nid=V1MAP[k];if(nid==null)continue;const a=o.p[k],b=S.p[nid]||(S.p[nid]={c:0,w:0,st:0});
+   b.c+=a.c||0;b.w+=a.w||0;b.st=Math.max(b.st,a.st||0)}
+  for(const k of (o.wrong||[])){const nid=V1MAP[k];if(nid!=null&&!S.wrong.includes(nid))S.wrong.push(nid)}
+  if(o.day===new Date().toDateString()){S.reps+=o.reps||0;S.ok+=o.ok||0;S.day=o.day}
+  S.mig1=true;try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}
+ }}catch(e){}
+if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 const today=new Date().toDateString(); if(S.day!==today){S.day=today;S.reps=0;S.ok=0}
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 const P=id=>S.p[id]||(S.p[id]={c:0,w:0,st:0});
@@ -168,6 +180,11 @@ $('bPlay').onclick=()=>speak();$('bSlow').onclick=()=>speak(0.6);
 $('bCn').onclick=()=>{S.cn=!S.cn;save();render()};
 document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.m;pending=[];save();cur=null;
  if(!document.getElementById('inp'))location.reload();else next()});
+$('bExp').onclick=async()=>{const t=JSON.stringify(S);try{await navigator.clipboard.writeText(t);alertBox('进度已复制,贴到备忘录里存着;换设备时点「恢复进度」粘贴')}catch(e){prompt('复制下面这段存起来',t)}};
+$('bImp').onclick=()=>{const t=prompt('粘贴之前备份的进度');if(!t)return;try{const o=JSON.parse(t);if(!o.p)throw 0;
+ for(const k in o.p){const a=o.p[k],b=S.p[k]||(S.p[k]={c:0,w:0,st:0});b.c=Math.max(b.c,a.c);b.w=Math.max(b.w,a.w);b.st=Math.max(b.st,a.st)}
+ for(const k of o.wrong||[])if(!S.wrong.includes(k))S.wrong.push(k);save();render();alertBox('已恢复')}catch(e){alertBox('格式不对')}};
+function alertBox(m){$('res')?($('res').innerHTML='<span style="color:var(--gold)">'+m+'</span>'):0}
 next();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script></body></html>

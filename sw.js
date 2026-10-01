@@ -1,5 +1,5 @@
-const V = 'mmb-v15';
-const FILES = ['./', './index.html', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './models.html', './polya.html', './drill.html', './english.html', './spell.html', './spell-data.js', './su/math.html', './su/code.html', './su/engine.js', './su/base.css', './su/map.css', './su/star.js',
+const V = 'mmb-v16';
+const FILES = ['./', './index.html', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './models.html', './polya.html', './drill.html', './english.html', './spell.html', './spell-data.js', './spell-v1map.js', './su/math.html', './su/code.html', './su/engine.js', './su/base.css', './su/map.css', './su/star.js',
                './immune/map.html', './immune/api.js', './immune/base.css', './immune/star.js', './immune/nodes.json', './immune/fig.html', './vendor/pdf.min.mjs', './vendor/pdf.worker.min.mjs',
                './icon.svg', './manifest.webmanifest'];
 
