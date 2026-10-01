@@ -40,6 +40,7 @@ h2:first-child{margin-top:6px}
 .drill{border:1px solid var(--line);border-radius:18px;padding:18px 16px;background:rgba(255,255,255,.03)}
 .drill .cue{font-size:16px;text-align:center}
 .drill .fr{font-size:13px;color:var(--dim);text-align:center;margin-top:6px;line-height:1.6}
+.big{width:64px;height:64px;border-radius:50%;font-size:24px;border:1px solid var(--line);background:rgba(233,196,106,.12);color:var(--gold);cursor:pointer}
 textarea{width:100%;margin-top:14px;font-size:17px;line-height:1.5;padding:12px;border-radius:12px;border:1px solid var(--line);background:#050a18;color:var(--fg);font-family:inherit;resize:none;outline:none;min-height:110px}
 textarea:focus{border-color:rgba(233,196,106,.6)}
 .res{margin-top:12px;font-size:15px;line-height:1.7;min-height:40px}
@@ -50,8 +51,8 @@ textarea:focus{border-color:rgba(233,196,106,.6)}
 </style></head><body>
 <div id="bar"><a class="btn" href="english.html">←</a><b>雅 思 写 作</b><a class="btn" href="spell.html">拼写</a></div>
 <div id="tabs">
- <button class="btn on" data-t="t2">大作文</button><button class="btn" data-t="t1">小作文</button>
- <button class="btn" data-t="map">65 题</button><button class="btn" data-t="drill">打字背句</button><button class="btn" data-t="plan">6 天</button>
+ <button class="btn on" data-t="drill">打字</button><button class="btn" data-t="t2">大作文模板</button><button class="btn" data-t="t1">小作文模板</button>
+ <button class="btn" data-t="map">65 题</button><button class="btn" data-t="plan">6 天</button>
 </div>
 <main id="main"></main>
 <script src="writing-data.js"></script>
@@ -95,8 +96,8 @@ const views={
    <button class="btn ${S.set==='all'?'on':''}" data-set="all">全部 48</button><button class="btn ${S.set==='t2'?'on':''}" data-set="t2">大作文</button>
    <button class="btn ${S.set==='t1'?'on':''}" data-set="t1">小作文</button><button class="btn ${S.set==='wrong'?'on':''}" data-set="wrong">错句</button></div>
   <div class="stat" id="dstat"></div>
-  <div class="drill"><div class="cue" id="cue"></div><div class="fr" id="fr"></div>
-   <textarea id="ta" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" placeholder="照着中文和句架,把例句完整打出来"></textarea>
+  <div class="drill"><div class="row" style="margin:0 0 12px"><button class="big" id="dPlay">▶</button><button class="btn" id="dSlow" style="align-self:center">慢速</button></div><div class="cue" id="cue"></div><div class="fr" id="fr"></div>
+   <textarea id="ta" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" placeholder="照句架整句打出来,[ ] 里填什么都行,回车检查"></textarea>
    <div class="res" id="dres"></div>
    <div class="row"><button class="btn" id="dChk">检查</button><button class="btn" id="dHint">偷看</button><button class="btn" id="dNext">跳过</button></div></div>
   <div class="note" style="text-align:center;margin-top:12px">打错的词标红,必须照着再打一遍才过;连续对 3 次算熟</div>`}
@@ -115,22 +116,32 @@ function dnext(){retype=false;first=true;const L=pool().filter(x=>!cur||x.id!==c
  L.sort((a,b)=>(P(a.id).st-P(b.id).st)||(Math.random()-.5));cur=L[0];
  $('cue').textContent=cur.cn;$('fr').innerHTML=cur.id+' · '+slot(cur.fr);$('ta').value='';$('dres').innerHTML='';dstat();
  if(matchMedia('(pointer:fine)').matches)$('ta').focus()}
+let voice=null;function pickV(){const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}
+if('speechSynthesis' in window){pickV();speechSynthesis.onvoiceschanged=pickV}
+function say(r){if(!cur||!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(cur.ex);if(voice)u.voice=voice;u.lang=voice?voice.lang:'en-GB';u.rate=r||.95;speechSynthesis.speak(u)}
 function dstat(){const L=ALL.filter(x=>S.set==='all'||x.set===S.set),done=L.filter(x=>P(x.id).st>=3).length,bad=ALL.filter(x=>(S.p[x.id]||{}).bad).length;
  $('dstat').innerHTML=`已熟 <em>${done}</em> / ${L.length} · 错句 <em>${bad}</em>`}
 function lcsDiff(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},()=>Array(n+1).fill(0));
  for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)d[i][j]=a[i]===b[j]?d[i+1][j+1]+1:Math.max(d[i+1][j],d[i][j+1]);
  const out=[];let i=0,j=0;while(j<n){if(i<m&&a[i]===b[j]){out.push(esc(b[j]));i++;j++}else if(i<m&&d[i+1][j]>=d[i][j+1])i++;else{out.push(`<span class="w">${esc(b[j])}</span>`);j++}}return out.join(' ')}
-function dcheck(){if(!cur)return;const got=words($('ta').value),exp=words(cur.ex);if(!got.length)return;
- const ok=got.join(' ')===exp.join(' ');const p=P(cur.id);
- if(retype){if(ok){$('dres').innerHTML='<span style="color:var(--ok)">好,下一句</span>';setTimeout(dnext,700)}else $('dres').innerHTML=lcsDiff(got,exp);return}
- if(ok){if(first){p.c++;p.st++;if(p.st>=3)p.bad=false}$('dres').innerHTML='<span style="color:var(--ok)">全对</span> · '+esc(cur.ex);save();setTimeout(dnext,1100)}
- else{p.w++;p.st=0;p.bad=true;first=false;retype=true;$('dres').innerHTML=lcsDiff(got,exp)+'<div style="font-size:12px;color:var(--dim);margin-top:6px">红色 = 拼错或漏掉的词。照着再打一遍</div>';$('ta').value='';$('ta').focus();save();dstat()}}
+function frameTokens(fr){return words(fr.replace(/\[[^\]]*\]/g,' slotx '))}
+function frameOK(got,fr){const t=frameTokens(fr);const re=new RegExp('^'+t.map(x=>x==='slotx'?'(?:\\S+ )*?\\S+':x.replace(/[.*+?^${}()|[\]\\]/g,'\\$&')).join(' ')+'$');return re.test(got.join(' '))}
+function frameDiff(got,fr){const fixed=frameTokens(fr).filter(x=>x!=='slotx'),g=new Set();
+ const a=got,b=fixed,m=a.length,n=b.length,d=Array.from({length:m+1},()=>Array(n+1).fill(0));
+ for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)d[i][j]=a[i]===b[j]?d[i+1][j+1]+1:Math.max(d[i+1][j],d[i][j+1]);
+ let i=0,j=0;while(i<m&&j<n){if(a[i]===b[j]){g.add(j);i++;j++}else if(d[i+1][j]>=d[i][j+1])i++;else j++}
+ let k=0;return frameTokens(fr).map(x=>x==='slotx'?'<span style="color:var(--blue)">[…]</span>':(g.has(k++)?esc(x):`<span class="w">${esc(x)}</span>`)).join(' ')}
+function dcheck(){if(!cur)return;const got=words($('ta').value);if(!got.length)return;
+ const ok=got.join(' ')===words(cur.ex).join(' ')||frameOK(got,cur.fr);const p=P(cur.id);
+ if(retype){if(ok){$('dres').innerHTML='<span style="color:var(--ok)">好,下一句</span>';setTimeout(dnext,700)}else $('dres').innerHTML=frameDiff(got,cur.fr);return}
+ if(ok){if(first){p.c++;p.st++;if(p.st>=3)p.bad=false}$('dres').innerHTML='<span style="color:var(--ok)">全对</span><div style="font-size:13px;color:var(--dim);margin-top:4px">例句:'+esc(cur.ex)+'</div>';save();setTimeout(dnext,1400)}
+ else{p.w++;p.st=0;p.bad=true;first=false;retype=true;$('dres').innerHTML=frameDiff(got,cur.fr)+'<div style="font-size:12px;color:var(--dim);margin-top:6px">红色 = 句架里拼错或漏掉的词;[…] 里填什么都行。再打一遍</div><div style="font-size:13px;color:#c9d2e3;margin-top:6px">例句:'+esc(cur.ex)+'</div>';$('ta').value='';$('ta').focus();save();dstat()}}
 
 function show(t){S.tab=t;save();M.innerHTML=views[t]();document.querySelectorAll('[data-t]').forEach(b=>b.classList.toggle('on',b.dataset.t===t));scrollTo(0,0);
- if(t==='drill'){$('dChk').onclick=dcheck;$('dNext').onclick=dnext;$('dHint').onclick=()=>{if(cur){$('dres').innerHTML='<span style="color:var(--gold)">'+esc(cur.ex)+'</span>';P(cur.id).bad=true;P(cur.id).st=0;first=false;save()}};
+ if(t==='drill'){$('dChk').onclick=dcheck;$('dPlay').onclick=()=>say();$('dSlow').onclick=()=>say(.7);$('dNext').onclick=dnext;$('dHint').onclick=()=>{if(cur){$('dres').innerHTML='<span style="color:var(--gold)">'+esc(cur.ex)+'</span>';P(cur.id).bad=true;P(cur.id).st=0;first=false;save()}};
   $('ta').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();dcheck()}});
   document.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{S.set=b.dataset.set;save();cur=null;show('drill')});dnext()}}
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>show(b.dataset.t));
-show(S.tab);
+show('drill');
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script></body></html>

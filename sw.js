@@ -1,4 +1,4 @@
-const V = 'mmb-v17';
+const V = 'mmb-v19';
 const FILES = ['./', './index.html', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './models.html', './polya.html', './drill.html', './english.html', './spell.html', './spell-data.js', './spell-v1map.js', './writing.html', './writing-data.js', './su/math.html', './su/code.html', './su/engine.js', './su/base.css', './su/map.css', './su/star.js',
                './immune/map.html', './immune/api.js', './immune/base.css', './immune/star.js', './immune/nodes.json', './immune/fig.html', './vendor/pdf.min.mjs', './vendor/pdf.worker.min.mjs',
                './icon.svg', './manifest.webmanifest'];
@@ -18,6 +18,15 @@ self.addEventListener('activate', e => {
 // 缓存优先：秒开、离线可用；后台悄悄更新
 self.addEventListener('fetch', e => {
   if (e.request.method !== 'GET') return;
+  // 网页和数据:先联网拿最新,断网才用缓存
+  const u = new URL(e.request.url);
+  if (e.request.mode === 'navigate' || /\.(html|js)$/.test(u.pathname)) {
+    e.respondWith(fetch(e.request).then(res => {
+      if (res && res.status === 200 && res.type === 'basic') { const copy = res.clone(); caches.open(V).then(c => c.put(e.request, copy)); }
+      return res;
+    }).catch(() => caches.match(e.request, {ignoreSearch: true})));
+    return;
+  }
   e.respondWith(
     caches.match(e.request).then(hit => {
       const net = fetch(e.request).then(res => {
