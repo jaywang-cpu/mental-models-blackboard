@@ -30,10 +30,12 @@ text{pointer-events:none}
  color:#c8d4de;font-size:12px;padding:6px 12px;border-radius:20px;cursor:pointer}
 .btn:active{background:rgba(255,255,255,.18)}
 @media(max-width:520px){#hudEn{font-size:20px}#hudCn{font-size:15px}}
+@media (max-width:480px){#bar{gap:6px;padding-left:12px;padding-right:12px}#bar b{letter-spacing:0;font-size:13px}#bar .btn{padding:6px 8px;font-size:12px;white-space:nowrap}#bar b{white-space:nowrap}#bar a.btn{margin-right:2px!important}}
 </style></head><body>
 <canvas id="sky"></canvas>
 <svg id="map"></svg>
 <div id="bar"><a class="btn" href="./" style="text-decoration:none;margin-right:10px">←</a><b>英 语 星 图</b>
+ <a class="btn" id="bSpell" href="spell.html" style="text-decoration:none;border-color:rgba(233,196,106,.6);color:#e9c46a">拼写 ↗</a>
  <button class="btn" id="bFit">回到全图</button>
  <button class="btn" id="bRand">随机换词</button></div>
 <div id="hud"><div id="hudCn">—</div><div id="hudEn">—</div>

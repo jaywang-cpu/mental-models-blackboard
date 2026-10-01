@@ -1,0 +1,173 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,maximum-scale=1">
+<title>听力拼写</title>
+<link rel="manifest" href="manifest.webmanifest"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"><meta name="theme-color" content="#000308">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<style>
+:root{--bg:#000308;--fg:#e8eef4;--dim:#6b7590;--line:rgba(255,255,255,.14);--ok:#7fd99a;--bad:#ff7b7b;--gold:#e9c46a}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;overflow-x:hidden;max-width:100%;background:var(--bg);color:var(--fg);font-family:-apple-system,"PingFang SC",sans-serif;min-height:100%}
+body{background:radial-gradient(ellipse at 50% 0%,#0b1430 0%,#000308 60%) fixed}
+#bar{position:sticky;top:0;display:flex;gap:8px;align-items:center;padding:max(12px,env(safe-area-inset-top)) 16px 12px;background:linear-gradient(to bottom,rgba(0,0,0,.9),transparent);z-index:5}
+#bar b{font-size:14px;font-weight:600;letter-spacing:2px;margin-right:auto}
+.btn{background:rgba(255,255,255,.07);border:1px solid var(--line);color:var(--fg);border-radius:999px;padding:7px 13px;font-size:13px;cursor:pointer;text-decoration:none;font-family:inherit}
+.btn:active{background:rgba(255,255,255,.18)}
+.btn.on{border-color:var(--gold);color:var(--gold)}
+main{max-width:560px;width:100%;margin:0 auto;padding:8px 16px calc(40px + env(safe-area-inset-bottom))}
+.modes{display:flex;gap:8px;flex-wrap:wrap;margin:4px 0 18px}
+.stat{font-size:12px;color:var(--dim);margin-bottom:14px;line-height:1.7}
+.stat em{font-style:normal;color:var(--fg)}
+.card{width:100%;overflow:hidden;border:1px solid var(--line);border-radius:18px;padding:22px 18px;background:rgba(255,255,255,.03)}
+.play{display:flex;gap:10px;justify-content:center;margin-bottom:16px}
+.big{width:76px;height:76px;border-radius:50%;font-size:28px;border:1px solid var(--line);background:rgba(233,196,106,.12);color:var(--gold);cursor:pointer}
+.big:active{background:rgba(233,196,106,.3)}
+.slow{align-self:center}
+.hint{text-align:center;font-size:15px;min-height:22px;color:#c9d2e3}
+.src{text-align:center;font-size:11px;color:var(--dim);margin-top:4px;overflow-wrap:anywhere}
+input{width:100%;margin-top:18px;font-size:24px;padding:14px 14px;border-radius:12px;border:1px solid var(--line);background:#050a18;color:var(--fg);text-align:center;letter-spacing:.5px;font-family:"SF Mono",Menlo,monospace;outline:none}
+input:focus{border-color:rgba(233,196,106,.6)}
+input.bad{border-color:var(--bad)} input.ok{border-color:var(--ok)}
+.res{min-height:70px;margin-top:14px;text-align:center;font-size:15px;line-height:1.6}
+.ans{font-family:"SF Mono",Menlo,monospace;font-size:22px;letter-spacing:.5px}
+.ans .x{color:var(--bad);text-decoration:underline}
+.ans .m{color:var(--bad)}
+.tag{display:inline-block;margin-top:6px;font-size:12px;padding:3px 9px;border-radius:999px;border:1px solid rgba(233,196,106,.5);color:var(--gold)}
+.warn{color:var(--gold);font-weight:600}
+.row{display:flex;gap:8px;justify-content:center;margin-top:10px}
+.empty{text-align:center;color:var(--dim);padding:40px 0}
+.foot{overflow-wrap:anywhere;font-size:11px;color:var(--dim);text-align:center;margin-top:18px;line-height:1.8}
+</style></head><body>
+<div id="bar"><a class="btn" href="english.html">←</a><b>听 力 拼 写</b><a class="btn" href="./">首页</a></div>
+<main>
+ <div class="modes">
+  <button class="btn on" data-m="freq">高频优先</button>
+  <button class="btn" data-m="rand">随机</button>
+  <button class="btn" data-m="wrong">错题本 <span id="wn">0</span></button>
+  <button class="btn" id="bCn">中文提示:开</button>
+ </div>
+ <div class="stat" id="stat"></div>
+ <div class="card" id="card">
+  <div class="play"><button class="big" id="bPlay">▶</button><button class="btn slow" id="bSlow">慢速</button></div>
+  <div class="hint" id="hint"></div>
+  <div class="src" id="src"></div>
+  <input id="inp" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" placeholder="听到什么就拼什么">
+  <div class="res" id="res"></div>
+  <div class="row"><button class="btn" id="bCheck">检查</button><button class="btn" id="bShow">看答案</button><button class="btn" id="bSkip">跳过</button></div>
+ </div>
+ <div class="foot">点 ▶ 听发音再拼 · 回车检查 · 拼错要照着正确答案再打一遍才能过<br>错的词进错题本,隔几题再考;连续对 3 次才出错题本<br>进度只存在这台设备的浏览器里</div>
+</main>
+<script src="spell-data.js"></script>
+<script>
+const D=window.SPELL, $=id=>document.getElementById(id);
+const KEY='spell-v1';
+let S;try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){S={}}
+S.p=S.p||{};S.wrong=S.wrong||[];S.mode=S.mode||'freq';S.cn=S.cn!==false;S.day=S.day||'';S.reps=S.reps||0;S.ok=S.ok||0;
+const today=new Date().toDateString(); if(S.day!==today){S.day=today;S.reps=0;S.ok=0}
+const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
+const P=id=>S.p[id]||(S.p[id]={c:0,w:0,st:0});
+const mastered=id=>{const p=S.p[id];return p&&p.st>=2&&!S.wrong.includes(id)};
+let cur=null,phase='ask',pending=[],retype=false,firstTry=true;
+
+/* ---------- 发音 ---------- */
+let voice=null;
+function pickVoice(){const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en-GB/i.test(v.lang)&&/Daniel|Serena|Kate|Arthur/i.test(v.name))||vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}
+if('speechSynthesis' in window){pickVoice();speechSynthesis.onvoiceschanged=pickVoice}
+function speak(rate){if(!cur||!('speechSynthesis' in window))return;speechSynthesis.cancel();
+ const u=new SpeechSynthesisUtterance(cur.say);if(voice)u.voice=voice;u.lang=voice?voice.lang:'en-GB';u.rate=rate||0.9;speechSynthesis.speak(u)}
+
+/* ---------- 出题 ---------- */
+function pool(){
+ if(S.mode==='wrong')return S.wrong.map(i=>D[i]).filter(Boolean);
+ const left=D.filter(d=>!mastered(d.id));
+ return left;
+}
+function next(){
+ retype=false;firstTry=true;phase='ask';
+ pending.forEach(p=>p.k--);
+ const due=pending.findIndex(p=>p.k<=0);
+ if(due>=0){cur=D[pending[due].id];pending.splice(due,1)}
+ else{
+  const pl=pool().filter(d=>!pending.some(p=>p.id===d.id)&&(!cur||d.id!==cur.id));
+  if(!pl.length){cur=null;render();return}
+  if(S.mode==='rand')cur=pl[Math.floor(Math.random()*pl.length)];
+  else if(S.mode==='wrong')cur=pl[Math.floor(Math.random()*pl.length)];
+  else{const top=pl.slice(0,Math.min(8,pl.length));cur=top[Math.floor(Math.random()*top.length)]}
+ }
+ render();speak();
+}
+function render(){
+ const done=D.filter(d=>mastered(d.id)).length;
+ $('wn').textContent=S.wrong.length;
+ $('stat').innerHTML=`今天练了 <em>${S.reps}</em> 次 · 一次对 <em>${S.ok}</em> · 已掌握 <em>${done}</em> / ${D.length} · 错题本 <em>${S.wrong.length}</em>`;
+ document.querySelectorAll('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===S.mode));
+ $('bCn').textContent='中文提示:'+(S.cn?'开':'关');
+ if(!cur){$('card').innerHTML='<div class="empty">'+(S.mode==='wrong'?'错题本空了':'这一组都掌握了')+'</div>';return}
+ $('hint').textContent=S.cn&&cur.cn?cur.cn:'';
+ $('src').textContent=(cur.src||[]).slice(0,2).join(' · ')+(cur.n>1?` · 出现 ${cur.n} 次`:'');
+ const i=$('inp');i.value='';i.className='';$('res').innerHTML='';
+ if(matchMedia('(pointer:fine)').matches)i.focus();
+}
+
+/* ---------- 判对错 ---------- */
+const norm=s=>s.toLowerCase().replace(/[’‘]/g,"'").replace(/\s+/g,' ').trim().replace(/^[ .,;:]+|[ .,;:]+$/g,'');
+function lev(a,b){const m=a.length,n=b.length,d=[];for(let i=0;i<=m;i++){d[i]=[i];for(let j=1;j<=n;j++)d[i][j]=i?0:j}
+ for(let i=1;i<=m;i++)for(let j=1;j<=n;j++)d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));return d}
+function diffHTML(got,exp){ // 把正确答案里拼错/漏掉的字母标红
+ const d=lev(got,exp);let i=got.length,j=exp.length,out=[];
+ while(j>0){
+  if(i>0&&d[i][j]===d[i-1][j-1]+(got[i-1]===exp[j-1]?0:1)){out.unshift(got[i-1]===exp[j-1]?esc(exp[j-1]):`<span class="x">${esc(exp[j-1])}</span>`);i--;j--}
+  else if(d[i][j]===d[i][j-1]+1){out.unshift(`<span class="m">${exp[j-1]===' '?'␣':esc(exp[j-1])}</span>`);j--}
+  else i--;
+ }
+ return out.join('');
+}
+const esc=s=>s.replace(/[&<>]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;'}[c]));
+function sNote(got,exp){
+ if(exp===got+'s')return '少了结尾的 s!';
+ if(exp===got+'es')return '少了结尾的 es!';
+ if(got===exp+'s')return '多写了 s,这题是单数';
+ if(got===exp+'es')return '多写了 es';
+ if(/ies$/.test(exp)&&got===exp.slice(0,-3)+'ys')return 'y 要变 ies';
+ return '';
+}
+function check(){
+ if(!cur)return;
+ const got=norm($('inp').value);if(!got){speak();return}
+ const ok=cur.ok.includes(got);
+ if(retype){
+  if(ok){$('inp').className='ok';$('res').innerHTML='<span style="color:var(--ok)">好,记住了</span>';setTimeout(next,600)}
+  else{$('inp').className='bad';$('inp').select()}
+  return;
+ }
+ S.reps++;const p=P(cur.id);
+ if(ok){
+  $('inp').className='ok';
+  if(firstTry){S.ok++;p.c++;p.st++;
+   if(S.wrong.includes(cur.id)&&p.st>=3)S.wrong=S.wrong.filter(x=>x!==cur.id);}
+  $('res').innerHTML=`<div class="ans" style="color:var(--ok)">${esc(cur.a)}</div>`+(cur.tag?`<span class="tag">${esc(cur.tag)}</span>`:'');
+  save();setTimeout(next,900);
+ }else{
+  p.w++;p.st=0;firstTry=false;if(!S.wrong.includes(cur.id))S.wrong.push(cur.id);
+  pending.push({id:cur.id,k:3});
+  const exp=cur.ok.reduce((b,o)=>{const x=lev(got,o)[got.length][o.length];return !b||x<b[1]?[o,x]:b},null)[0];
+  const note=sNote(got,exp);
+  $('inp').className='bad';
+  $('res').innerHTML=`<div class="ans">${diffHTML(got,exp)}</div>`+(note?`<div class="warn">${note}</div>`:'')+
+   (cur.a.toLowerCase()!==exp?`<div style="font-size:12px;color:var(--dim)">书上答案:${esc(cur.a)}</div>`:'')+
+   (cur.tag?`<span class="tag">${esc(cur.tag)}</span>`:'')+`<div style="font-size:12px;color:var(--dim);margin-top:6px">照着正确拼写再打一遍</div>`;
+  retype=true;$('inp').value='';$('inp').focus();save();render2();speak(0.8);
+ }
+}
+function render2(){$('wn').textContent=S.wrong.length}
+function show(){if(!cur)return;$('inp').value='zzz';check()}
+
+/* ---------- 事件 ---------- */
+$('inp').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();check()}});
+$('bCheck').onclick=check;$('bShow').onclick=show;$('bSkip').onclick=next;
+$('bPlay').onclick=()=>speak();$('bSlow').onclick=()=>speak(0.6);
+$('bCn').onclick=()=>{S.cn=!S.cn;save();render()};
+document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.m;pending=[];save();cur=null;
+ if(!document.getElementById('inp'))location.reload();else next()});
+next();
+if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
+</script></body></html>
