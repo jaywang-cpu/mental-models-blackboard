@@ -59,7 +59,7 @@ input.bad{border-color:var(--bad)} input.ok{border-color:var(--ok)}
 <script src="spell-data.js"></script>
 <script>
 const D=window.SPELL, $=id=>document.getElementById(id);
-const KEY='spell-v1';
+const KEY='spell-v2';
 let S;try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){S={}}
 S.p=S.p||{};S.wrong=S.wrong||[];S.mode=S.mode||'freq';S.cn=S.cn!==false;S.day=S.day||'';S.reps=S.reps||0;S.ok=S.ok||0;
 const today=new Date().toDateString(); if(S.day!==today){S.day=today;S.reps=0;S.ok=0}
