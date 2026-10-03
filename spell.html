@@ -43,17 +43,20 @@ input.bad{border-color:var(--bad)} input.ok{border-color:var(--ok)}
   <button class="btn on" data-m="freq">高频优先</button>
   <button class="btn" data-m="rand">随机</button>
   <button class="btn" data-m="wrong">错题本 <span id="wn">0</span></button>
+  <button class="btn" data-m="kill">斩杀本 <span id="kn">0</span></button>
   <button class="btn" id="bCn">中文提示:开</button>
  </div>
  <div class="stat" id="stat"></div>
+ <div id="toast" style="min-height:22px;font-size:13px;color:var(--dim);margin:-6px 0 8px"></div>
  <div class="card" id="card">
   <div class="play"><button class="big" id="bPlay">▶</button><button class="btn slow" id="bSlow">慢速</button></div>
   <div class="hint" id="hint"></div>
   <div class="src" id="src"></div>
   <input id="inp" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="go" placeholder="听到什么就拼什么">
   <div class="res" id="res"></div>
-  <div class="row"><button class="btn" id="bCheck">检查</button><button class="btn" id="bShow">看答案</button><button class="btn" id="bSkip">跳过</button></div>
+  <div class="row"><button class="btn" id="bCheck">检查</button><button class="btn" id="bShow">看答案</button><button class="btn" id="bSkip">跳过</button><button class="btn" id="bKill" style="border-color:rgba(255,123,123,.6);color:#ff7b7b">斩杀</button></div>
  </div>
+ <div id="killList" style="display:none"></div>
  <div class="row" style="margin-top:16px"><button class="btn" id="bExp">备份进度</button><button class="btn" id="bImp">恢复进度</button></div>
  <div class="foot">点 ▶ 听发音再拼 · 回车检查 · 拼错要照着正确答案再打一遍才能过<br>错的词进错题本,隔几题再考;连续对 3 次才出错题本<br>进度只存在这台设备的浏览器里</div>
 </main>
@@ -63,7 +66,7 @@ input.bad{border-color:var(--bad)} input.ok{border-color:var(--ok)}
 const D=window.SPELL, $=id=>document.getElementById(id);
 const KEY='spell-v2';
 let S;try{S=JSON.parse(localStorage.getItem(KEY))||{}}catch(e){S={}}
-S.p=S.p||{};S.wrong=S.wrong||[];S.mode=S.mode||'freq';S.cn=S.cn!==false;S.day=S.day||'';S.reps=S.reps||0;S.ok=S.ok||0;
+S.p=S.p||{};S.wrong=S.wrong||[];S.kill=S.kill||[];S.mode=S.mode||'freq';S.cn=S.cn!==false;S.day=S.day||'';S.reps=S.reps||0;S.ok=S.ok||0;
 /* 把旧版(spell-v1)的进度搬过来,只搬一次,旧数据不删 */
 try{const o=JSON.parse(localStorage.getItem('spell-v1')||'null');
  if(o&&!S.mig1&&window.V1MAP){
@@ -88,14 +91,15 @@ function speak(rate){if(!cur||!('speechSynthesis' in window))return;speechSynthe
  const u=new SpeechSynthesisUtterance(cur.say);if(voice)u.voice=voice;u.lang=voice?voice.lang:'en-GB';u.rate=rate||0.9;speechSynthesis.speak(u)}
 
 /* ---------- 出题 ---------- */
+const killed=id=>S.kill.includes(id);
 function pool(){
- if(S.mode==='wrong')return S.wrong.map(i=>D[i]).filter(Boolean);
- const left=D.filter(d=>!mastered(d.id));
+ if(S.mode==='wrong')return S.wrong.filter(i=>!killed(i)).map(i=>D[i]).filter(Boolean);
+ const left=D.filter(d=>!mastered(d.id)&&!killed(d.id));
  return left;
 }
 function next(){
  retype=false;firstTry=true;phase='ask';
- pending.forEach(p=>p.k--);
+ pending=pending.filter(p=>!killed(p.id));pending.forEach(p=>p.k--);
  const due=pending.findIndex(p=>p.k<=0);
  if(due>=0){cur=D[pending[due].id];pending.splice(due,1)}
  else{
@@ -109,8 +113,8 @@ function next(){
 }
 function render(){
  const done=D.filter(d=>mastered(d.id)).length;
- $('wn').textContent=S.wrong.length;
- $('stat').innerHTML=`今天练了 <em>${S.reps}</em> 次 · 一次对 <em>${S.ok}</em> · 已掌握 <em>${done}</em> / ${D.length} · 错题本 <em>${S.wrong.length}</em>`;
+ $('wn').textContent=S.wrong.length;$('kn').textContent=S.kill.length;
+ $('stat').innerHTML=`今天练了 <em>${S.reps}</em> 次 · 一次对 <em>${S.ok}</em> · 已掌握 <em>${done}</em> / ${D.length} · 错题本 <em>${S.wrong.length}</em> · 斩杀 <em>${S.kill.length}</em>`;
  document.querySelectorAll('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m===S.mode));
  $('bCn').textContent='中文提示:'+(S.cn?'开':'关');
  if(!cur){$('card').innerHTML='<div class="empty">'+(S.mode==='wrong'?'错题本空了':'这一组都掌握了')+'</div>';return}
@@ -175,16 +179,29 @@ function show(){if(!cur)return;$('inp').value='zzz';check()}
 
 /* ---------- 事件 ---------- */
 $('inp').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();check()}});
-$('bCheck').onclick=check;$('bShow').onclick=show;$('bSkip').onclick=next;
+$('bKill').onclick=kill;$('bCheck').onclick=check;$('bShow').onclick=show;$('bSkip').onclick=next;
 $('bPlay').onclick=()=>speak();$('bSlow').onclick=()=>speak(0.6);
 $('bCn').onclick=()=>{S.cn=!S.cn;save();render()};
 document.querySelectorAll('[data-m]').forEach(b=>b.onclick=()=>{S.mode=b.dataset.m;pending=[];save();cur=null;
- if(!document.getElementById('inp'))location.reload();else next()});
+ if(S.mode==='kill'){showKill();return}
+ if(!document.getElementById('inp'))location.reload();else{$('card').style.display='';$('killList').style.display='none';next()}});
 $('bExp').onclick=async()=>{const t=JSON.stringify(S);try{await navigator.clipboard.writeText(t);alertBox('进度已复制,贴到备忘录里存着;换设备时点「恢复进度」粘贴')}catch(e){prompt('复制下面这段存起来',t)}};
 $('bImp').onclick=()=>{const t=prompt('粘贴之前备份的进度');if(!t)return;try{const o=JSON.parse(t);if(!o.p)throw 0;
  for(const k in o.p){const a=o.p[k],b=S.p[k]||(S.p[k]={c:0,w:0,st:0});b.c=Math.max(b.c,a.c);b.w=Math.max(b.w,a.w);b.st=Math.max(b.st,a.st)}
- for(const k of o.wrong||[])if(!S.wrong.includes(k))S.wrong.push(k);save();render();alertBox('已恢复')}catch(e){alertBox('格式不对')}};
+ for(const k of o.wrong||[])if(!S.wrong.includes(k))S.wrong.push(k);for(const k of o.kill||[])if(!S.kill.includes(k))S.kill.push(k);save();render();alertBox('已恢复')}catch(e){alertBox('格式不对')}};
 function alertBox(m){$('res')?($('res').innerHTML='<span style="color:var(--gold)">'+m+'</span>'):0}
+/* ---------- 斩杀:不再出现,练习记录照样保留 ---------- */
+function kill(){if(!cur)return;const id=cur.id,w=cur.a;if(!S.kill.includes(id))S.kill.push(id);
+ S.wrong=S.wrong.filter(x=>x!==id);pending=pending.filter(p=>p.id!==id);save();
+ $('toast').innerHTML=`已斩杀「${esc(w)}」,不会再出现 · <a href="#" id="undo" style="color:var(--gold)">撤销</a>`;
+ $('undo').onclick=e=>{e.preventDefault();S.kill=S.kill.filter(x=>x!==id);save();$('toast').textContent='已撤销';render()};
+ next()}
+function showKill(){document.querySelectorAll('[data-m]').forEach(b=>b.classList.toggle('on',b.dataset.m==='kill'));
+ $('card').style.display='none';const L=$('killList');L.style.display='';
+ L.innerHTML=S.kill.length?'<div class="stat">斩杀掉的词不再出现;点「恢复」放回练习。练习记录一直保留。</div>'+S.kill.map(id=>D[id]?`<div class="card" style="display:flex;justify-content:space-between;align-items:center;padding:12px 16px;margin-bottom:8px"><span class="ans" style="font-size:17px">${esc(D[id].a)}</span><button class="btn" data-r="${id}">恢复</button></div>`:'').join(''):'<div class="empty">还没有斩杀任何词</div>';
+ L.querySelectorAll('[data-r]').forEach(b=>b.onclick=()=>{S.kill=S.kill.filter(x=>x!==+b.dataset.r);save();showKill();$('kn').textContent=S.kill.length});
+ $('kn').textContent=S.kill.length}
+if(S.mode==='kill')S.mode='freq';
 next();
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script></body></html>
