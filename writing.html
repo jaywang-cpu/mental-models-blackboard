@@ -66,7 +66,9 @@ const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 
 const SALL=()=>Object.fromEntries([...W.T2_SENT,...W.T1_SENT].map(x=>[x[0],x]));
-function recipeBox(title,rows){const A=SALL();return `<div class="box"><div class="k" style="margin-bottom:4px">${esc(title)}</div>${rows.map(r=>{const ids=(r[1].match(/\b(?:I\d[a-f]?|B\d+|C\d|T\d+)\b/g)||[]).filter(i=>A[i]);const lines=ids.map(i=>`<div style="margin:3px 0 0 0;font-size:13px;line-height:1.6;color:#c9d2e3"><span style="color:var(--dim);font-size:11px;margin-right:6px">${i}</span>${slot(A[i][2])}</div>`).join('');return `<div style="padding:6px 0;border-top:1px dashed var(--line)"><div style="display:flex;gap:10px"><span style="color:var(--dim);min-width:92px">${esc(r[0])}</span><span>${esc(r[1])}</span></div>${lines}</div>`}).join('')}</div>`}
+const RIDS=rows=>[...new Set(rows.flatMap(r=>r[1].match(/\b(?:I\d[a-f]?|B\d+|C\d|T\d+)\b/g)||[]))];
+function goBtn(v){return `<button class="btn" data-go="${v}" style="padding:4px 10px;font-size:12px">⌨ 打字练这块</button>`}
+function recipeBox(title,rows){const A=SALL();return `<div class="box"><div style="display:flex;align-items:center;justify-content:space-between;margin-bottom:4px"><span class="k">${esc(title)}</span>${goBtn('ids:'+RIDS(rows).join(','))}</div>${rows.map(r=>{const ids=(r[1].match(/\b(?:I\d[a-f]?|B\d+|C\d|T\d+)\b/g)||[]).filter(i=>A[i]);const lines=ids.map(i=>`<div style="margin:3px 0 0 0;font-size:13px;line-height:1.6;color:#c9d2e3"><span style="color:var(--dim);font-size:11px;margin-right:6px">${i}</span>${slot(A[i][2])}</div>`).join('');return `<div style="padding:6px 0;border-top:1px dashed var(--line)"><div style="display:flex;gap:10px"><span style="color:var(--dim);min-width:92px">${esc(r[0])}</span><span>${esc(r[1])}</span></div>${lines}</div>`}).join('')}</div>`}
 function groups(G,S){return G.map(g=>`<div style="margin:14px 0 6px;font-size:13px"><b>${esc(g[0])}</b> <span style="color:var(--dim)">${esc(g[1])}</span></div>`+sentList(g[2].map(i=>S[i]))).join('')}
 function sentList(arr){return arr.map(s=>`<div class="s" onclick="this.classList.toggle('open')"><div class="id">${s[0]} · ${esc(s[1])}</div><div class="en">${slot(s[2])}</div><div class="cn">${esc(s[3])}</div><div class="ex">例:${esc(s[4])}</div></div>`).join('')}
 function skel(rows){return '<div class="box"><div class="sk">'+rows.map(r=>`<span>${esc(r[0])}<br><small style="color:var(--dim)">${esc(r[1])}</small></span><span>${esc(r[2])}</span>`).join('')+'</div></div>'}
@@ -82,7 +84,7 @@ const views={
   ${W.T2_TYPES.map(t=>recipeBox(t[0]+' '+t[1],W.T2_RECIPE[t[0]])).join('')}
   <h2>第 3 步 · 25 句</h2><div class="note">按段落位置分组 · 方括号换成题目里的词 · 点开看例句</div>${groups(W.T2_GROUPS,S)}
   <h2>想不出理由时</h2><div class="note">扫 6 个维度,挑最好举例的 2 个 · 每个维度挑 1 句,只填方括号,难词都已写好</div>
-  ${W.T2_CHUNKS.map(d=>`<div class="box"><span class="k">${esc(d[0])}</span>${d[1].map((p,i)=>`<div style="margin-top:8px;line-height:1.65">${i+1}. ${slot(p)}</div>`).join('')}</div>`).join('')}
+  ${W.T2_CHUNKS.map(d=>`<div class="box"><div style="display:flex;align-items:center;justify-content:space-between"><span class="k">${esc(d[0])}</span>${goBtn('dim:'+d[2])}</div>${d[1].map((p,i)=>`<div style="margin-top:8px;line-height:1.65">${i+1}. ${slot(p)}</div>`).join('')}</div>`).join('')}
   <div class="note" style="margin-top:12px">例子用自己的真实经历:</div>${W.T2_EXAMPLES.map(e=>`<div class="box"><span class="k">${esc(e[0])}</span>${esc(e[1])}</div>`).join('')}
   <h2>示范(只用上面的句子拼成)</h2>${model(W.T2_MODEL_Q,W.T2_MODEL)}
   <h2>5 条规则</h2><div class="box">${W.RULES_75.map((r,i)=>`${i+1}. ${esc(r)}`).join('<br>')}</div>`},
@@ -96,9 +98,8 @@ const views={
   W.T2_MAP.forEach(m=>{if(m[0]!==cat){cat=m[0];h+=`<h2>${esc(cat)}</h2>`}
    h+=`<div class="map"><b>${m[1]} · ${esc(m[2])}</b><br><span class="t">${m[3]}</span><span style="color:var(--gold);font-size:12.5px">${esc(T[m[3]])} · ${esc(m[4])}</span><div class="r">正文 1:${esc(m[5])}<br>正文 2:${esc(m[6])}</div></div>`});return h},
  plan(){return `<h2>6 天</h2>${W.PLAN.map(p=>`<div class="box"><span class="k">${esc(p[0])}</span>${esc(p[1])}</div>`).join('')}`},
- drill(){return `<div class="row" style="margin:4px 0 10px;justify-content:flex-start">
-   <button class="btn ${S.set==='all'?'on':''}" data-set="all">全部 48</button><button class="btn ${S.set==='t2'?'on':''}" data-set="t2">大作文</button>
-   <button class="btn ${S.set==='t1'?'on':''}" data-set="t1">小作文</button><button class="btn ${S.set==='wrong'?'on':''}" data-set="wrong">错句</button></div>
+ drill(){return `<div class="row" style="margin:4px 0 8px;justify-content:flex-start;flex-wrap:wrap;gap:6px">
+   ${sb('all','全部 '+ALL.length)}${sb('t2','大作文')}${sb('t1','小作文')}${sb('chunk','理由句')}${sb('wrong','错句')}</div><div class="row" style="margin:0 0 8px;justify-content:flex-start;flex-wrap:wrap;gap:6px"><span style="color:var(--dim);font-size:12px;align-self:center">题型</span>${W.T2_TYPES.map(t=>sb('ids:'+RIDS(W.T2_RECIPE[t[0]]).join(','),t[0]+' '+t[1])).join('')}</div><div class="row" style="margin:0 0 10px;justify-content:flex-start;flex-wrap:wrap;gap:6px"><span style="color:var(--dim);font-size:12px;align-self:center">理由</span>${W.T2_CHUNKS.map(d=>sb('dim:'+d[2],d[0].split(' ')[0])).join('')}</div>
   <div class="stat" id="dstat"></div>
   <div class="drill"><div class="row" style="margin:0 0 12px"><button class="big" id="dPlay">▶</button><button class="btn" id="dSlow" style="align-self:center">慢速</button></div><div class="cue" id="cue"></div><div class="fr" id="fr"></div>
    <textarea id="ta" autocomplete="off" autocorrect="off" autocapitalize="sentences" spellcheck="false" placeholder="照句架整句打出来,[ ] 里填什么都行,回车检查"></textarea>
@@ -108,12 +109,14 @@ const views={
 };
 
 /* ---------- 打字背句 ---------- */
-const ALL=[...W.T2_SENT.map(s=>({...arr(s),set:'t2'})),...W.T1_SENT.map(s=>({...arr(s),set:'t1'}))];
+const ALL=[...W.T2_SENT.map(s=>({...arr(s),set:'t2'})),...W.T1_SENT.map(s=>({...arr(s),set:'t1'})),...W.T2_CHUNKS.flatMap(d=>d[3].map(s=>({...arr(s),set:'chunk',dim:d[2]})))];
+function inSet(x){const v=S.set;if(v==='all'||v==='wrong')return true;if(v==='t2'||v==='t1'||v==='chunk')return x.set===v;if(v.startsWith('ids:'))return v.slice(4).split(',').includes(x.id);if(v.startsWith('dim:'))return x.dim===v.slice(4);return true}
+const sb=(v,l)=>`<button class="btn ${S.set===v?'on':''}" data-set="${v}">${esc(l)}</button>`;
 function arr(s){return {id:s[0],use:s[1],fr:s[2],cn:s[3],ex:s[4]}}
 const P=id=>S.p[id]||(S.p[id]={c:0,w:0,st:0});
 let cur=null,retype=false,first=true;
 const words=s=>s.toLowerCase().replace(/[’‘]/g,"'").replace(/[^a-z0-9'%.\- ]/g,' ').replace(/\.(?=\s|$)/g,' ').split(/\s+/).filter(Boolean);
-function pool(){let L=ALL.filter(x=>S.set==='all'||x.set===S.set);if(S.set==='wrong')L=ALL.filter(x=>(S.p[x.id]||{}).bad);
+function pool(){let L=ALL.filter(inSet);if(S.set==='wrong')L=ALL.filter(x=>(S.p[x.id]||{}).bad);
  const notDone=L.filter(x=>(S.p[x.id]||{st:0}).st<3);return notDone.length?notDone:L}
 function dnext(){retype=false;first=true;const L=pool().filter(x=>!cur||x.id!==cur.id||pool().length===1);
  if(!L.length){$('cue').textContent='错句本空了';$('fr').textContent='';return}
@@ -123,7 +126,7 @@ function dnext(){retype=false;first=true;const L=pool().filter(x=>!cur||x.id!==c
 let voice=null;function pickV(){const vs=speechSynthesis.getVoices();voice=vs.find(v=>/en-GB/i.test(v.lang))||vs.find(v=>/^en/i.test(v.lang))||null}
 if('speechSynthesis' in window){pickV();speechSynthesis.onvoiceschanged=pickV}
 function say(r){if(!cur||!('speechSynthesis' in window))return;speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(cur.ex);if(voice)u.voice=voice;u.lang=voice?voice.lang:'en-GB';u.rate=r||.95;speechSynthesis.speak(u)}
-function dstat(){const L=ALL.filter(x=>S.set==='all'||x.set===S.set),done=L.filter(x=>P(x.id).st>=3).length,bad=ALL.filter(x=>(S.p[x.id]||{}).bad).length;
+function dstat(){const L=ALL.filter(inSet),done=L.filter(x=>P(x.id).st>=3).length,bad=ALL.filter(x=>(S.p[x.id]||{}).bad).length;
  $('dstat').innerHTML=`已熟 <em>${done}</em> / ${L.length} · 错句 <em>${bad}</em>`}
 function lcsDiff(a,b){const m=a.length,n=b.length,d=Array.from({length:m+1},()=>Array(n+1).fill(0));
  for(let i=m-1;i>=0;i--)for(let j=n-1;j>=0;j--)d[i][j]=a[i]===b[j]?d[i+1][j+1]+1:Math.max(d[i+1][j],d[i][j+1]);
@@ -146,6 +149,7 @@ function show(t){S.tab=t;save();M.innerHTML=views[t]();document.querySelectorAll
   $('ta').addEventListener('keydown',e=>{if(e.key==='Enter'&&!e.shiftKey){e.preventDefault();dcheck()}});
   document.querySelectorAll('[data-set]').forEach(b=>b.onclick=()=>{S.set=b.dataset.set;save();cur=null;show('drill')});dnext()}}
 document.querySelectorAll('[data-t]').forEach(b=>b.onclick=()=>show(b.dataset.t));
+M.addEventListener('click',e=>{const g=e.target.closest('[data-go]');if(g){S.set=g.dataset.go;save();cur=null;show('drill')}});
 show('drill');
 if('serviceWorker' in navigator)addEventListener('load',()=>navigator.serviceWorker.register('./sw.js').catch(()=>{}));
 </script></body></html>
