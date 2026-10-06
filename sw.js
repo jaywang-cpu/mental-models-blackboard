@@ -1,4 +1,4 @@
-const V = 'mmb-v22';
+const V = 'mmb-v23';
 const FILES = ['./', './index.html', './apple-touch-icon.png', './icon-192.png', './icon-512.png', './models.html', './polya.html', './drill.html', './english.html', './spell.html', './spell-data.js', './spell-v1map.js', './writing.html', './writing-data.js', './su/math.html', './su/code.html', './su/engine.js', './su/base.css', './su/map.css', './su/star.js',
                './immune/map.html', './immune/api.js', './immune/base.css', './immune/star.js', './immune/nodes.json', './immune/fig.html', './vendor/pdf.min.mjs', './vendor/pdf.worker.min.mjs',
                './icon.svg', './manifest.webmanifest'];

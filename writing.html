@@ -65,7 +65,8 @@ S.p=S.p||{};S.tab=S.tab||'t2';S.set=S.set||'all';
 const save=()=>{try{localStorage.setItem(KEY,JSON.stringify(S))}catch(e){}};
 if(navigator.storage&&navigator.storage.persist)navigator.storage.persist().catch(()=>{});
 
-function recipeBox(title,rows){return `<div class="box"><div class="k" style="margin-bottom:4px">${esc(title)}</div>${rows.map(r=>`<div style="display:flex;gap:10px"><span style="color:var(--dim);min-width:92px">${esc(r[0])}</span><span>${esc(r[1])}</span></div>`).join('')}</div>`}
+const SALL=()=>Object.fromEntries([...W.T2_SENT,...W.T1_SENT].map(x=>[x[0],x]));
+function recipeBox(title,rows){const A=SALL();return `<div class="box"><div class="k" style="margin-bottom:4px">${esc(title)}</div>${rows.map(r=>{const ids=(r[1].match(/\b(?:I\d[a-f]?|B\d+|C\d|T\d+)\b/g)||[]).filter(i=>A[i]);const lines=ids.map(i=>`<div style="margin:3px 0 0 0;font-size:13px;line-height:1.6;color:#c9d2e3"><span style="color:var(--dim);font-size:11px;margin-right:6px">${i}</span>${slot(A[i][2])}</div>`).join('');return `<div style="padding:6px 0;border-top:1px dashed var(--line)"><div style="display:flex;gap:10px"><span style="color:var(--dim);min-width:92px">${esc(r[0])}</span><span>${esc(r[1])}</span></div>${lines}</div>`}).join('')}</div>`}
 function groups(G,S){return G.map(g=>`<div style="margin:14px 0 6px;font-size:13px"><b>${esc(g[0])}</b> <span style="color:var(--dim)">${esc(g[1])}</span></div>`+sentList(g[2].map(i=>S[i]))).join('')}
 function sentList(arr){return arr.map(s=>`<div class="s" onclick="this.classList.toggle('open')"><div class="id">${s[0]} · ${esc(s[1])}</div><div class="en">${slot(s[2])}</div><div class="cn">${esc(s[3])}</div><div class="ex">例:${esc(s[4])}</div></div>`).join('')}
 function skel(rows){return '<div class="box"><div class="sk">'+rows.map(r=>`<span>${esc(r[0])}<br><small style="color:var(--dim)">${esc(r[1])}</small></span><span>${esc(r[2])}</span>`).join('')+'</div></div>'}
