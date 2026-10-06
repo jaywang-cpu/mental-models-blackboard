@@ -80,8 +80,8 @@ const views={
   <h2>第 2 步 · 照配方写</h2><div class="note">每种题型都是 4 段,编号对应第 3 步的句子</div>
   ${W.T2_TYPES.map(t=>recipeBox(t[0]+' '+t[1],W.T2_RECIPE[t[0]])).join('')}
   <h2>第 3 步 · 25 句</h2><div class="note">按段落位置分组 · 方括号换成题目里的词 · 点开看例句</div>${groups(W.T2_GROUPS,S)}
-  <h2>想不出理由时</h2><div class="note">扫 6 个维度,挑最好举例的 2 个</div>
-  ${W.T2_CHUNKS.map(d=>`<div class="box"><span class="k">${esc(d[0])}</span><div class="chips" style="margin-top:6px">${d[1].map(p=>`<span class="chip">${esc(p)}</span>`).join('')}</div></div>`).join('')}
+  <h2>想不出理由时</h2><div class="note">扫 6 个维度,挑最好举例的 2 个 · 每个维度挑 1 句,只填方括号,难词都已写好</div>
+  ${W.T2_CHUNKS.map(d=>`<div class="box"><span class="k">${esc(d[0])}</span>${d[1].map((p,i)=>`<div style="margin-top:8px;line-height:1.65">${i+1}. ${slot(p)}</div>`).join('')}</div>`).join('')}
   <div class="note" style="margin-top:12px">例子用自己的真实经历:</div>${W.T2_EXAMPLES.map(e=>`<div class="box"><span class="k">${esc(e[0])}</span>${esc(e[1])}</div>`).join('')}
   <h2>示范(只用上面的句子拼成)</h2>${model(W.T2_MODEL_Q,W.T2_MODEL)}
   <h2>5 条规则</h2><div class="box">${W.RULES_75.map((r,i)=>`${i+1}. ${esc(r)}`).join('<br>')}</div>`},
