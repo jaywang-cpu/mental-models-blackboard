@@ -25,7 +25,7 @@ main{max-width:640px;width:100%;margin:0 auto;padding:6px 16px calc(40px + env(s
 .sw div{margin-bottom:4px}
 .story.open .sw{display:block}
 .story .tg{font-size:12px;color:var(--dim);text-align:center;margin-top:8px}
-.row{display:grid;grid-template-columns:28px 1fr 44px 44px;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:center}
+.row{display:grid;grid-template-columns:28px 1fr 0px 44px;gap:8px;padding:9px 0;border-bottom:1px solid var(--line);font-size:14px;align-items:center}
 .row .n{color:var(--dim);font-size:12px}.row .s{color:var(--gold);text-align:center;font-weight:600}.row .b{color:var(--blue);text-align:center;font-size:12px}
 .row1{display:grid;grid-template-columns:1fr 36px;gap:8px;padding:8px 0;border-bottom:1px solid var(--line);font-size:14px}
 .row1 small{display:block;color:var(--dim);font-size:12px;line-height:1.5}
@@ -46,17 +46,21 @@ const esc=s=>s.replace(/</g,'&lt;');
 function st(){
  M.innerHTML='<div class="note">背熟这 4 段。考到什么题,换第一句和主角,中间不动。点卡片看「怎么改」。</div>'+
  S.stories.map(s=>`<div class="story" onclick="this.classList.toggle('open')">
-  <h3>${s.id} · ${s.name}</h3><div class="who">${esc(s.who)}</div><div class="cover">${esc(s.cover)}</div>
+  <h3>${s.id} · ${s.name}</h3><div class="who">${esc(s.who)}</div><div class="cover">Part 2 第 ${S.p2.filter(r=>r[2]==s.id).map(r=>r[0]).join(' ')} 题 · Part 1 ${S.p1.filter(r=>r[1]==s.id).length} 个话题</div><div class="cover" style="color:var(--dim)">${esc(s.cover)}</div>
   ${s.lines.map(l=>`<div class="ln"><i>${l[0]}</i><span>${esc(l[1])}</span></div>`).join('')}
   <div class="sw">${s.swap.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>
   <div class="tg">点开 · 怎么改</div></div>`).join('');
 }
 function map(){
- M.innerHTML='<div class="note">Part 2:题号 · 题 · 用哪个故事 · 加哪块。</div>'+
- S.p2.map(r=>`<div class="row"><span class="n">${r[0]}</span><span>${esc(r[1])}</span><span class="s">故事${r[2]}</span><span class="b">${r[3]}</span></div>`).join('')+
- '<h2>Part 1 · 一句真话 + 一块</h2>'+
- S.p1.map(r=>`<div class="row1"><span>${esc(r[0])}<small>${esc(r[2])}</small></span><span class="b">${r[1]}</span></div>`).join('')+
- '<h2>Part 3 · 四句</h2><div class="note">表态 → For one thing / For another → Back in the day, these days → That said, strike a balance。政府题用 H,科技题用 G。</div>';
+ const names={1:'导师',2:'合伙人',3:'巴尔的摩',4:'相机与抖音'};
+ let out='<div class="note">按故事分组。考到哪题,找到它在哪个故事下面,换第一句就讲。</div>';
+ for(const k of [1,2,3,4]){
+  out+=`<h2>故事 ${k} · ${names[k]}</h2>`;
+  out+='<div class="note">Part 2</div>'+S.p2.filter(r=>r[2]==k).map(r=>`<div class="row"><span class="n">${r[0]}</span><span>${esc(r[1])}</span><span class="s"></span><span class="b">${r[3]}</span></div>`).join('');
+  out+='<div class="note" style="margin-top:8px">Part 1</div>'+S.p1.filter(r=>r[1]==k).map(r=>`<div class="row1"><span>${esc(r[0])}<small>${esc(r[3])}</small></span><span class="b">${r[2]}</span></div>`).join('');
+ }
+ out+='<h2>Part 3 · 四句</h2><div class="note">表态 → For one thing / For another → Back in the day, these days → That said, strike a balance。政府题用 H,科技题用 G。</div>';
+ M.innerHTML=out;
 }
 function bk(){
  M.innerHTML='<div class="note">每块 3 句,顺着背。任何题 = 直答 1 句 + 2 块 + 1 个真细节。</div>'+
