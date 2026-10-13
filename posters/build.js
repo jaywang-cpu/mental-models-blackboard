@@ -46,7 +46,7 @@ const page = (title, sub, day, left, right) => `<!doctype html><html lang="zh"><
 <div class="half"><div><h1>写作</h1>${left}</div><div><h1>口语</h1>${right}</div></div></div></body></html>`;
 
 const sentBox = (arr, ids) => ids.map(id => { const s = arr.find(x => x[0] === id); return s ? `<div class="box"><span class="k">${s[0]} ${esc(s[1])}</span>${slot(s[2])}<div class="cn">${esc(s[3])}</div></div>` : ''; }).join('');
-const names = { 1: '导师', 2: '合伙人', 3: '巴尔的摩', 4: '相机与抖音' };
+const names = { 1: '合伙人 Moira', 2: '合伙人 Yvette', 3: '乌镇', 4: '相机与抖音' };
 
 
 const ALL = [...W.T2_SENT, ...W.T1_SENT];
@@ -89,7 +89,7 @@ const S_story = `<h2>4 个故事 · 换第一句和主角,中间不动</h2>
  ${s.lines.map(l => `<div class="ln"><i>${esc(l[0])}</i><span>${esc(l[1])}</span></div>`).join('')}
  <div class="sw">${s.swap.map(x => '· ' + esc(x)).join('<br>')}</div></div>`).join('')}</div>
 <h2 class="mt">7.5-8</h2>
-<div class="rule">· 模板 50%,真实细节 50%:Baltimore、my PI、2 a.m. in the lab · 每题一句 Having said that · 大词每题最多 2 个 · 收尾用虚拟语气</div>`;
+<div class="rule">· 模板 50%,真实细节 50%:Wuzhen、Moira、2 a.m. in the lab · 每题一句 Having said that · 大词每题最多 2 个 · 收尾用虚拟语气</div>`;
 
 const S_block = `<div class="cols"><div>
  <h2>12 块 · 每块 3 句顺着背</h2>
