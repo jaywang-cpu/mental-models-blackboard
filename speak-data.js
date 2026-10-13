@@ -4,13 +4,13 @@ stories: [
 id: 1, name: "合伙人 Moira", who: "Moira · MAITONG 联合创始人 · 一起从零搭脉诊 AI",
  cover: "人物题(教技能 / 有条理 / 年长者 / 困难成功 / 历史) · 课程 · 小时候的技能 · 重要决定",
  lines: [
-  ["开场", "Well, the person who really springs to mind is Moira, my co-founder at MAITONG, who I met about two years ago at Hopkins."],
-  ["特征", "When I think of her, the thing that stands out most is how organized she is. Every meeting has an agenda, every failure has a note."],
-  ["F 块", "She is affable and charismatic, and she infects the whole team with her passion. Her persistence is unparalleled, nobody is on a par with her."],
-  ["故事", "I remember last winter our pulse sensor data turned out to be useless after three months of testing, and because of that, we had to rebuild the whole pipeline. She stayed with me every night until 2 a.m."],
-  ["A 块", "Those months really expanded my skill set. They sharpened my competitive edge and set me apart from others, so now I can gain a foothold in health tech."],
-  ["转折", "Having said that, she is not perfect. She is brutally honest, and my first pitch deck came back covered in red."],
-  ["收尾", "Now that I come to think of it, I probably should have thanked her more often. If only every founder had a partner like her."]
+  ["开场", "The person who springs to mind is Moira, my co-founder. We met two years ago at Hopkins."],
+  ["特征", "What stands out most is how organized she is. Every meeting has a plan."],
+  ["F 块", "She is affable and charismatic, and she infects the whole team with her passion. Nobody is on a par with her."],
+  ["故事", "I remember last winter our sensor data was useless after three months, so we had to start again. She stayed with me every night until 2 a.m."],
+  ["A 块", "Those months really expanded my skill set and sharpened my competitive edge."],
+  ["转折", "Having said that, she is brutally honest. My first pitch came back covered in red."],
+  ["收尾", "Now that I think of it, I should have thanked her more often."]
  ],
  swap: [
   "教你新技能的人:故事改成「她教我做 pitch,第一次讲砸了五遍」",
