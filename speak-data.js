@@ -1,13 +1,13 @@
 window.S = {
 stories: [
 {
-id: 1, name: "合伙人 Moira", who: "Moira · MAITONG 联合创始人 · 一起从零搭脉诊 AI",
+id: 1, name: "合伙人 Moira", who: "Moira · MAITONG 联合创始人 · 一起开了一家小的健康公司",
  cover: "人物题(教技能 / 有条理 / 年长者 / 困难成功 / 历史) · 课程 · 小时候的技能 · 重要决定",
  lines: [
   ["开场", "The person who springs to mind is Moira, my co-founder. We met two years ago at Hopkins."],
   ["特征", "What stands out most is how organized she is. Every meeting has a plan."],
   ["F 块", "She is affable and charismatic, and she infects the whole team with her passion. Nobody is on a par with her."],
-  ["故事", "I remember last winter our sensor data was useless after three months, so we had to start again. She stayed with me every night until 2 a.m."],
+  ["故事", "I remember last winter our first product failed after three months of testing, so we had to start again. She stayed with me every night until 2 a.m."],
   ["A 块", "Those months really expanded my skill set and sharpened my competitive edge."],
   ["转折", "Having said that, she is brutally honest. My first pitch came back covered in red."],
   ["收尾", "Now that I think of it, I should have thanked her more often."]
@@ -27,15 +27,15 @@ id: 1, name: "合伙人 Moira", who: "Moira · MAITONG 联合创始人 · 一起
  lines: [
   ["开场", "Funny I should get this topic. I'm probably one of the least social people in the world, but I do know someone who is, my co-founder Yvette."],
   ["F 块", "She is such a larger than life character. She always has a story to tell, and she infects everyone with her optimism."],
-  ["相识", "We met at a startup event at Hopkins. She didn't make much of an impression on me at first, but the more we talked about Chinese medicine and AI, the more I wanted to know her."],
-  ["故事", "I remember one evening we sat in a café in Hangzhou until it closed, and because of that conversation, we decided to start MAITONG, an AI tool for pulse diagnosis."],
+  ["相识", "We met at a startup event at Hopkins. She didn't make much of an impression on me at first, but the more we talked about health and business, the more I wanted to know her."],
+  ["故事", "I remember one evening we sat in a café in Hangzhou until it closed, and because of that conversation, we decided to start MAITONG, a small health company."],
   ["J 块", "Working with her is a great bonding experience. We shoot the breeze, share anecdotes, and the whole atmosphere is vibrant and cordial."],
   ["转折", "Having said that, starting a company is not easy. I saved money for a year and skipped a lot of dinners out just to pay for our first server."],
   ["收尾", "I wouldn't say she changed my life, but she definitely changed how I look at teamwork. After two years, I can't imagine building anything without her."]
  ],
  swap: [
   "快乐人士 / 受欢迎的人:F 块多说两句,故事不变",
-  "帮助他人:故事改成「我帮她把技术架构从零搭起来」",
+  "帮助他人:故事改成「她生病那周,我替她把全部工作扛下来」",
   "攒钱买特别物品:物品 = 第一台服务器,转折那句拉成故事",
   "重要决定:决定 = 开公司,收尾用「I'd do it again」",
   "Part 3 公司题:直接讲 MAITONG,政府题用 H 块"
@@ -130,7 +130,7 @@ p2: [
  [31,"印象深刻的课程",1,"AE"],[32,"送朋友的礼物",4,"EJ"],[33,"读起来开心的书",4,"KC"],[34,"愉快夜晚",3,"JC"]
 ],
 p1: [
- ["Work or studies",1,"AB","JHU biomedical engineering, building MAITONG with Moira"],
+ ["Work or studies",1,"AB","Master's at Hopkins, running a small company with Moira"],
  ["Home",3,"CD","Old house by the canal in Wuzhen, five minutes to the water"],
  ["City",3,"ID","Wuzhen, a water town, Hangzhou one hour away"],
  ["Watch",1,"DB","Apple Watch, timers for experiments"],
