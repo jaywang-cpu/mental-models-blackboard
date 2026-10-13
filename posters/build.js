@@ -114,3 +114,16 @@ fs.writeFileSync(path.join(out, '1_写作.html'), wrap('Day 1 · 写作', '左:�
 fs.writeFileSync(path.join(out, '2_口语.html'), wrap('Day 2 · 口语', '左:4 个故事 · 右:12 块 + 粘合句', '第 2 天', p2));
 fs.writeFileSync(path.join(out, '3_过题目.html'), wrap('Day 3 · 过题目', '左:写作 65 题 · 右:口语 34 + 37 题', '第 3 天', p3));
 console.log('ok');
+
+// ---------- 合一:左写作 右口语,下面过题目 ----------
+const all = `<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>雅思冲刺</title><style>${CSS}
+body{width:4800px}
+.half{display:grid;grid-template-columns:1fr 1fr;gap:56px}
+.half>div{border-top:4px solid #e9c46a;padding-top:14px}
+.half h1{font-size:40px}
+</style></head><body><div class="pg">
+<h1>雅思 7.5-8 · 写作 + 口语</h1><div class="sub">左:写作 · 右:口语 · 下:过题目。方括号填题目自己的词</div>
+<div class="half"><div><h1>写作</h1>${p1}</div><div><h1>口语</h1>${p2}</div></div>
+<div class="half" style="margin-top:48px"><div><h1>写作 · 过题目</h1>${p3.match(/<div class="cols">\s*<div>([\s\S]*?)<\/div>\s*<div>\s*<h2>口语/)[1]}</div><div><h1>口语 · 过题目</h1>${p3.slice(p3.indexOf('<h2>口语'))}</div></div>
+</div></body></html>`;
+fs.writeFileSync(path.join(out, '0_合一.html'), all.replace('</div></div>\n</div></body>', '</div></div>\n</div></body>'));
