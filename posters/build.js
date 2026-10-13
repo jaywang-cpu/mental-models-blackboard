@@ -35,6 +35,8 @@ td.b{color:#8fb8ff;white-space:nowrap}
 .sw{color:#b9c2d6;font-size:16px;margin-top:8px;padding-top:8px;border-top:1px dashed rgba(255,255,255,.2);line-height:1.6}
 .recipe{display:grid;grid-template-columns:120px 1fr;gap:4px 10px;font-size:18px}
 .recipe span:nth-child(odd){color:#8fb8ff}
+.st{font-size:16px;line-height:1.45;margin:2px 0 6px}
+.st b{display:block;color:#e9c46a;font-weight:600;font-size:14px}
 .rule{color:#ffb3b3;font-size:17px;line-height:1.6}
 .two{columns:2;column-gap:28px}
 .day{position:absolute;right:48px;top:40px;font-size:22px;color:#e9c46a;border:1px solid rgba(233,196,106,.5);border-radius:999px;padding:8px 22px}
@@ -46,16 +48,23 @@ const page = (title, sub, day, left, right) => `<!doctype html><html lang="zh"><
 const sentBox = (arr, ids) => ids.map(id => { const s = arr.find(x => x[0] === id); return s ? `<div class="box"><span class="k">${s[0]} ${esc(s[1])}</span>${slot(s[2])}<div class="cn">${esc(s[3])}</div></div>` : ''; }).join('');
 const names = { 1: '导师', 2: '合伙人', 3: '巴尔的摩', 4: '相机与抖音' };
 
+
+const ALL = [...W.T2_SENT, ...W.T1_SENT];
+const expand = chain => chain.split('→').map(x => x.trim()).map(x => {
+  const id = x.split(' ')[0]; const s = ALL.find(y => y[0] === id);
+  return s ? `<div class="st"><b>${esc(x)} · ${esc(s[1])}</b>${slot(s[2])}</div>` : `<div class="st"><b>${esc(x)}</b></div>`;
+}).join('');
+
 // ===== 写作片段 =====
 const W_struct = `<div class="cols"><div>
  <h2>大作文 · 结构(6 种题型)</h2>
  ${W.T2_TYPES.map(t => `<div class="box"><span class="k">${t[0]} ${esc(t[1])}</span><span class="cn">${esc(t[2])}</span>
- <div class="recipe" style="margin-top:6px">${W.T2_RECIPE[t[0]].map(r => `<span>${esc(r[0])}</span><span>${esc(r[1])}</span>`).join('')}</div>
+ <div class="recipe" style="margin-top:6px">${W.T2_RECIPE[t[0]].map(r => `<span>${esc(r[0])}</span><span>${expand(r[1])}</span>`).join('')}</div>
  <div class="cn" style="margin-top:4px">正文1:${esc(t[4])} · 正文2:${esc(t[5])}</div></div>`).join('')}
  <h2 class="mt">7.5 规矩</h2>${W.RULES_75.map(r => `<div class="rule">· ${esc(r)}</div>`).join('')}
 </div><div>
  <h2>小作文 · 结构</h2>
- ${W.T1_RECIPE.map(r => `<div class="box"><span class="k">${esc(r[0])}</span><div class="recipe" style="margin-top:6px">${r[1].map(x => `<span>${esc(x[0])}</span><span>${esc(x[1])}</span>`).join('')}</div></div>`).join('')}
+ ${W.T1_RECIPE.map(r => `<div class="box"><span class="k">${esc(r[0])}</span><div class="recipe" style="margin-top:6px">${r[1].map(x => `<span>${esc(x[0])}</span><span>${expand(x[1])}</span>`).join('')}</div></div>`).join('')}
  <h2 class="mt">小作文 · 词</h2>${W.T1_WORDS.map(w => `<div class="box"><span class="k">${esc(w[0])}</span>${esc(w[1])}</div>`).join('')}
  <h2 class="mt">万能例子</h2>${W.T2_EXAMPLES.map(e => `<div class="box"><span class="k">${esc(e[0])}</span><span class="cn">${esc(e[1])}</span></div>`).join('')}
 </div></div>`;
