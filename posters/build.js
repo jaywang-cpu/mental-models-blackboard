@@ -66,12 +66,12 @@ const W_sent = `<div class="cols"><div>
 </div><div>
  <h2>小作文 · 23 句</h2>
  ${W.T1_GROUPS.map(g => `<h3>${esc(g[0])} <span class="cn">${esc(g[1])}</span></h3>` + sentBox(W.T1_SENT, g[2])).join('')}
-</div></div>
-<h2 class="mt">想不出理由时 · 6 维度 × 5 句</h2>
+</div></div>`;
+const W_chunks = `<h2>想不出理由时 · 6 维度 × 5 句</h2>
 <div class="cols">${W.T2_CHUNKS.map(c => `<div class="box"><span class="k">${esc(c[0])}</span>${c[1].map(x => `<div style="margin-top:5px">· ${slot(x)}</div>`).join('')}</div>`).join('')}</div>`;
 
 const cats = [...new Set(W.T2_MAP.map(r => r[0]))];
-const W_map = `<h2>65 题 → 题型 + 两段理由</h2>
+const W_map = `<h2 class="mt">65 题 → 题型 + 两段理由</h2>
 <div class="two">${cats.map(c => `<h3 style="margin-top:6px;break-after:avoid">${esc(c)}</h3><table style="break-inside:avoid">${W.T2_MAP.filter(r => r[0] === c).map(r => `<tr><td class="n">${r[1]}</td><td>${esc(r[2])}<div class="cn">${esc(r[5])} / ${esc(r[6])}</div></td><td class="t">${r[3]}</td><td class="b">${esc(r[4])}</td></tr>`).join('')}</table>`).join('')}</div>`;
 
 // ===== 口语片段 =====
@@ -89,19 +89,19 @@ const S_block = `<div class="cols"><div>
 </div><div>
  <h2>粘合句</h2>
  ${S.glue.map(g => `<div class="box"><span class="k">${esc(g[0])}</span>${slot(g[1])}</div>`).join('')}
- <h2 class="mt">Part 3 · 四句</h2>
+</div></div>`;
+const S_p3 = `<h2>Part 3 · 四句</h2>
  <div class="box">表态 → For one thing / For another → Back in the day, these days → That said, strike a balance。政府题用 H,科技题用 G,人物题用 F + A。</div>
  <h2 class="mt">Part 3 路由</h2>
- <div class="box">government / society → H · technology / future → G · why people like → E C · old vs young → G D · qualities of a good X → F A · 公司 / 商业 → 故事 2 MAITONG</div>
-</div></div>`;
+ <div class="box">government / society → H · technology / future → G · why people like → E C · old vs young → G D · qualities of a good X → F A · 公司 / 商业 → 故事 2 MAITONG</div>`;
 
-const S_map = `<h2>题 → 故事 + 块</h2>
+const S_map = `<h2 class="mt">题 → 故事 + 块</h2>
 <div class="cols">${[1, 2, 3, 4].map(k => `<div><h3 style="margin-top:6px">故事 ${k} · ${names[k]}</h3>
  <table>${S.p2.filter(r => r[2] == k).map(r => `<tr><td class="n">P2 ${r[0]}</td><td>${esc(r[1])}</td><td class="b">${r[3]}</td></tr>`).join('')}
  ${S.p1.filter(r => r[1] == k).map(r => `<tr><td class="n">P1</td><td>${esc(r[0])}<div class="cn">${esc(r[3])}</div></td><td class="b">${r[2]}</td></tr>`).join('')}</table></div>`).join('')}</div>`;
 
 const out = __dirname;
 fs.writeFileSync(path.join(out, '1_结构与故事.html'), page('Day 1 · 结构 + 故事', '左:写作结构 · 右:4 个口语故事', '第 1 天', W_struct, S_story));
-fs.writeFileSync(path.join(out, '2_句子与块.html'), page('Day 2 · 句子 + 块', '左:写作 48 句 + 6 维度 · 右:口语 12 块 + 粘合句。方括号填题目自己的词', '第 2 天', W_sent, S_block));
-fs.writeFileSync(path.join(out, '3_过题目.html'), page('Day 3 · 过题目', '左:写作 65 题 · 右:口语 71 题', '第 3 天', W_map, S_map));
+fs.writeFileSync(path.join(out, '2_句子与块.html'), page('Day 2 · 句子 + 块', '左:写作 48 句 · 右:口语 12 块 + 粘合句。方括号填题目自己的词', '第 2 天', W_sent, S_block));
+fs.writeFileSync(path.join(out, '3_过题目.html'), page('Day 3 · 理由 + 过题目', '左:6 维度 30 句 + 写作 65 题 · 右:Part 3 + 口语 71 题', '第 3 天', W_chunks + W_map, S_p3 + S_map));
 console.log('ok');
