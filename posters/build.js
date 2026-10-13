@@ -67,8 +67,8 @@ const W_sent = `<div class="cols"><div>
  <h2>小作文 · 23 句</h2>
  ${W.T1_GROUPS.map(g => `<h3>${esc(g[0])} <span class="cn">${esc(g[1])}</span></h3>` + sentBox(W.T1_SENT, g[2])).join('')}
 </div></div>`;
-const W_chunks = `<h2>想不出理由时 · 6 维度 × 5 句</h2>
-<div class="cols">${W.T2_CHUNKS.map(c => `<div class="box"><span class="k">${esc(c[0])}</span>${c[1].map(x => `<div style="margin-top:5px">· ${slot(x)}</div>`).join('')}</div>`).join('')}</div>`;
+const chunks = (a,b) => `<h2 class="mt">想不出理由时 · ${W.T2_CHUNKS.slice(a,b).map(c=>c[0].split(' ')[0]).join(' + ')}(6 维度之 ${a+1}-${b})</h2>
+<div class="cols">${W.T2_CHUNKS.slice(a,b).map(c => `<div class="box"><span class="k">${esc(c[0])}</span>${c[1].map(x => `<div style="margin-top:5px">· ${slot(x)}</div>`).join('')}</div>`).join('')}</div>`;
 
 const cats = [...new Set(W.T2_MAP.map(r => r[0]))];
 const W_map = `<h2 class="mt">65 题 → 题型 + 两段理由</h2>
@@ -101,7 +101,7 @@ const S_map = `<h2 class="mt">题 → 故事 + 块</h2>
  ${S.p1.filter(r => r[1] == k).map(r => `<tr><td class="n">P1</td><td>${esc(r[0])}<div class="cn">${esc(r[3])}</div></td><td class="b">${r[2]}</td></tr>`).join('')}</table></div>`).join('')}</div>`;
 
 const out = __dirname;
-fs.writeFileSync(path.join(out, '1_结构与故事.html'), page('Day 1 · 结构 + 故事', '左:写作结构 · 右:4 个口语故事', '第 1 天', W_struct, S_story));
-fs.writeFileSync(path.join(out, '2_句子与块.html'), page('Day 2 · 句子 + 块', '左:写作 48 句 · 右:口语 12 块 + 粘合句。方括号填题目自己的词', '第 2 天', W_sent, S_block));
-fs.writeFileSync(path.join(out, '3_过题目.html'), page('Day 3 · 理由 + 过题目', '左:6 维度 30 句 + 写作 65 题 · 右:Part 3 + 口语 71 题', '第 3 天', W_chunks + W_map, S_p3 + S_map));
+fs.writeFileSync(path.join(out, '1_结构与故事.html'), page('Day 1 · 结构 + 故事', '左:写作结构 + 理由(钱 时) · 右:4 个口语故事', '第 1 天', W_struct + chunks(0,2), S_story));
+fs.writeFileSync(path.join(out, '2_句子与块.html'), page('Day 2 · 句子 + 块', '左:写作 48 句 + 理由(健 能) · 右:口语 12 块 + 粘合句。方括号填题目自己的词', '第 2 天', W_sent + chunks(2,4), S_block));
+fs.writeFileSync(path.join(out, '3_过题目.html'), page('Day 3 · 理由 + 过题目', '左:写作 65 题 + 理由 · 右:Part 3 + 口语 71 题', '第 3 天', W_map + chunks(4,6), S_p3 + S_map));
 console.log('ok');
