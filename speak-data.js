@@ -26,12 +26,13 @@ id: 1, name: "合伙人 Moira", who: "Moira · MAITONG 联合创始人 · 一起
  id: 2, name: "合伙人 Yvette", who: "Yvette · MAITONG 联合创始人",
  cover: "受欢迎的人 · 快乐人士 · 见一次想了解 · 帮助他人 · 攒钱 · 重要决定 · Part 3 公司/商业题",
  lines: [
-  ["开场", "Funny I should get this topic. I'm probably one of the least social people in the world, but I do know someone who is, my co-founder Yvette."],
-  ["F 块", "She is such a larger than life character. She always has a story to tell, and she infects everyone with her optimism."],
-  ["相识", "We met at a startup event at Hopkins. She didn't make much of an impression on me at first, but the more we talked about health and business, the more I wanted to know her."],
-  ["故事", "I remember one evening we sat in a café in Hangzhou until it closed, and because of that conversation, we decided to start MAITONG, a small health company."],
-  ["J 块", "Working with her is a great bonding experience. We shoot the breeze, share anecdotes, and the whole atmosphere is vibrant and cordial."],
-  ["转折", "Having said that, starting a company is not easy. I saved money for a year and skipped a lot of dinners out just to pay for our first server."],
+  ["开场", "Funny I should get this topic. I'm probably one of the least social people in the world, but I do know someone who is. That's Yvette, my other co-founder."],
+  ["F 块", "She is such a larger than life character. She always has a story to tell and a joke to share. When she walks into a room, the room gets louder, in a good way."],
+  ["相识", "We met at a startup event at Hopkins. To be honest, she didn't make much of an impression on me at first. I thought she was just loud. But the more we talked, the more I wanted to know her."],
+  ["故事", "I remember one evening we sat in a café in Hangzhou until it closed. We talked for five hours about health, about family, about what we wanted to do with our lives. And because of that conversation, we decided to start MAITONG, a small health company."],
+  ["细节", "The first year was hard. I saved money for twelve months and skipped a lot of dinners out just to pay for our first office. She did the same. We ate a lot of instant noodles."],
+  ["J 块", "Working with her is a great bonding experience. We shoot the breeze, we share anecdotes, and the atmosphere is always vibrant and cordial, even on bad days."],
+  ["转折", "Having said that, she is not easy to work with. She changes her mind fast, and sometimes I can't keep up."],
   ["收尾", "I wouldn't say she changed my life, but she definitely changed how I look at teamwork. After two years, I can't imagine building anything without her."]
  ],
  swap: [
@@ -46,12 +47,13 @@ id: 1, name: "合伙人 Moira", who: "Moira · MAITONG 联合创始人 · 一起
 id: 3, name: "乌镇", who: "家乡乌镇 · 西栅夜市 · 乌镇大剧院 · 杭州",
  cover: "地点题全部(嘈杂 / 拥挤 / 自然之地 / 想再去的城市) · 公共建筑 · 聚会 · 愉快夜晚 · 不喜欢的短途旅行",
  lines: [
-  ["开场", "Well, one place that's always stuck in my mind is the canal in Wuzhen, my hometown, about a five-minute walk from my parents' house."],
-  ["I 块", "I can feast my eyes on the landscape there. It prides itself on the stunning waterfront, old stone bridges and radiant sunshine, a picturesque backdrop for photos and leisurely strolls."],
-  ["故事", "I remember last Spring Festival, five of us from high school went to the night market on the west street for the lanterns. On the way we got caught in the crowd, so by the time we found a spot, we could barely move."],
-  ["J 块", "But we gathered together and enjoyed each other's company. We shot the breeze, shared anecdotes, and the ambience was electrifying, bustling with laughter."],
-  ["C 块", "After months in the lab in the US I'm usually drained, and going home is an escape. It's therapeutic, it recharges my batteries, I leave the worries behind."],
-  ["转折", "Having said that, it was a bit of a letdown that the noise got in the way of what could've been a quiet evening."],
+  ["开场", "Well, one place that's always stuck in my mind is the canal in Wuzhen, my hometown. It's a small water town, about five minutes' walk from my parents' house."],
+  ["I 块", "I can feast my eyes on the landscape there. Old stone bridges, black roofs, white walls, and the water right below your feet. In the morning the light is soft and the whole street is quiet. It's a picturesque backdrop for photos and leisurely strolls."],
+  ["故事", "I remember last Spring Festival, five of us from high school went to the night market on the west street to see the lanterns. On the way we got caught in the crowd, so by the time we found a spot, we could barely move. Someone stepped on my shoe. I lost my friend for twenty minutes."],
+  ["细节", "But then the lanterns came on, hundreds of them, red and yellow, floating on the water. Everyone went quiet for a second. Then everyone took out their phones."],
+  ["J 块", "We gathered together and enjoyed each other's company. We shot the breeze, shared old stories from school, and the ambience was electrifying, bustling with laughter."],
+  ["C 块", "After months in the lab in the US, I'm usually drained, and going home is an escape. It's therapeutic, it recharges my batteries. I leave the worries behind."],
+  ["转折", "Having said that, it was a bit of a letdown that the noise got in the way of what could've been a quiet evening. Next time I'll go at six in the morning."],
   ["收尾", "After twenty years of growing up there, I can't imagine my life without it. I'd definitely go back if I ever got another long holiday."]
  ],
  swap: [
@@ -67,13 +69,14 @@ id: 3, name: "乌镇", who: "家乡乌镇 · 西栅夜市 · 乌镇大剧院 · 
  id: 4, name: "相机与抖音", who: "我自学剪辑 · 1000 万播放 · 哥哥 · 台球",
  cover: "事物题全部(电影 / 书 / 礼物 / 省时间 / 浪费时间) · 拍照的人 · 丢物品 · 名人采访 · 购物服务 · 不感兴趣的话 · 运动员",
  lines: [
-  ["开场", "I've got a real soft spot for making short videos. I taught myself editing in college, and my clips have reached over ten million views."],
-  ["E 块", "It aligns with my interest. Every new shot sparks my curiosity and whets my appetite for more."],
-  ["B 块", "Once I'm editing, I'm unaware of the passage of time. I don't want to be disturbed, and that guarantees my efficiency."],
-  ["故事", "I remember one night I lost my camera bag on the bus to Hangzhou, and because of that, I spent three hours at the lost-and-found office. A stranger had handed it in."],
-  ["K 块", "Most of my videos tell a small story with a twist, like a rollercoaster. People stay because they want to know the ending."],
-  ["转折", "Having said that, scrolling through other people's videos is a total waste of time. I can lose an hour before I even notice."],
-  ["收尾", "Now that I come to think of it, I probably shouldn't have spent so many nights editing. But I'll always remember it, because it taught me how to tell a story."]
+  ["开场", "I've got a real soft spot for making short videos. I taught myself editing in college, with free tutorials on YouTube, and now my clips have reached over ten million views."],
+  ["E 块", "It aligns with my interest. Every new shot sparks my curiosity and whets my appetite for more. I'll see a street corner and think, that's a shot."],
+  ["B 块", "Once I'm editing, I'm unaware of the passage of time. I sit down at eight, I look up, and it's two in the morning. I don't want to be disturbed, and that guarantees my efficiency."],
+  ["故事", "I remember one night I lost my camera bag on the bus to Hangzhou. I got off, I reached for it, and it wasn't there. My heart stopped. Because of that, I spent three hours at the lost-and-found office. In the end, a stranger had handed it in. I never found out who. I still think about that."],
+  ["K 块", "Most of my videos tell a small story with a twist, like a rollercoaster. People stay because they want to know the ending. My brother shoots, I edit. He has the eye, I have the patience."],
+  ["细节", "The one that got the most views was a thirty-second clip of my grandmother cooking. No music, no words, just her hands. Two million people watched it."],
+  ["转折", "Having said that, scrolling through other people's videos is a total waste of time. I can lose an hour before I even notice. So I deleted the app from my phone, twice."],
+  ["收尾", "Now that I think of it, I probably shouldn't have spent so many nights editing. But I'll always remember it, because it taught me how to tell a story."]
  ],
  swap: [
   "喜欢拍照的人:主角换成「我哥」,他拍,我剪,F 块",
