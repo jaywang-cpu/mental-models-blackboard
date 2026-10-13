@@ -4,13 +4,14 @@ stories: [
 id: 1, name: "合伙人 Moira", who: "Moira · MAITONG 联合创始人 · 一起开了一家小的健康公司",
  cover: "人物题(教技能 / 有条理 / 年长者 / 困难成功 / 历史) · 课程 · 小时候的技能 · 重要决定",
  lines: [
-  ["开场", "The person who springs to mind is Moira, my co-founder. We met two years ago at Hopkins."],
-  ["特征", "What stands out most is how organized she is. Every meeting has a plan."],
-  ["F 块", "She is affable and charismatic, and she infects the whole team with her passion. Nobody is on a par with her."],
-  ["故事", "I remember last winter our first product failed after three months of testing, so we had to start again. She stayed with me every night until 2 a.m."],
-  ["A 块", "Those months really expanded my skill set and sharpened my competitive edge."],
-  ["转折", "Having said that, she is brutally honest. My first pitch came back covered in red."],
-  ["收尾", "Now that I think of it, I should have thanked her more often."]
+  ["开场", "The person who springs to mind is Moira, my co-founder. We met two years ago at Hopkins, in a startup class. She sat next to me, and we started talking about health, and that was it."],
+  ["特征", "What stands out most is how organized she is. Every meeting has a plan, every plan has a deadline, and she never forgets anything. I'm the opposite, so we balance each other."],
+  ["F 块", "She is affable and charismatic. When she talks, people listen, and she infects the whole team with her passion. Honestly, nobody is on a par with her."],
+  ["故事", "I remember last winter, our first product failed after three months of testing. Everyone wanted to give up. She didn't. She said, okay, let's start again, and she stayed with me in the office every night until 2 a.m., eating cold noodles."],
+  ["细节", "Three months later, the new version worked, and we got our first real customer. She cried a little that day. I did too, but I won't admit it."],
+  ["A 块", "Those months really expanded my skill set. I learned how to plan, how to talk to people, how to keep going when things break. That sharpened my competitive edge and set me apart from others."],
+  ["转折", "Having said that, she is not perfect. She is brutally honest. My first pitch came back covered in red, and she said, this is boring. She was right."],
+  ["收尾", "Now that I think of it, I should have thanked her more often. If only every founder had a partner like her. I wouldn't be where I am without her."]
  ],
  swap: [
   "教你新技能的人:故事改成「她教我做 pitch,第一次讲砸了五遍」",
