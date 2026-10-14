@@ -1,0 +1,142 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>阅读巡游 · Weight Loss</title>
+<style>
+*{box-sizing:border-box}
+body{margin:0;background:#06091a;color:#e8eef4;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;font-size:17px;line-height:1.55;height:100vh;display:grid;grid-template-rows:auto 1fr auto;overflow:hidden}
+header{display:flex;align-items:center;gap:14px;padding:10px 18px;border-bottom:1px solid rgba(255,255,255,.12)}
+header b{color:#e9c46a;font-size:18px}
+header span{color:#8b94b0;font-size:14px}
+header a{color:#8fb8ff;text-decoration:none;margin-left:auto;font-size:14px}
+main{display:grid;grid-template-columns:1.15fr 1fr;min-height:0}
+#text{overflow:auto;padding:18px 26px;border-right:1px solid rgba(255,255,255,.12);scroll-behavior:smooth}
+#text h2{font-size:22px;margin:0 0 14px;color:#fff}
+.para{margin:0 0 18px;padding:10px 12px;border-radius:12px;border:1px solid transparent;transition:all .5s;position:relative;color:#b9c2d6}
+.para i{font-style:normal;color:#8fb8ff;font-weight:700;margin-right:8px}
+.para.on{border-color:rgba(233,196,106,.6);background:rgba(233,196,106,.06);color:#e8eef4}
+.para.done{color:#6f7891}
+.para .tag{position:absolute;right:10px;top:-12px;background:#e9c46a;color:#06091a;font-size:13px;font-weight:700;padding:2px 10px;border-radius:999px;opacity:0;transform:translateY(6px);transition:all .4s}
+.para.tagged .tag{opacity:1;transform:none}
+.para.on .sn.fast{opacity:.42}
+.para.on .sn.slow{color:#fff}
+.para.on .sn.slow::before{content:attr(data-l);color:#e9c46a;font-size:11px;border:1px solid rgba(233,196,106,.6);border-radius:4px;padding:0 5px;margin-right:5px;vertical-align:2px;white-space:nowrap}
+.para .sn{transition:opacity .5s}
+.para.peek .sn.fast{opacity:1}.para.peek .sn.slow{color:inherit}.para.peek .sn.slow::before{display:none}
+mark{background:none;color:inherit;border-radius:4px;padding:0 2px;transition:all .4s}
+mark.nm{outline:2px solid #ff9a9a;color:#ffb3b3}
+mark.an{background:rgba(233,196,106,.35);color:#ffd97a}
+mark.ans{background:rgba(143,184,255,.35);color:#cfe0ff;font-weight:600}
+mark.br{border-bottom:2px solid #8fb8ff}
+#side{display:grid;grid-template-rows:auto 1fr;min-height:0}
+#qs{padding:12px 18px;border-bottom:1px solid rgba(255,255,255,.12);font-size:14px;max-height:34vh;overflow:auto}
+#qs h4{margin:8px 0 4px;color:#8b94b0;font-weight:500;font-size:13px}
+.q{padding:2px 6px;border-radius:6px;color:#8b94b0;transition:all .4s}
+.q.on{color:#fff;background:rgba(233,196,106,.12)}
+.q.ok{color:#6f7891;text-decoration:line-through}
+.q.ok::after{content:" ✓ " attr(data-a);color:#8fb8ff;text-decoration:none;display:inline-block}
+.q mark.an{background:rgba(233,196,106,.35);color:#ffd97a}
+#card{padding:22px 26px;overflow:auto}
+#card .step{color:#8b94b0;font-size:13px;letter-spacing:2px}
+#card h3{margin:6px 0 14px;font-size:26px;color:#e9c46a;line-height:1.3}
+#card .row{display:grid;grid-template-columns:52px 1fr;gap:10px;margin-bottom:12px;animation:in .5s both}
+#card .row:nth-child(3){animation-delay:.25s}#card .row:nth-child(4){animation-delay:.5s}#card .row:nth-child(5){animation-delay:.75s}
+#card .row b{color:#8fb8ff;font-size:14px;padding-top:3px}
+#card .row.act b{color:#ffb3b3}
+#card .row em{font-style:normal;color:#ffd97a}
+@keyframes in{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+footer{display:flex;align-items:center;gap:14px;padding:12px 18px;border-top:1px solid rgba(255,255,255,.12)}
+footer button{background:#e9c46a;color:#06091a;border:0;border-radius:999px;padding:10px 26px;font-size:17px;font-weight:700;cursor:pointer}
+footer button.g{background:transparent;color:#8b94b0;border:1px solid rgba(255,255,255,.2)}
+#bar{flex:1;height:6px;background:rgba(255,255,255,.1);border-radius:3px;overflow:hidden}
+#bar i{display:block;height:100%;background:#e9c46a;width:0;transition:width .4s}
+#clock{color:#8b94b0;font-variant-numeric:tabular-nums;font-size:14px}
+@media(max-width:900px){main{grid-template-columns:1fr;grid-template-rows:1fr 1fr}#text{border-right:0;border-bottom:1px solid rgba(255,255,255,.12)}}
+</style></head><body>
+<header><b>阅读巡游</b><span>Stealth Forces in Weight Loss · 段落信息 5 + 人名 5 + Summary 4 · 目标 20 分钟 14/14</span><a href="writing.html">← 写作</a></header>
+<main>
+<div id="text"><h2>Stealth Forces in Weight Loss</h2>
+<p class="para" id="p0"><i>引</i><span class="sn slow" data-l="引言">The field of weight loss is like the ancient fable about the blind men and the elephant.</span> <span class="sn fast">Each man investigates a different part of the animal and reports back, only to discover their findings are bafflingly incompatible.</span></p>
+<p class="para" id="pA"><span class="tag"></span><i>A</i><span class="sn slow" data-l="首句">The various findings by public-health experts, physicians, psychologists, geneticists, molecular biologists, and nutritionists are about as similar as an elephant's tusk is to its tail.</span> <span class="sn fast">Some say obesity is largely predetermined by our genes and biology; others attribute it to an overabundance of fries, soda, and screen-sucking; still others think we're fat because of viral infection, insulin, or the metabolic conditions we encountered in the womb.</span> <span class="sn slow" data-l="says"><mark id="a23">"Everyone subscribes to their own little theory,"</mark> says <mark class="n">Robert Berkowitz</mark>,</span> <span class="sn fast">medical director of the Center for Weight and Eating Disorders at the University of Pennsylvania School of Medicine. We're programmed to hang onto the fat we have, and some people are predisposed to create and carry more fat than others.</span> <span class="sn slow" data-l="but">Diet and exercise help, but in the end the solution will inevitably be more complicated than pushing away the plate and going for a walk.</span> <span class="sn slow" data-l="says">"It's not as simple as 'You're fat because you're lazy,'" says <mark class="n">Nikhil Dhurandhar</mark>,</span> <span class="sn fast">an associate professor at Pennington Biomedical Research Center in Baton Rouge. "Willpower is not a prerogative of thin people. It's distributed equally."</span></p>
+<p class="para" id="pB"><span class="tag"></span><i>B</i><span class="sn slow" data-l="首句">Science may still be years away from giving us a miracle formula for fat-loss. hormone leptin is a crucial player in the brain's weight-management circuitry.</span> <span class="sn fast">Some people produce too little leptin; others become desensitized to it. And when obese people lose weight, their leptin levels plummet along with their metabolism. The body becomes more efficient at using fuel and conserving fat, which makes it tough to keep the weight off.</span> <span class="sn slow" data-l="says"><mark id="a17">Obese dieters' bodies go into a state of chronic hunger</mark>, a feeling <mark class="n">Rudolph Leibel</mark>, an obesity researcher at Columbia University, compares to thirst. <mark id="a17b">"Some people might be able to tolerate chronic thirst, but the majority couldn't stand it,"</mark> says Leibel.</span> <span class="sn fast">"Is that a behavioral problem -a lack of willpower? I don't think so."</span></p>
+<p class="para" id="pC"><span class="tag"></span><i>C</i><span class="sn slow" data-l="首句 but">The government has long espoused moderate daily exercise -of the evening-walk or take-the-stairs variety-but that may not do much to budge the needle on the scale.</span> <span class="sn fast">A 150-pound person burns only 150 calories on a half-hour walk, the equivalent of two apples. It's good for the heart, less so for the gut.</span> <span class="sn slow" data-l="says"><mark id="a22">"Radical changes are necessary," says <mark class="n">Deirdre Barrett</mark>, a psychologist at Harvard Medical School and author of Waistland. "People don't lose weight by choosing the small fries or taking a little walk every other day."</mark></span> <span class="sn slow" data-l="数字"><mark id="a16">Barrett suggests talking a cue from the members of the National Weight Control Registry (NWCR), a self-selected group of more than 5,000 successful weight-losers who have shed an average of 66 pounds and kept it off 5.5 years</mark>.</span> <span class="sn fast">Some registry members lost weight using low-carb diets; some went low-fat; others eliminated refined foods. Some did it on their own; others relied on counseling.</span> <span class="sn slow" data-l="that said"><mark id="a21">That said, not everyone can lose 66 pounds and not everyone needs to. The goal shouldn't be getting thin, but getting healthy. It's enough to whittle your weight down to the low end of your set range, says <mark class="n">Jeffrey Friedman</mark></mark>,</span> <span class="sn fast">a geneticist at Rockefeller University. Losing even 10 pounds vastly decreases your risk of diabetes, heart disease, and high blood pressure. The point is to not give up just because you don't look like a swimsuit model.</span></p>
+<p class="para" id="pD"><span class="tag"></span><i>D</i><span class="sn slow" data-l="首句">The negotiation between your genes and the environment begins on day one. <mark id="a19">Your optimal weight, written by genes, appears to get edited early on</mark> by conditions even before birth, inside the womb.</span> <span class="sn slow" data-l="if 数字"><mark id="a20">If a woman has high blood-sugar levels while she's pregnant, her children are more likely to be overweight or obese</mark>, according to a study of almost 10,000 mother-child pairs.</span> <span class="sn slow" data-l="says">Maternal diabetes may influence a child's obesity risk through a process called metabolic imprinting, says <mark class="n">Teresa Hillier</mark>,</span> <span class="sn fast">an endocrinologist with Kaiser Permanente's Center for Health Research and the study's lead author.</span> <span class="sn slow" data-l="小结">The implication is clear: Weight may be established very early on, and obesity largely passed from mother to child.</span> <span class="sn fast">Numerous studies in both animals and humans have shown that <mark id="a15">a mother's obesity directly increases her child's risk for weight gain</mark>. The best advice for moms-to-be: Get fit before you get pregnant. You'll reduce your risk of complications during pregnancy and increase your chances of having a normal-weight child.</span></p>
+<p class="para" id="pE"><span class="tag"></span><i>E</i><span class="sn slow" data-l="设问">It's the $64,000 question: <mark id="a14">Which diets work?</mark> It got people wondering: Isn't there a better way to diet? A study seemed to offer an answer.</span> <span class="sn fast">The paper compared two groups of adults: those who, after eating, secreted high levels of insulin, a hormone that sweeps blood sugar out of the bloodstream and promotes its storage as fat, and those who secreted less. Within each group, half were put on a low-fat diet and half on a low-glycemic-load diet. On average, the low-insulin-secreting group fared the same on both diets, losing nearly 10 pounds in the first six months – but they gained about half of it back by the end of the 18-month study. The high-insulin group didn't do as well on the low-fat plan, losing about 4.5 pounds, and gaining back more than half by the end.</span> <span class="sn slow" data-l="but 结论">But the most successful were the high-insulin-secretors on the low-glycemic-load diet. They lost nearly 13 pounds and kept it off.</span></p>
+<p class="para" id="pF"><span class="tag"></span><i>F</i><span class="sn slow" data-l="设问">What if your fat is caused not by diet or genes, but by germs-say, a <mark id="f1">virus</mark>?</span> <span class="sn slow" data-l="says">It sounds like a sci-fi horror movie, but research suggests some dimension of the obesity epidemic may be attributable to infection by common viruses, says <mark class="n">Dhurandhar</mark>.</span> <span class="sn fast">The idea of "infectobesity" came to him 20 years ago when he was a young doctor treating obesity in <mark id="f2">Bombay</mark>. He discovered that a local avian virus, SMAM-1, caused chickens to die, sickened with organ damage but also, strangely, with lots of abdominal fat.</span> <span class="sn slow" data-l="实验">In experiments, Dhurandhar found that SMAM-1 infected <mark id="a24">chickens</mark> became obese on the same diet as uninfected ones, which stayed svelte.</span></p>
+<p class="para" id="pG"><span class="tag"></span><i>G</i><span class="sn slow" data-l="首句 专名">He later moved to the U.S and onto a bona fide human virus, <mark id="a25">adenovirus 36 (AD-36)</mark>.</span> <span class="sn fast">In the lab, every species of animal Dhurandhar infected with the virus became obese-chickens got fat, mice got fat, even rhesus monkeys at the zoo that picked up the virus from the environment suddenly gained 15 percent of their body weight upon exposure.</span> <span class="sn slow" data-l="latest">In his latest studies, Dhurandhar has <mark id="a18">isolated a <mark id="a26">gene</mark> that, when blocked from expressing itself, seems to turn off the virus's fattening power</mark>.</span> <span class="sn fast">Stem cells extracted from fat cells and then exposed to AD-36 reliably blossom into fat cells-but when stem cells are exposed to an AD-36 virus with the key gene inhibited, the stems cells don't differentiate.</span> <span class="sn slow" data-l="goal">The gene appears to be necessary and sufficient to trigger AD-36-related obesity, and the goal is to use the research to create a sort of obesity <mark id="a27">vaccine</mark>.</span></p>
+</div>
+<div id="side">
+<div id="qs">
+<h4>14-18 段落信息 · 乱序 · 随读随收</h4>
+<div class="q" id="q14" data-a="E">14 evaluation on the effect of weight loss on different kind of <mark>diets</mark></div>
+<div class="q" id="q15" data-a="D">15 an analysis of <mark>birth-related</mark> weight problems</div>
+<div class="q" id="q16" data-a="C">16 example of people who never <mark>regain weight</mark> immediately after weight loss</div>
+<div class="q" id="q17" data-a="B">17 <mark>hunger</mark> may appear to be unacceptable to most of the participants while losing weight</div>
+<div class="q" id="q18" data-a="G">18 a research related to using <mark>gene</mark> against a weight-gaining <mark>virus</mark></div>
+<h4>19-23 人名匹配 · 乱序 · 人名是路标 (A Berkowitz · B Leibel · C Dhurandhar · D Barrett · E Friedman · F Hillier)</h4>
+<div class="q" id="q19" data-a="F Hillier">19 A person's weight is predetermined to a set point by the <mark>DNA</mark></div>
+<div class="q" id="q20" data-a="F Hillier">20 <mark>Pregnant</mark> mothers who are overweight may risk their fetus</div>
+<div class="q" id="q21" data-a="E Friedman">21 The aim of losing weight should be keeping <mark>healthy</mark> rather than attractiveness</div>
+<div class="q" id="q22" data-a="D Barrett">22 <mark>Small changes</mark> in lifestyle will not have great impact on reducing much weight</div>
+<div class="q" id="q23" data-a="A Berkowitz">23 Researchers should be divided into different groups with their <mark>own point of view</mark></div>
+<h4>24-27 Summary · 顺序 · ONE WORD AND/OR A NUMBER</h4>
+<div class="q" id="q24" data-a="chickens">24 In <mark>Bombay</mark> Clinic, a young doctor … believed obesity is caused by a kind of virus, years of experiment that he conducted on ___</div>
+<div class="q" id="q25" data-a="AD-36">25 Later he moved to America and tested on a new virus named ___</div>
+<div class="q" id="q26" data-a="gene">26 Although there seems no way to eliminate the virus, a kind of ___ can be separated as to block the expressing power of the virus</div>
+<div class="q" id="q27" data-a="vaccine">27 The doctor future is aiming at developing a new ___ effectively combating the virus</div>
+</div>
+<div id="card"></div>
+</div>
+</main>
+<footer><button class="g" id="prev">← 上一步</button><div id="bar"><i></i></div><span id="clock">00:00</span><button id="next">下一步 →</button></footer>
+<script>
+const S=[
+{t:'标题 10 秒',rule:1,h:'Stealth Forces = 藏着的力量。猜骨架',r:[['推','标题说「藏着的力量」,后面一定是一个一个研究者各讲一个原因。骨架 2:现象 → 研究,<em>一个研究一段</em>'],['推','文章 7 段 A–G,引言不算。人名会很多,每段 1–2 个'],['动作','脑子里先摆好:每段 = 一个原因 + 一个人']]},
+{t:'段内怎么读',h:'每段五层:两层慢,三层快',r:[['慢','<em>首句</em>:这段讲什么,heading 和段落信息从这来'],['快','解释层:机制、过程、头衔、单位。题目不考过程,扫过去知道在讲什么就行'],['快','举例层:列举 some/others、动物名单。<em>例外:有数字、人名、专名就慢</em>,那是题的锚'],['慢','<em>转折 but / however / that said / yet</em>:后面才是真话,F 坑和第二个人名常藏这里'],['慢','<em>says 人名</em> 前面的引号句,<em>段尾小结 the goal is / the implication is</em>'],['动作','进段前先扫一眼:这段有几个 says?几个数字?有没有 but?有的地方就是要慢的地方']]},
+{t:'扫题型块',h:'只看 instructions,不看题',r:[['看','14–18 Which section contains → <em>段落信息,乱序</em>'],['看','19–23 Match each researcher → <em>人名匹配,乱序</em>,但人名是大写路标'],['看','24–27 Complete the summary → <em>顺序题</em>,ONE WORD AND/OR A NUMBER'],['动作','乱序两组先全圈;顺序组只看前两题。一遍读文章,三种题同时收']],q:['q14','q15','q16','q17','q18','q19','q20','q21','q22','q23','q24','q25','q26','q27']},
+{t:'乱序题先全圈',h:'段落信息 5 题:圈改不动的词',r:[['圈','14 diets · 15 birth-related · 16 regain weight · 17 hunger · 18 <em>gene + virus</em>(两个锚点,必须都对上)'],['推','题干是抽象的,原文是具体的。birth-related 在原文会是 pregnant / womb / mother;regain 会是 kept it off'],['动作','这 5 个词记在脑子里,读到哪段像就收哪段,绝不单独回头找']],q:['q14','q15','q16','q17','q18'],an:['q14','q15','q16','q17','q18']},
+{t:'乱序题先全圈',h:'人名 6 个:先在文章里全圈出来',r:[['圈','A Berkowitz · B Leibel · C Dhurandhar · D Barrett · E Friedman · F Hillier。大写改不了,一眼扫到'],['推','A 段 2 人 · B 段 1 人 · C 段 2 人 · D 段 1 人 · F G 段 Dhurandhar。<em>C 段两个人,是陷阱段</em>'],['规矩','says X 管的是它前面到上一个 says 为止的句子。两个人一段,先画 [ … ] says X 再配'],['动作','读到人名就停,看他说了什么,对一下 19–23 哪题像']],names:true,q:['q19','q20','q21','q22','q23']},
+{t:'顺序题只看前两题',h:'Summary 24–25:先推答案长什么样',r:[['推','Summary 讲 Bombay 的年轻医生,virus → 这是 Dhurandhar,答案在 <em>F G 两段</em>,前面 5 段不用找'],['推','24 experiment conducted on ___ → on 后面是<em>实验对象</em>,不是地点。Bombay 题干里已经有了,出现过的词不会是答案'],['推','25 a new virus named ___ → 专有名词,大写或带数字'],['动作','这两题的形状记住,读到 F 段再收']],q:['q24','q25'],an:['q24']},
+{t:'先你来',peek:1,p:'pA',h:'段 A · 自己先推,再看揭晓',r:[['扫','这段几个 says?几个数字?有没有 but / however / that said?有的地方就是要慢读的地方'],['推','段落信息 5 个词(diets · birth · regain · hunger · gene+virus)哪个像在这段?不像就说「没有」'],['推','这段的人名,19–23 哪题像他说的?一段两个人就先画括号'],['推','summary 24–27 在这段吗?(推理:它讲 virus,只在 F G)'],['动作','心里把答案说出声,再按 → 对答案。猜错的那一条就是你明天要练的']]},
+{t:'读段 A → 停',h:'A 各说各话',p:'pA',tag:'各说各话',r:[['读法','亮的慢读,暗的快扫。<em>首句</em>定调(各说各话) → 列举 some/others 快扫,不记内容 → <em>says</em> 前的引号句慢读,这是人名题的货 → <em>but</em> 后慢读。头衔、单位一律跳'],['读','专家们的发现像象牙和象尾一样不同。Everyone subscribes to their own little theory, says Berkowitz'],['收','23 Researchers divided into groups with own point of view = <em>Everyone … own little theory</em> → A Berkowitz'],['查','Dhurandhar 这里说的是 willpower 平均分布,19–23 没有这题,不收'],['查','段落信息 5 个词:diets birth regain hunger gene,A 段都没有。走']],ans:['a23'],ok:[['q23']]},
+{t:'先你来',peek:1,p:'pB',h:'段 B · 自己先推,再看揭晓',r:[['扫','这段几个 says?几个数字?有没有 but / however / that said?有的地方就是要慢读的地方'],['推','段落信息 5 个词(diets · birth · regain · hunger · gene+virus)哪个像在这段?不像就说「没有」'],['推','这段的人名,19–23 哪题像他说的?一段两个人就先画括号'],['推','summary 24–27 在这段吗?(推理:它讲 virus,只在 F G)'],['动作','心里把答案说出声,再按 → 对答案。猜错的那一条就是你明天要练的']]},
+{t:'读段 B → 停',h:'B 瘦素 · 饥饿',p:'pB',tag:'瘦素饥饿',r:[['读法','首句 leptin 慢 → 中间机制(produce/desensitized/plummet)快扫,这是解释层,题目不考过程 → <em>says Leibel</em> 那句慢:hunger 是段落信息词,majority couldn\'t stand 是程度词'],['读','leptin 掉 → 代谢掉 → chronic hunger,Leibel 比作口渴:多数人受不了'],['收','17 hunger unacceptable to most participants = <em>chronic hunger … the majority couldn\'t stand it</em> → B'],['查','Leibel 在 19–23 里没题。人名有,题没有,正常,走'],['动作','段旁写 3 个字:瘦素饥饿。手指移到下一题']],ans:['a17','a17b'],ok:[['q17']]},
+{t:'先你来',peek:1,p:'pC',h:'段 C · 自己先推,再看揭晓',r:[['扫','这段几个 says?几个数字?有没有 but / however / that said?有的地方就是要慢读的地方'],['推','段落信息 5 个词(diets · birth · regain · hunger · gene+virus)哪个像在这段?不像就说「没有」'],['推','这段的人名,19–23 哪题像他说的?一段两个人就先画括号'],['推','summary 24–27 在这段吗?(推理:它讲 virus,只在 F G)'],['动作','心里把答案说出声,再按 → 对答案。猜错的那一条就是你明天要练的']]},
+{t:'读段 C → 停 · 陷阱段',h:'C 两个人名:先画括号',p:'pC',tag:'小改没用+目标健康',r:[['读法','首句有 <em>but</em>,慢:政府说的小运动没用 → 150 calories 两个苹果是举例,快 → <em>says Barrett</em> 慢 → <em>5,000 / 66 pounds / 5.5 years</em> 数字慢,数字是题的锚 → 列举 low-carb/low-fat 快 → <em>That said</em> 是转折,后面藏着第二个人,慢到段尾'],['画','[ Radical changes are necessary … every other day ] says <em>Barrett</em>'],['画','[ The goal shouldn\'t be getting thin, but getting healthy … ] says <em>Friedman</em>。这句藏在段尾,上次你把它算给了 Barrett'],['收','22 Small changes not have great impact = 反义改写 Radical changes necessary → D Barrett'],['收','21 aim should be healthy not attractiveness = goal not thin but healthy → E Friedman'],['收','16 people who never regain = NWCR 5,000 人 kept it off 5.5 years → C']],ans:['a22','a21','a16'],ok:[['q22'],['q21'],['q16']]},
+{t:'先你来',peek:1,p:'pD',h:'段 D · 自己先推,再看揭晓',r:[['扫','这段几个 says?几个数字?有没有 but / however / that said?有的地方就是要慢读的地方'],['推','段落信息 5 个词(diets · birth · regain · hunger · gene+virus)哪个像在这段?不像就说「没有」'],['推','这段的人名,19–23 哪题像他说的?一段两个人就先画括号'],['推','summary 24–27 在这段吗?(推理:它讲 virus,只在 F G)'],['动作','心里把答案说出声,再按 → 对答案。猜错的那一条就是你明天要练的']]},
+{t:'读段 D → 停',h:'D 孕期',p:'pD',tag:'孕期',r:[['读法','首句 genes 慢 → <em>If</em> 条件句 + 10,000 数字慢,这是研究结论 → says Hillier 慢 → 头衔快 → <em>The implication is clear</em> 小结句慢,heading 和段落信息都从这来 → 建议孕妇那两句快'],['读','genes 写好的体重,出生前在子宫里就被改。孕期高血糖 → 孩子肥胖。Hillier'],['收','19 predetermined to a set point by DNA = <em>optimal weight, written by genes</em> → F Hillier'],['收','20 Pregnant overweight mothers risk fetus = mother\'s obesity increases child\'s risk → F Hillier(一人两题,NB)'],['收','15 birth-related weight problems → D']],ans:['a19','a20','a15'],ok:[['q19'],['q20'],['q15']]},
+{t:'先你来',peek:1,p:'pE',h:'段 E · 自己先推,再看揭晓',r:[['扫','这段几个 says?几个数字?有没有 but / however / that said?有的地方就是要慢读的地方'],['推','段落信息 5 个词(diets · birth · regain · hunger · gene+virus)哪个像在这段?不像就说「没有」'],['推','这段的人名,19–23 哪题像他说的?一段两个人就先画括号'],['推','summary 24–27 在这段吗?(推理:它讲 virus,只在 F G)'],['动作','心里把答案说出声,再按 → 对答案。猜错的那一条就是你明天要练的']]},
+{t:'读段 E → 停',h:'E 两种饮食对比',p:'pE',tag:'饮食对比',r:[['读法','<em>设问</em> Which diets work 慢,这句就是段落信息 14 的答案 → 中间实验设计和四组数据全部快扫,除非题目问数字 → <em>But the most successful</em> 转折结论慢。全段只慢读两处'],['读','Which diets work? 低脂 vs 低升糖,高胰岛素组在低升糖饮食上最成功'],['收','14 evaluation of weight loss on different diets → E'],['查','E 段没人名,19–23 不动。summary 讲 virus,E 段不是。走']],ans:['a14'],ok:[['q14']]},
+{t:'先你来',peek:1,p:'pF',h:'段 F · 自己先推,再看揭晓',r:[['扫','这段几个 says?几个数字?有没有 but / however / that said?有的地方就是要慢读的地方'],['推','段落信息 5 个词(diets · birth · regain · hunger · gene+virus)哪个像在这段?不像就说「没有」'],['推','这段的人名,19–23 哪题像他说的?一段两个人就先画括号'],['推','summary 24–27 在这段吗?(推理:它讲 virus,只在 F G)'],['动作','心里把答案说出声,再按 → 对答案。猜错的那一条就是你明天要练的']]},
+{t:'读段 F → 停',h:'F 病毒鸡',p:'pF',tag:'病毒鸡',r:[['读法','设问 what if … virus 慢 → says Dhurandhar 慢 → Bombay 故事快扫 → <em>In experiments</em> 慢:实验句 = 填空题的货,对象 chickens 就在这'],['读','virus 导致肥胖?Dhurandhar 在 Bombay 发现 SMAM-1 让鸡变胖'],['收','24 conducted on ___ = In experiments … infected <em>chickens</em>。不是 Bombay:题干已有,且 on 后面是对象'],['查','18 gene + virus:F 段只有 <em>virus</em>,没有 gene。<em>只对上一处,不落笔</em>,继续往下'],['动作','手指移到 25']],ans:['a24'],an:['f1'],ok:[['q24']]},
+{t:'先你来',peek:1,p:'pG',h:'段 G · 自己先推,再看揭晓',r:[['扫','这段几个 says?几个数字?有没有 but / however / that said?有的地方就是要慢读的地方'],['推','段落信息 5 个词(diets · birth · regain · hunger · gene+virus)哪个像在这段?不像就说「没有」'],['推','这段的人名,19–23 哪题像他说的?一段两个人就先画括号'],['推','summary 24–27 在这段吗?(推理:它讲 virus,只在 F G)'],['动作','心里把答案说出声,再按 → 对答案。猜错的那一条就是你明天要练的']]},
+{t:'读段 G → 停',h:'G 基因 · 疫苗',p:'pG',tag:'基因疫苗',r:[['读法','首句专名 AD-36 慢 → 动物列举快 → <em>In his latest studies</em> 慢,latest 说明这是最新进展,题最爱 → stem cells 机制快 → <em>the goal is</em> 慢,段尾目标句 = 填空 27'],['收','25 new virus named = <em>adenovirus 36 (AD-36)</em>,写 AD-36'],['收','26 a kind of ___ can be separated to block = isolated a <em>gene</em> … blocked'],['收','27 developing a new ___ = obesity <em>vaccine</em>'],['收','18 gene + virus 两处都在 G → G。上次选 F 就是只对了一处']],ans:['a25','a26','a18','a27'],ok:[['q25'],['q26'],['q27'],['q18']]},
+{t:'收尾 90 秒',h:'14/14 · 动笔前最后四问',r:[['问','填空:逐字母对一遍。chickens 有 s;AD-36 连字符'],['问','题干已有的词有没有被我填进去?(Bombay)'],['问','人名题:每个 says 的括号画对了吗?C 段两个人'],['问','答题卡有没有空?段落信息 NB 没出现,所以每段最多用一次,E D C B G 不重复'],['时','这篇 20 分钟。读了一遍,没回头。换篇时看一次表']]},
+{t:'能力怎么长出来',h:'明天起:Lexar 其他 18 篇,自己当导游',r:[['做','每篇先走 4 步:标题猜骨架 → 扫题型块标顺乱 → 乱序题全圈 → 顺序题前两题'],['做','每段读完三件事:段旁写 3 字标签 · 每个 says 画括号 · 看手里两题能不能收'],['做','对答案后每道错题贴 A 没找到 / B 没读懂 / C 判反。C 多就练「主体 时态 程度 否定」四问'],['量','一天两篇,20 分钟一篇,不超时。先做 13 · 14 · 17(段落信息 + 判断),再做 05 · 15 · 19(Heading)'],['动作','第 3 篇起把这页关掉,只留海报。能不看导游也走完 6 步,能力就在你手上了']]}
+];
+let i=0,t0=Date.now();
+const $=s=>document.querySelector(s),$$=s=>[...document.querySelectorAll(s)];
+function render(){
+  const s=S[i];
+  $('#card').innerHTML=`<div class="step">第 ${i+1} / ${S.length} 步 · ${s.t}</div><h3>${s.h}</h3>`+s.r.map(r=>`<div class="row${r[0]=='动作'?' act':''}"><b>${r[0]}</b><div>${r[1]}</div></div>`).join('');
+  $('#bar i').style.width=((i+1)/S.length*100)+'%';
+  // reset
+  $$('.para').forEach(p=>{p.classList.remove('on','peek')});
+  $$('.q').forEach(q=>q.classList.remove('on'));
+  $$('mark').forEach(m=>m.classList.remove('ans','an'));
+  // cumulative: names, done paras, ok questions, tags
+  const upto=S.slice(0,i+1);
+  if(upto.some(x=>x.names))$$('.para mark.n').forEach(m=>m.classList.add('nm'));else $$('.para mark.n').forEach(m=>m.classList.remove('nm'));
+  $$('.q').forEach(q=>q.classList.remove('ok'));$$('.para').forEach(p=>p.classList.remove('done','tagged'));
+  upto.forEach(x=>{(x.ok||[]).forEach(o=>$('#'+o[0]).classList.add('ok'));if(x.p&&!x.peek){const p=$('#'+x.p);p.classList.add('done','tagged');p.querySelector('.tag').textContent=x.tag}});
+  (s.q||[]).forEach(q=>$('#'+q).classList.add('on'));
+  (s.an||[]).forEach(id=>{const el=$('#'+id);if(el){el.classList.add('an')}else{}});
+  (s.an||[]).filter(x=>x.startsWith('q')).forEach(q=>$$('#'+q+' mark').forEach(m=>m.classList.add('an')));
+  (s.ans||[]).forEach(id=>$('#'+id).classList.add('ans'));
+  if(s.p){const p=$('#'+s.p);p.classList.remove('done');p.classList.add('on');if(s.peek)p.classList.add('peek');p.scrollIntoView({block:'start'})}
+  $('#prev').disabled=i==0;$('#next').textContent=i==S.length-1?'完成':'下一步 →';
+}
+$('#next').onclick=()=>{if(i<S.length-1){i++;render()}};
+$('#prev').onclick=()=>{if(i>0){i--;render()}};
+document.addEventListener('keydown',e=>{if(e.key=='ArrowRight'||e.key==' ')$('#next').click();if(e.key=='ArrowLeft')$('#prev').click()});
+setInterval(()=>{const s=Math.floor((Date.now()-t0)/1000);$('#clock').textContent=String(Math.floor(s/60)).padStart(2,'0')+':'+String(s%60).padStart(2,'0')},1000);
+render();
+</script></body></html>

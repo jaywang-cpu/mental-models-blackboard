@@ -1,0 +1,277 @@
+<!doctype html><html lang="zh"><head><meta charset="utf-8"><title>阅读 · 结构 × 题型 × 节奏</title><style>
+*{box-sizing:border-box}
+body{margin:0;width:4000px;background:#06091a;color:#e8eef4;font-family:-apple-system,"PingFang SC","Helvetica Neue",sans-serif;font-size:19px;line-height:1.45}
+.pg{padding:40px 48px 48px;position:relative}
+h1{margin:0 0 6px;font-size:44px;letter-spacing:6px;font-weight:600}
+.sub{color:#8b94b0;font-size:20px;margin-bottom:26px}
+.grid3{display:grid;grid-template-columns:1.05fr 1.25fr 1fr;gap:48px}
+.grid3>div{border-top:4px solid #e9c46a;padding-top:14px}
+.grid3>div>h1{font-size:36px;margin-bottom:16px}
+h2{font-size:26px;color:#e9c46a;margin:0 0 12px;padding-bottom:6px;border-bottom:2px solid rgba(233,196,106,.35)}
+h3{font-size:20px;color:#8fb8ff;margin:18px 0 8px}
+.box{border:1px solid rgba(255,255,255,.14);border-radius:14px;padding:12px 16px;margin-bottom:12px;background:rgba(255,255,255,.03);break-inside:avoid}
+.k{color:#e9c46a;font-weight:600;margin-right:8px;font-size:18px}
+em{font-style:normal;color:#8fb8ff}
+b{color:#e9c46a;font-weight:600}
+.cn{color:#8b94b0;font-size:16px}
+.rule{color:#ffb3b3;font-size:17px;line-height:1.6}
+.mt{margin-top:24px}
+.two{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+table{border-collapse:collapse;width:100%}
+td,th{padding:5px 8px;border-bottom:1px solid rgba(255,255,255,.1);vertical-align:top;text-align:left;font-size:16px}
+th{color:#8b94b0;font-weight:500}
+td.t{color:#e9c46a;font-weight:600;white-space:nowrap}
+td.b{color:#8fb8ff;white-space:nowrap}
+/* 文章结构图 */
+.art{display:grid;grid-template-columns:150px 1fr;gap:10px 14px;align-items:start}
+.para{display:flex;flex-direction:column;gap:6px}
+.p{display:grid;grid-template-columns:70px 1fr 170px;gap:10px;align-items:center;border:1px solid rgba(143,184,255,.35);border-radius:10px;padding:6px 10px;background:rgba(143,184,255,.05);font-size:16px}
+.p i{font-style:normal;color:#8fb8ff;font-weight:600}
+.p s{text-decoration:none;color:#e9c46a;font-size:14px;text-align:right}
+.p.hot{border-color:rgba(233,196,106,.7);background:rgba(233,196,106,.08)}
+.arrow{color:#8b94b0;font-size:14px;text-align:center;line-height:1}
+/* 节奏跑道 */
+.track{display:grid;grid-template-columns:repeat(2,1fr);gap:0 16px}
+.step{display:grid;grid-template-columns:44px 1fr;gap:10px;align-items:start;margin-bottom:10px}
+.step .n{width:40px;height:40px;border-radius:50%;background:#e9c46a;color:#06091a;font-weight:700;font-size:20px;display:flex;align-items:center;justify-content:center}
+.step .n.r{background:#8fb8ff}
+.step div.c{font-size:17px}
+.big{font-size:24px;color:#ffd97a;font-weight:600;line-height:1.4}
+.chip{display:inline-block;border:1px solid rgba(255,255,255,.25);border-radius:999px;padding:2px 10px;margin:2px 4px 2px 0;font-size:15px;color:#d9e1f2}
+.chip.o{border-color:#e9c46a;color:#e9c46a}
+.chip.x{border-color:#ff9a9a;color:#ff9a9a}
+.err{display:grid;grid-template-columns:110px 1fr;gap:4px 10px;font-size:16px}
+.err span:nth-child(odd){color:#ff9a9a;font-weight:600}
+.day{position:absolute;right:48px;top:40px;font-size:22px;color:#e9c46a;border:1px solid rgba(233,196,106,.5);border-radius:999px;padding:8px 22px}
+.wide{margin-top:36px;border-top:4px solid #e9c46a;padding-top:14px}
+.combo{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
+.combo .box{margin:0}
+svg text{font-family:-apple-system,"PingFang SC",sans-serif}
+</style></head><body><div class="pg"><div class="day">阅读</div>
+<h1>阅读 · 结构 × 题型 × 节奏</h1>
+<div class="sub">左:文章长什么样,答案藏在哪 · 中:8 种题型各自怎么做 + 你错过的坑 · 右:先推理再找 · 臭毛病换成动作 · 一段一停 · 底:19 篇真题的组合表</div>
+
+<div class="grid3">
+<!-- ===== 左 ===== -->
+<div><h1>文章结构</h1>
+
+<h2>段落内部 · 每段都是这五层</h2>
+<div class="box">
+<div class="para">
+<div class="p hot"><i>首句</i><span>主题句:这段讲什么</span><s>Heading · 段落信息</s></div>
+<div class="arrow">↓</div>
+<div class="p"><i>解释</i><span>怎么回事,机制,原因</span><s>判断 · 单选</s></div>
+<div class="arrow">↓</div>
+<div class="p"><i>举例</i><span>such as / for instance / 人名 + 年份 + 数字</span><s>填空 · 多选 · 人名匹配</s></div>
+<div class="arrow">↓</div>
+<div class="p hot"><i>转折</i><span>but / however / yet 后面才是真话</span><s>判断 F 坑 · Heading</s></div>
+<div class="arrow">↓</div>
+<div class="p"><i>小结</i><span>in fact / this means / 作者态度</span><s>单选 · Y/N 题</s></div>
+</div>
+<div class="cn" style="margin-top:8px">黄框 = Heading 从哪来。老师 7 个来源:首句 · 设问句 · 举例前的观点句 · 转折句 · 强调句 · 定义句 · 下一段首句</div>
+</div>
+
+<h2 class="mt">全文 · 4 种骨架(19 篇真题归出来的)</h2>
+<div class="box"><span class="k">1 发展史</span><span class="cn">Potato · Gilbert · Mars · Designed to Last</span>
+<div class="art" style="margin-top:8px"><div class="cn">段落走向<br>按时间往下</div><div class="para">
+<div class="p"><i>起源</i><span>最早在哪,谁发现</span><s>填空</s></div>
+<div class="p"><i>早期</i><span>传播 · 误解 · 第一次尝试</span><s>判断(时间考点)</s></div>
+<div class="p hot"><i>转折</i><span>某人 / 某年 突破</span><s>判断 · 单选</s></div>
+<div class="p"><i>现状</i><span>现在怎样,未来预测</span><s>NG 高发(future)</s></div></div></div>
+<div class="cn" style="margin-top:6px">配题:判断 + 填空,全顺序。年份、人名就是路标</div></div>
+
+<div class="box"><span class="k">2 现象 → 研究</span><span class="cn">Elephant · Bird Migration · Memory and Age · Bitterness · Music Language</span>
+<div class="art" style="margin-top:8px"><div class="cn">段落走向<br>一个研究一段</div><div class="para">
+<div class="p"><i>现象</i><span>奇怪的事 + 一个问题</span><s>Heading</s></div>
+<div class="p hot"><i>研究 1</i><span>人名 says / found / 数字</span><s>人名匹配 · 多选</s></div>
+<div class="p hot"><i>研究 2</i><span>另一人 · 反对或补充</span><s>人名匹配 · 判断</s></div>
+<div class="p"><i>未解</i><span>still unclear / remains a mystery</span><s>单选(作者态度)</s></div></div></div>
+<div class="cn" style="margin-top:6px">配题:Heading + 人名匹配 + 多选。先把人名圈出来,读到谁就收谁</div></div>
+
+<div class="box"><span class="k">3 问题 → 方案</span><span class="cn">Water Filter · Bridges · Nutrition · Weight Loss</span>
+<div class="art" style="margin-top:8px"><div class="cn">段落走向<br>问题越来越具体</div><div class="para">
+<div class="p"><i>问题</i><span>有多严重,数字</span><s>段落信息 · 填空</s></div>
+<div class="p"><i>原因</i><span>because / due to / lead to</span><s>判断(因果考点)</s></div>
+<div class="p hot"><i>方案</i><span>怎么做,流程,装置</span><s>图表填空 · 段落信息</s></div>
+<div class="p"><i>评价</i><span>局限 / 成本 / 下一步</span><s>判断(程度考点)</s></div></div></div>
+<div class="cn" style="margin-top:6px">配题:段落信息 + 判断。段落信息题的词是抽象的,原文是具体的</div></div>
+
+<div class="box"><span class="k">4 争论 / 书评</span><span class="cn">Graffiti · Musicophilia · Communication in Science · New Product Adoption</span>
+<div class="art" style="margin-top:8px"><div class="cn">段落走向<br>两边吵,作者站队</div><div class="para">
+<div class="p"><i>A 方</i><span>some argue / critics claim</span><s>单选(谁说的)</s></div>
+<div class="p"><i>B 方</i><span>however, others / the author</span><s>Y/N/NG</s></div>
+<div class="p hot"><i>作者</i><span>I would argue / it seems to me</span><s>Y/N(claims of writer)</s></div>
+<div class="p"><i>结论</i><span>条件 · 分寸 · 展望</span><s>句子配对</s></div></div></div>
+<div class="cn" style="margin-top:6px">配题:单选 + YES/NO + 句子配对,常在 Passage 3。分清「谁的观点」,作者的才算 YES</div></div>
+
+<h2 class="mt">逻辑词 → 答案在哪</h2>
+<div class="box"><table>
+<tr><td class="t">转折</td><td>but · however · yet · whereas · in contrast</td><td class="b">答案句,F 坑</td></tr>
+<tr><td class="t">因果</td><td>because · so · therefore · lead to · due to</td><td class="b">判断考点,方向别反</td></tr>
+<tr><td class="t">并列</td><td>and · also · as well as · another</td><td class="b">多选,数几个</td></tr>
+<tr><td class="t">举例</td><td>such as · like · for example · (括号)</td><td class="b">填空,括号必看</td></tr>
+<tr><td class="t">强调</td><td>in fact · actually · especially · only</td><td class="b">Heading · 程度考点</td></tr>
+<tr><td class="t">解释</td><td>this means · in other words · i.e.</td><td class="b">单选正确项</td></tr>
+<tr><td class="t">否定</td><td>prevent · lack · fail · without · rarely</td><td class="b">藏着的 not,判断</td></tr>
+<tr><td class="t">时间</td><td>before/after · until · since · now</td><td class="b">时间考点,你常错</td></tr>
+</table><div class="cn" style="margin-top:6px">不能死等一个单词。改写 8 种:词性变 · 同义词 · 上位词(blue→colour) · 解释 · 双重否定 · 代词 · 颠倒(floor of the ocean) · 主被动</div></div>
+
+<h2 class="mt">定位词 · 只圈改不动的</h2>
+<div class="box">
+<span class="chip o">数字 年份</span><span class="chip o">人名 地名</span><span class="chip o">大写 专有名词</span><span class="chip o">怪词 术语</span><span class="chip">朴素具体词(同义词少)</span><span class="chip x">important</span><span class="chip x">development</span><span class="chip x">文章主题词</span>
+<div class="cn" style="margin-top:8px">三原则:找得快 · 全文唯一 · 组合两三个。红的抽象词必被改写,圈了等于没圈。四类全无 = 题干已抽象化,放弃扫描,走顺序推进</div>
+<div class="cn">题干给「类」,原文给「例」:题干 human behaviour,原文 cutting down forests。读文章不问这个词在哪,问这句是不是那一类</div></div>
+</div>
+
+<!-- ===== 中 ===== -->
+<div><h1>8 种题型</h1>
+
+<div class="box"><span class="k">判断 T/F/NG · Y/N/NG</span><span class="chip o">顺序</span><span class="cn">占 30%,T 41% &gt; F 32% &gt; NG 26%</span>
+<div style="margin-top:8px"><b>做法</b> 一次读两题,记住两题的词再回文 · 读题慢,题干长的读两遍 · 判之前在题前加「是否」 · 读到下一题的位置了上一题还没出现 = NG</div>
+<div><b>命题</b> T1 单句改写 · T2 相邻句归纳 · T3 跨段归纳 ‖ F1 反义词(several↔only one) · F2 关系驳斥(before↔after) ‖ NG1 题干前/后的信息原文没有 · NG2 题干中间的关系(more than)原文没有</div>
+<div><b>考点</b> 时间(before/after) · 程度(all/only/rarely/most) · 比较级 最高级 · 数字 · 因果方向 · 主体是谁 · 作者态度</div>
+<div class="rule" style="margin-top:6px">首题少 NG,末题少 F。内容词对上只算定位,对错只看逻辑词:相反 = F,原文没这个维度 = NG</div>
+<div class="err" style="margin-top:8px"><span>你错过</span><span>breed = 繁殖 不是养育 → 用了 NG 其实是 F</span><span>你错过</span><span>attempts 读成「证据」,把题读快了 → 审题</span><span>你错过</span><span>pests 攻击的是 rice,毁林的是农民 → 看清作用受体</span><span>你错过</span><span>In the future 预测句 → 原文 predict 是态度不是事实,先问「是否」</span></div></div>
+
+<div class="box"><span class="k">填空 · Summary · 句子完成</span><span class="chip o">顺序(偶有 1-2 题倒)</span>
+<div style="margin-top:8px"><b>4 步</b> ① 先定 summary 在原文哪一块(小标题) ② 看空前后,判词性 n/adj/v ③ 回原文锁定答案 ④ 填完整段读一遍通不通</div>
+<div><b>规矩</b> 看清字数 NO MORE THAN TWO · 答案多是难词/生词 · 可能要变词性 · 空格旁边的词 = 原文同义词</div>
+<div class="err" style="margin-top:8px"><span>你错过</span><span>numbers 写成 number → 完!全!复!制!做完检查每个空</span><span>你错过</span><span>visual 填成 images → 先判词性,这里要 adj</span><span>你错过</span><span>coffee 填成 twig → 两个名词并列选更具体那个,括号里的一定看</span><span>你错过</span><span>award 填成 assistance → 搞清主体:assistance 是 locals 要的,award 是 authorities 要的;题干有 a 就画出来</span><span>你错过</span><span>words 填成 tones → 题干已经出现的词不会是答案;which 后置修饰 = 题干把名词放前面</span><span>你错过</span><span>biodiversity 填成 nutrients → 原文 not for nutrients,否定词决定不是它</span></div></div>
+
+<div class="box"><span class="k">Heading 段落标题</span><span class="chip">乱序 · 随读随收</span>
+<div style="margin-top:8px"><b>做法</b> ① 先划掉例子用过的 heading ② 选过的立刻划掉 ③ 拿不准的放最后,范围缩小再排除 ④ 先做这段的细节题,最后选 heading</div>
+<div><b>来源</b> 首句 · 设问句 · 举例前的观点句 · 转折句 · 强调句 · 定义句 · 下一段首句</div>
+<div class="err" style="margin-top:8px"><span>你错过</span><span>publicity = 宣传 不是公众,一直在找「公众」</span><span>你错过</span><span>commercial orders 看不懂 → 原文 received 5,390 deposits,抽象词找具体数字</span></div></div>
+
+<div class="box"><span class="k">段落信息 Which paragraph contains</span><span class="chip">乱序 · 随读随收</span>
+<div style="margin-top:8px"><b>做法</b> 读所有题,圈词,短暂记住 → 从首段读起,先做其他题型在这段的题,最后收这段的信息题 → 某段出现题干词的同义词一次就能定 · NB = 有段落会用两次</div>
+<div><b>题干是抽象的</b> examples of = 原文一串名词 · reference to disadvantages = 原文 lost / problem · a certain era = 原文具体年代 · proportion = 原文数字 或 half</div>
+<div><b>段标签</b> 每读完一段写 3 个字(A 各说各话 · B 瘦素饥饿 · C 小改没用 · D 孕期 · E 饮食对比 · F 病毒鸡 · G 基因疫苗),信息题靠标签配,不回文</div><div class="err" style="margin-top:8px"><span>你错过</span><span>gene + virus 选了 F → F 只有 virus,G 才有 gene,两处都对上才落笔</span><span>你错过</span><span>facilities 认成 steel and concrete → 设施是 hotels / restaurants 那段,材料不是设施</span><span>你错过</span><span>have already been lost 没看时态 → 原文 have disappeared,时态也能排段</span><span>你错过</span><span>没找到 → 读每段时先猜「这段能出什么题」,做完细节题再扫一眼每段</span></div></div>
+
+<div class="box"><span class="k">单选 A B C D</span><span class="chip o">顺序</span>
+<div style="margin-top:8px"><b>本质</b> 正确项 + 题干 = 一句 TRUE;干扰项 = F 或 NG。正确项两种:单句改写 · 上下文归纳 · 问 What is the writer doing = 看段落功能(support / propose / reject / describe)</div>
+<div class="err" style="margin-top:8px"><span>你错过</span><span>选了 reading skills → 原文只说像字幕,没说 reading 辅助,是你推断的。选直观明显的,不推断</span><span>你错过</span><span>Noise + distance 两个方面 → 越细的题越要把每个方面数清,选「aspects」</span></div></div>
+
+<div class="box"><span class="k">多选 五选二 / 七选三</span><span class="chip">半顺序 · 集中 1-2 段</span>
+<div style="margin-top:8px"><b>做法</b> 答案基本在一到两段里 · 差不多的先选上,没找到就选最像的 · 并列词 and / also 数个数</div>
+<div class="err" style="margin-top:8px"><span>你错过</span><span>amenities 不认识 → 设施。E 段 hotels retail… = community life,F 段 panels turbines = renewable 设备</span></div></div>
+
+<div class="box"><span class="k">人名 / 观点匹配</span><span class="chip">乱序 · 人名是路标</span>
+<div style="margin-top:8px"><b>做法</b> 人名大写改不了,先全圈,读到谁就看谁说了什么 · 一人可对多题(NB) · 题干是观点的「类」,原文是那人的原话</div><div><b>引号归属</b> says X 管的是它前面到上一个 says 为止的句子。一段两个人名,先画 [ … ] says X 再配</div><div class="err" style="margin-top:8px"><span>你错过</span><span>Barrett ↔ Friedman 互换 → C 段两个人,goal shouldn't be thin but healthy 后面跟的是 says Friedman</span><span>你错过</span><span>Bombay 填成 chickens 的空 → 题干已有的词不是答案;conducted on 后面是实验对象不是地点</span></div></div>
+
+<div class="box"><span class="k">句子配对 Complete each sentence A-E</span><span class="chip o">顺序</span>
+<div style="margin-top:8px"><b>做法</b> 前半句定位,后半句在选项里找同义 · 放中间的题答案也在中间,别上来就在开头找 · 相邻两题不会离远,可能就是下一句</div>
+<div class="err" style="margin-top:8px"><span>你错过</span><span>speech 被改成 voice,定位词圈了会被替换的词 → 圈 Japan / TV 这种改不动的</span></div></div>
+</div>
+
+<!-- ===== 右 ===== -->
+<div><h1>节奏</h1>
+
+<h2>你的病:读着读着忘了题</h2>
+<div class="box">
+<div class="big">一段一停 · 手指压在当前题号上 · 单位是段不是句</div>
+<div class="cn" style="margin:6px 0 10px">读完一段就抬头,看手里那两题能不能收。不是读完全文再找,也不是一题一题回头翻</div>
+<svg viewBox="0 0 900 250" width="100%" height="250">
+<defs><marker id="a" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto"><path d="M0,0 L10,5 L0,10 z" fill="#8b94b0"/></marker></defs>
+<g font-size="17" fill="#e8eef4">
+<rect x="20" y="30" width="130" height="56" rx="12" fill="rgba(233,196,106,.12)" stroke="#e9c46a"/><text x="85" y="54" text-anchor="middle" fill="#e9c46a" font-weight="600">题 1 · 2</text><text x="85" y="76" text-anchor="middle" font-size="14" fill="#8b94b0">圈好词,记住</text>
+<rect x="200" y="150" width="130" height="56" rx="12" fill="rgba(143,184,255,.1)" stroke="#8fb8ff"/><text x="265" y="174" text-anchor="middle" fill="#8fb8ff" font-weight="600">段 A</text><text x="265" y="196" text-anchor="middle" font-size="14" fill="#8b94b0">读完 → 停</text>
+<rect x="380" y="30" width="130" height="56" rx="12" fill="rgba(233,196,106,.12)" stroke="#e9c46a"/><text x="445" y="54" text-anchor="middle" fill="#e9c46a" font-weight="600">收 1?换 2 · 3</text><text x="445" y="76" text-anchor="middle" font-size="14" fill="#8b94b0">做了就划掉</text>
+<rect x="560" y="150" width="130" height="56" rx="12" fill="rgba(143,184,255,.1)" stroke="#8fb8ff"/><text x="625" y="174" text-anchor="middle" fill="#8fb8ff" font-weight="600">段 B</text><text x="625" y="196" text-anchor="middle" font-size="14" fill="#8b94b0">读完 → 停</text>
+<rect x="740" y="30" width="130" height="56" rx="12" fill="rgba(233,196,106,.12)" stroke="#e9c46a"/><text x="805" y="54" text-anchor="middle" fill="#e9c46a" font-weight="600">收 · 换 · 继续</text><text x="805" y="76" text-anchor="middle" font-size="14" fill="#8b94b0">乱序题顺手收</text>
+<path d="M150,60 C180,60 180,178 200,178" fill="none" stroke="#8b94b0" stroke-width="2" marker-end="url(#a)"/>
+<path d="M330,178 C360,178 360,60 380,60" fill="none" stroke="#8b94b0" stroke-width="2" marker-end="url(#a)"/>
+<path d="M510,60 C540,60 540,178 560,178" fill="none" stroke="#8b94b0" stroke-width="2" marker-end="url(#a)"/>
+<path d="M690,178 C720,178 720,60 740,60" fill="none" stroke="#8b94b0" stroke-width="2" marker-end="url(#a)"/>
+<text x="450" y="238" text-anchor="middle" font-size="15" fill="#ffb3b3">顺序题:上一题的答案句 = 下一题的起点,只往下走不回头</text>
+</g></svg></div>
+
+<h2 class="mt">福尔摩斯 · 先推理,再找</h2>
+<div class="box"><div class="cn" style="margin-bottom:6px">福尔摩斯不满屋子翻,他先说出答案长什么样,再去证实。每题动笔前 5 秒,先推出三件事:</div>
+<div class="err">
+<span>推位置</span><span>顺序题 → 在上一题答案句下面 · 题号在题组中间 → 答案在文章中间 · 段落信息题「examples of」→ 找 such as 那段 · 「future / predict」→ 末段</span>
+<span>推形状</span><span>空前有 a / an → 单数名词 · 空前 the parts that deal with ___ input → 形容词 · 空前 and → 和前面同类词 · 字数限制 TWO WORDS → 答案多半是 adj + n</span>
+<span>推陷阱</span><span>题干有 all / only / rarely / before → 程度或时间考点,原文必有对应词 · 题干有比较 more than → 原文没比较就 NG · 题干两个名词并列 → 要填更具体那个</span>
+<span>推对手</span><span>出题人把原文具体 → 抽象(deposits → commercial orders),把名词前置 → 后置(which),把 not 藏进 lack / prevent。看到这些就知道他在哪动了手脚</span>
+</div>
+<div class="rule" style="margin-top:8px">推完才找。找到后反推:这句能不能改写成题干?改不成就不是答案句,别硬凑</div></div>
+
+<h2 class="mt">臭毛病 → 换成动作(100% 的钥匙)</h2>
+<div class="box"><div class="cn" style="margin-bottom:6px">错题表里反复出现的 10 个。毛病改不掉,动作能换掉:每个毛病对应一个手上的动作,做完才准动笔</div>
+<table>
+<tr><th>毛病</th><th>证据</th><th>换成动作</th></tr>
+<tr><td class="t">读快了</td><td>attempts 读成证据 · 首题慌选 NG</td><td>题干用笔尖逐词点一遍,长句读两遍</td></tr>
+<tr><td class="t">不看主体</td><td>assistance / award · pests 和 forest</td><td>题干主语画框,原文主语画框,两框对上才算</td></tr>
+<tr><td class="t">不完整复制</td><td>numbers → number</td><td>填完回原文逐字母对一遍,每空打钩</td></tr>
+<tr><td class="t">不判词性</td><td>visual → images</td><td>空格上方写 n / adj / v 再回文</td></tr>
+<tr><td class="t">跳过括号</td><td>coffee 漏掉 (which infests coffee)</td><td>原文括号画圈,括号里的名词优先</td></tr>
+<tr><td class="t">靠推断</td><td>reading skills 是你想的</td><td>选项能在原文指出那句才选,指不出的划掉</td></tr>
+<tr><td class="t">圈错定位词</td><td>speech 被换成 voice</td><td>只圈 数字 人名 大写 术语,圈到 important 就擦掉</td></tr>
+<tr><td class="t">生词瞎猜</td><td>breed · publicity · staging · amenities</td><td>错题里的词当天进 Anki,考场上看前后缀 + 并列词猜</td></tr>
+<tr><td class="t">不问「是否」</td><td>In the future · clear distinction</td><td>判断题题前写「是否」二字,再判</td></tr>
+<tr><td class="t">读完忘题</td><td>回去找,乱节奏</td><td>一段一停,手指压题号,每段末看一眼手里两题</td></tr>
+</table>
+<div class="rule" style="margin-top:8px">速度来自推理省掉的翻找,正确率来自动作省掉的侥幸。两个都要,就两样都做</div></div>
+<h2 class="mt">开卷 6 步(每篇都一样)</h2>
+<div class="box">
+<div class="step"><div class="n">1</div><div class="c"><b>标题 10 秒</b> 猜是 4 种骨架里哪种,脑子里先摆好段落走向</div></div>
+<div class="step"><div class="n">2</div><div class="c"><b>扫题型块</b> 看 instructions 不看题。标 <span class="chip o">顺序</span>(判断 填空 单选 句子配对) 和 <span class="chip">乱序</span>(Heading 段落信息 人名)</div></div>
+<div class="step"><div class="n">3</div><div class="c"><b>乱序题先全圈</b> Heading 划掉例子;段落信息圈词记住;人名全圈</div></div>
+<div class="step"><div class="n">4</div><div class="c"><b>顺序题只看前两题</b> 圈改不动的词,别一次看十题</div></div>
+<div class="step"><div class="n r">5</div><div class="c"><b>读段 A → 停</b> 先收顺序题,再收这段的乱序题,最后选这段 heading。手指移到下一题</div></div>
+<div class="step"><div class="n r">6</div><div class="c"><b>读段 B → 停</b> 重复。读到人名就看人名题,读到数字就看填空</div></div>
+<div class="cn" style="margin-top:4px">老师原话:标题 → 题型 → 每题型前两题划重点 → 看 P1 → 前两题 → P2 → 3、4 → P3 → 5、6</div></div>
+
+<h2 class="mt">题型组合 → 读法</h2>
+<div class="box"><span class="k">判断 + 填空</span><span class="cn">P1 经典 · Potato · Ancient societies · Nutrition</span>
+<div style="margin-top:6px">全顺序。两题一组往下走,判断做完填空接着从那个位置往下,不回头。17 分钟送分篇</div></div>
+<div class="box"><span class="k">Heading + 判断 / 多选</span><span class="cn">Gilbert · Bitterness · Bird Migration · Music Language</span>
+<div style="margin-top:6px">先划例子 heading。每段:读 → 做这段的判断 → 再选 heading。多选最后在 1-2 段里扫</div></div>
+<div class="box"><span class="k">段落信息 + 判断 + 人名</span><span class="cn">Farmers · Mars · Water Filter · Weight Loss</span>
+<div style="margin-top:6px">段落信息题先圈词记住(它是抽象的)。判断按顺序主线走,读到哪段顺手收信息题,人名出现就收人名</div></div>
+<div class="box"><span class="k">单选 + Y/N + Summary / 句子配对</span><span class="cn">P3 经典 · Designed to Last · Communication · Musicophilia</span>
+<div style="margin-top:6px">全是顺序题,一路往下。单选当判断做:选项 + 题干 = 一句 TRUE。Y/N 只认作者自己的话。21 分钟,难题 90 秒卖掉</div></div>
+
+<h2 class="mt">时间 + 止损</h2>
+<div class="box"><div class="rule">· 17 / 20 / 21 分钟,只在换篇时看一次表</div><div class="rule">· 一题 90 秒上限:回文两次没定位 · 超两分钟 · 剩两个选不出 → 写一个最像的,打标记,走</div><div class="rule">· 跳题后复位:呼吸一次,下一题重新圈词,不带上一题的段落假设</div><div class="rule">· 答题卡永远不留空。NG 和 F 分不清时:原文有这个维度就 F,没有就 NG</div></div>
+
+<h2 class="mt">错题归因 ABC</h2>
+<div class="box"><div class="err"><span>A 没找到</span><span>定位词圈错(圈了抽象词或会被替换的词) → 练锚点 + 顺序推进</span><span>B 没读懂</span><span>找到句子了但意思不懂 → 整句抄进长句本,查 breed / publicity / staging 这种词</span><span>C 判反了</span><span>读懂了但逻辑词判反(主体 · 时态 · 程度 · 否定) → 那个词抄进逻辑词清单</span></div>
+<div class="cn" style="margin-top:8px">你的错题表里:A 占 4,B 占 7,C 占 8。C 最多 → 每题动笔前默念「主体是谁 · 时态 · 程度词 · 有没有否定」</div></div>
+</div>
+</div>
+
+<!-- ===== 底:19 篇 ===== -->
+<div class="wide"><h2>Lexar 19 篇 · 题型组合表(圈 = 顺序题,无圈 = 随读随收)</h2>
+<div class="combo">
+<div class="box"><b>P1 类</b><table>
+<tr><td class="t">01 Potato</td><td>判断 5 · 填空 8</td><td class="b">骨架 1</td></tr>
+<tr><td class="t">03 Elephant</td><td>判断 6 · 填空 5 · 单选 2</td><td class="b">骨架 2</td></tr>
+<tr><td class="t">05 Gilbert</td><td>Heading 7 · 判断 3 · 多选 3</td><td class="b">骨架 1</td></tr>
+<tr><td class="t">07 Bridges</td><td>单选 4 · 图表填空 4 · 段落信息 5</td><td class="b">骨架 3</td></tr>
+<tr><td class="t">08 Memory</td><td>单选 4 · Summary 6 · 人名 4</td><td class="b">骨架 2</td></tr>
+</table></div>
+<div class="box"><b>P1 / P2 类</b><table>
+<tr><td class="t">09 Ancient societies</td><td>判断 7 · 简答 6</td><td class="b">骨架 1</td></tr>
+<tr><td class="t">14 Mars</td><td>段落信息 6 · 单选 3 · 判断 4</td><td class="b">骨架 1</td></tr>
+<tr><td class="t">10 Nutrition</td><td>Heading 6 · 填空 7</td><td class="b">骨架 3</td></tr>
+<tr><td class="t">11 Weight Loss</td><td>段落信息 5 · 人名 5 · Summary 4</td><td class="b">骨架 3</td></tr>
+<tr><td class="t">12 Graffiti</td><td>段落信息 6 · 多选 2+2 · Summary 4</td><td class="b">骨架 4</td></tr>
+</table></div>
+<div class="box"><b>P2 类</b><table>
+<tr><td class="t">13 Farmers</td><td>段落信息 5 · 判断 4 · 人名 3</td><td class="b">骨架 3</td></tr>
+<tr><td class="t">15 Bitterness</td><td>Heading 7 · 人名 4 · 句子配对 3</td><td class="b">骨架 2</td></tr>
+<tr><td class="t">16 Musicophilia</td><td>单选 4 · Y/N 6 · 句子配对 3</td><td class="b">骨架 4</td></tr>
+<tr><td class="t">19 Bird Migration</td><td>Heading 7 · 多选 2 · 填空 4</td><td class="b">骨架 2</td></tr>
+</table></div>
+<div class="box"><b>P3 类</b><table>
+<tr><td class="t">02 Designed to Last</td><td>单选 5 · Summary 4 · Y/N 4</td><td class="b">骨架 4</td></tr>
+<tr><td class="t">04 Communication</td><td>单选 5 · 判断 4 · Summary 5</td><td class="b">骨架 4</td></tr>
+<tr><td class="t">06 Product Adoption</td><td>人名 4 · 判断 5 · 单选 4</td><td class="b">骨架 4</td></tr>
+<tr><td class="t">17 Water Filter</td><td>段落信息 7 · 判断 7</td><td class="b">骨架 3</td></tr>
+<tr><td class="t">18 Music Language</td><td>Heading 5 · 人名 7 · 单选 2</td><td class="b">骨架 2</td></tr>
+</table></div>
+</div>
+<div class="cn" style="margin-top:10px">规律:P1 = 判断 + 填空 为主,路标密,快过 · P2 = Heading / 段落信息 乱序题最多,随读随收 · P3 = 单选 + Y/N,整句改写最多,作者观点才算 YES。练的时候按组合挑篇:今天练「段落信息 + 判断」就做 13 · 14 · 17</div>
+</div>
+</div></body></html>
