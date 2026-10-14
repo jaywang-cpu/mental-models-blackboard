@@ -32,6 +32,7 @@ main{max-width:640px;width:100%;margin:0 auto;padding:6px 16px calc(40px + env(s
 .row1 .b{color:var(--blue);text-align:center;font-size:12px;padding-top:4px}
 h2{font-size:14px;color:var(--gold);margin:20px 0 8px;font-weight:600}
 .blk{border:1px solid var(--line);border-radius:14px;padding:11px 14px;margin-bottom:8px;background:rgba(255,255,255,.03);font-size:14.5px;line-height:1.65}
+mark.sl{background:none;color:var(--fg);border:1px dashed var(--gold);border-radius:5px;padding:0 4px}
 .blk b{color:var(--gold);display:block;font-size:13px;margin-bottom:3px}
 </style></head><body>
 <div id="bar"><a class="btn" href="index.html">←</a><b>雅 思 口 语</b><a class="btn" href="writing.html">写作</a></div>
@@ -43,11 +44,12 @@ h2{font-size:14px;color:var(--gold);margin:20px 0 8px;font-weight:600}
 <script>
 const S=window.S,M=document.getElementById('main');
 const esc=s=>s.replace(/</g,'&lt;');
+const sl=s=>esc(s).replace(/\[\[(.+?)\]\]/g,'<mark class="sl">$1</mark>');
 function st(){
- M.innerHTML='<div class="note">背熟这 4 段。考到什么题,换第一句和主角,中间不动。点卡片看「怎么改」。</div>'+
+ M.innerHTML='<div class="note">背熟这 4 段。<mark class="sl">虚线框</mark> = 可换的词;框外一字不改。每段骨架都一样:开场 → 块 → 故事 → 细节 → 块 → 转折 → 收尾。点卡片看「怎么改」。</div>'+
  S.stories.map(s=>`<div class="story" onclick="this.classList.toggle('open')">
   <h3>${s.id} · ${s.name}</h3><div class="who">${esc(s.who)}</div><div class="cover">Part 2 第 ${S.p2.filter(r=>r[2]==s.id).map(r=>r[0]).join(' ')} 题 · Part 1 ${S.p1.filter(r=>r[1]==s.id).length} 个话题</div><div class="cover" style="color:var(--dim)">${esc(s.cover)}</div>
-  ${s.lines.map(l=>`<div class="ln"><i>${l[0]}</i><span>${esc(l[1])}</span></div>`).join('')}
+  ${s.lines.map(l=>`<div class="ln"><i>${l[0]}</i><span>${sl(l[1])}</span></div>`).join('')}
   <div class="sw">${s.swap.map(x=>'<div>· '+esc(x)+'</div>').join('')}</div>
   <div class="tg">点开 · 怎么改</div></div>`).join('');
 }
