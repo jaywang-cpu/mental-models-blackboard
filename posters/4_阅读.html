@@ -46,6 +46,17 @@ td.b{color:#8fb8ff;white-space:nowrap}
 .wide{margin-top:36px;border-top:4px solid #e9c46a;padding-top:14px}
 .combo{display:grid;grid-template-columns:repeat(4,1fr);gap:16px}
 .combo .box{margin:0}
+/* 花园模型 */
+.garden{display:grid;grid-template-columns:1.35fr 1fr 1fr;gap:28px;align-items:start}
+.garden .box{margin:0}
+.map{display:grid;grid-template-columns:120px 1fr 1fr;gap:3px 10px;font-size:16px}
+.map span:nth-child(3n+1){color:#7ddf9a;font-weight:600}
+.map span:nth-child(3n+2){color:#e9c46a}
+.map span:nth-child(3n){color:#b9c2d6}
+.qt{display:grid;grid-template-columns:118px 1fr;gap:4px 10px;font-size:16px}
+.qt span:nth-child(odd){color:#e9c46a;font-weight:600}
+.qt span:nth-child(even){color:#d9e1f2}
+.gh{color:#7ddf9a}
 svg text{font-family:-apple-system,"PingFang SC",sans-serif}
 </style></head><body><div class="pg"><div class="day">阅读</div>
 <h1>阅读 · 结构 × 题型 × 节奏</h1>
@@ -240,6 +251,42 @@ svg text{font-family:-apple-system,"PingFang SC",sans-serif}
 <div class="cn" style="margin-top:8px">你的错题表里:A 占 4,B 占 7,C 占 8。C 最多 → 每题动笔前默念「主体是谁 · 时态 · 程度词 · 有没有否定」</div></div>
 </div>
 </div>
+
+<!-- ===== 花园模型 ===== -->
+<div class="wide"><h2>花园模型 · 文章 = 一排大棚,题目 = 棚里的鱼和花</h2>
+<div class="garden">
+<div class="box"><svg viewBox="0 0 1000 215" width="100%" style="display:block"><text x="0" y="20" font-size="15" fill="#8b94b0">棚的摆放 = 骨架(这排是骨架 1 发展史) · 门口黄牌 = 首句 · 红虚线 = 转折 · 池 = 顺序题 · 白名牌 = 人名年份 · 单朵花 = 乱序题要找的那条</text><g transform="translate(0,0)"><path d="M0 150 L0 70 Q70 10 140 70 L140 150 Z" fill="rgba(125,223,154,.07)" stroke="#7ddf9a" stroke-width="2"/><rect x="20" y="48" width="100" height="24" rx="6" fill="#e9c46a"/><text x="70" y="65" font-size="14" font-weight="600" text-anchor="middle" fill="#06091a">起源</text><text x="70" y="90" font-size="12" text-anchor="middle" fill="#8b94b0">最早在哪</text><line x1="78" y1="100" x2="78" y2="150" stroke="#ff9a9a" stroke-width="2" stroke-dasharray="4 3"/><text x="82" y="112" font-size="11" fill="#ff9a9a">but</text><circle cx="30" cy="118" r="6" fill="#e9c46a"/><line x1="30" y1="124" x2="30" y2="134" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="50" cy="124" r="6" fill="#e9c46a"/><line x1="50" y1="130" x2="50" y2="140" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="100" cy="118" r="6" fill="#e9c46a"/><line x1="100" y1="124" x2="100" y2="134" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="120" cy="126" r="6" fill="#8fb8ff"/><line x1="120" y1="132" x2="120" y2="142" stroke="#7ddf9a" stroke-width="1.5"/><rect x="102" y="92" width="32" height="12" rx="2" fill="#fff" opacity=".9"/><text x="118" y="101" font-size="9" text-anchor="middle" fill="#06091a">1596</text></g><g transform="translate(160,0)"><path d="M0 150 L0 70 Q70 10 140 70 L140 150 Z" fill="rgba(125,223,154,.07)" stroke="#7ddf9a" stroke-width="2"/><rect x="20" y="48" width="100" height="24" rx="6" fill="#e9c46a"/><text x="70" y="65" font-size="14" font-weight="600" text-anchor="middle" fill="#06091a">早期</text><text x="70" y="90" font-size="12" text-anchor="middle" fill="#8b94b0">传播·误解</text><line x1="78" y1="100" x2="78" y2="150" stroke="#ff9a9a" stroke-width="2" stroke-dasharray="4 3"/><text x="82" y="112" font-size="11" fill="#ff9a9a">but</text><circle cx="26" cy="120" r="6" fill="#8fb8ff"/><line x1="26" y1="126" x2="26" y2="136" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="100" cy="118" r="6" fill="#8fb8ff"/><line x1="100" y1="124" x2="100" y2="134" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="118" cy="128" r="6" fill="#8fb8ff"/><line x1="118" y1="134" x2="118" y2="144" stroke="#7ddf9a" stroke-width="1.5"/><rect x="88" y="92" width="32" height="12" rx="2" fill="#fff" opacity=".9"/><text x="104" y="101" font-size="9" text-anchor="middle" fill="#06091a">Smith</text><ellipse cx="40" cy="134" rx="30" ry="11" fill="rgba(143,184,255,.35)" stroke="#8fb8ff" stroke-width="1.5"/><path d="M26 134 l6 -3 l0 6 z M26 134 l-5 -2 a3 3 0 1 0 0 4 z" fill="#8fb8ff"/><path d="M38 134 l6 -3 l0 6 z M38 134 l-5 -2 a3 3 0 1 0 0 4 z" fill="#8fb8ff"/><path d="M50 134 l6 -3 l0 6 z M50 134 l-5 -2 a3 3 0 1 0 0 4 z" fill="#8fb8ff"/></g><g transform="translate(320,0)"><path d="M0 150 L0 70 Q70 10 140 70 L140 150 Z" fill="rgba(125,223,154,.07)" stroke="#7ddf9a" stroke-width="2"/><rect x="20" y="48" width="100" height="24" rx="6" fill="#e9c46a"/><text x="70" y="65" font-size="14" font-weight="600" text-anchor="middle" fill="#06091a">转折</text><text x="70" y="90" font-size="12" text-anchor="middle" fill="#8b94b0">某人突破</text><line x1="78" y1="100" x2="78" y2="150" stroke="#ff9a9a" stroke-width="2" stroke-dasharray="4 3"/><text x="82" y="112" font-size="11" fill="#ff9a9a">but</text><circle cx="30" cy="118" r="6" fill="#d8a0ff"/><line x1="30" y1="124" x2="30" y2="134" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="52" cy="126" r="6" fill="#d8a0ff"/><line x1="52" y1="132" x2="52" y2="142" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="98" cy="120" r="6" fill="#d8a0ff"/><line x1="98" y1="126" x2="98" y2="136" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="122" cy="128" r="6" fill="#e9c46a"/><line x1="122" y1="134" x2="122" y2="144" stroke="#7ddf9a" stroke-width="1.5"/><rect x="100" y="92" width="32" height="12" rx="2" fill="#fff" opacity=".9"/><text x="116" y="101" font-size="9" text-anchor="middle" fill="#06091a">Gilbert</text></g><g transform="translate(480,0)"><path d="M0 150 L0 70 Q70 10 140 70 L140 150 Z" fill="rgba(125,223,154,.07)" stroke="#7ddf9a" stroke-width="2"/><rect x="20" y="48" width="100" height="24" rx="6" fill="#e9c46a"/><text x="70" y="65" font-size="14" font-weight="600" text-anchor="middle" fill="#06091a">现状</text><text x="70" y="90" font-size="12" text-anchor="middle" fill="#8b94b0">现在怎样</text><line x1="78" y1="100" x2="78" y2="150" stroke="#ff9a9a" stroke-width="2" stroke-dasharray="4 3"/><text x="82" y="112" font-size="11" fill="#ff9a9a">but</text><circle cx="28" cy="122" r="6" fill="#e9c46a"/><line x1="28" y1="128" x2="28" y2="138" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="100" cy="118" r="6" fill="#e9c46a"/><line x1="100" y1="124" x2="100" y2="134" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="118" cy="128" r="6" fill="#8fb8ff"/><line x1="118" y1="134" x2="118" y2="144" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="50" cy="120" r="6" fill="#e9c46a"/><line x1="50" y1="126" x2="50" y2="136" stroke="#7ddf9a" stroke-width="1.5"/><ellipse cx="40" cy="134" rx="30" ry="11" fill="rgba(143,184,255,.35)" stroke="#8fb8ff" stroke-width="1.5"/><path d="M26 134 l6 -3 l0 6 z M26 134 l-5 -2 a3 3 0 1 0 0 4 z" fill="#8fb8ff"/><path d="M38 134 l6 -3 l0 6 z M38 134 l-5 -2 a3 3 0 1 0 0 4 z" fill="#8fb8ff"/><path d="M50 134 l6 -3 l0 6 z M50 134 l-5 -2 a3 3 0 1 0 0 4 z" fill="#8fb8ff"/></g><g transform="translate(640,0)"><path d="M0 150 L0 70 Q70 10 140 70 L140 150 Z" fill="rgba(125,223,154,.07)" stroke="#7ddf9a" stroke-width="2"/><rect x="20" y="48" width="100" height="24" rx="6" fill="#e9c46a"/><text x="70" y="65" font-size="14" font-weight="600" text-anchor="middle" fill="#06091a">未来</text><text x="70" y="90" font-size="12" text-anchor="middle" fill="#8b94b0">还未解决</text><line x1="78" y1="100" x2="78" y2="150" stroke="#ff9a9a" stroke-width="2" stroke-dasharray="4 3"/><text x="82" y="112" font-size="11" fill="#ff9a9a">but</text><circle cx="30" cy="120" r="6" fill="#d8a0ff"/><line x1="30" y1="126" x2="30" y2="136" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="104" cy="120" r="6" fill="#d8a0ff"/><line x1="104" y1="126" x2="104" y2="136" stroke="#7ddf9a" stroke-width="1.5"/><circle cx="120" cy="128" r="6" fill="#d8a0ff"/><line x1="120" y1="134" x2="120" y2="144" stroke="#7ddf9a" stroke-width="1.5"/></g><g transform="translate(810,0)"><rect x="0" y="70" width="150" height="80" rx="8" fill="rgba(233,196,106,.08)" stroke="#e9c46a" stroke-width="2"/><rect x="0" y="54" width="150" height="20" rx="4" fill="#e9c46a"/><text x="75" y="68" font-size="13" font-weight="600" text-anchor="middle" fill="#06091a">商店 · 结尾段</text><text x="75" y="100" font-size="13" text-anchor="middle" fill="#e8eef4">作者态度 · 评价</text><text x="75" y="120" font-size="13" text-anchor="middle" fill="#e8eef4">单选末题 · Y/N</text><text x="75" y="140" font-size="12" text-anchor="middle" fill="#8b94b0">逛完全园才买</text></g><path d="M10 185 L950 185" stroke="#8fb8ff" stroke-width="2" stroke-dasharray="6 5" marker-end="url(#a)"/><defs><marker id="a" markerWidth="8" markerHeight="8" refX="6" refY="4" orient="auto"><path d="M0 0 L8 4 L0 8 z" fill="#8fb8ff"/></marker></defs><text x="10" y="208" font-size="14" fill="#8fb8ff">水道 = 顺序题走向:一棚一停,手指按题号,不回头 · 池不跨棚,鱼偶尔跨棚(T3 一半在这棚一半在下棚,先别判 NG)</text></svg>
+<div class="map" style="margin-top:12px">
+<span>花园</span><span>全文</span><span>标题 10 秒猜园林布局</span>
+<span>大棚</span><span>段落</span><span>同棚同科:一段只讲一类东西</span>
+<span>门口黄牌</span><span>首句</span><span>先读所有牌,画园地图再进棚</span>
+<span>棚内隔断</span><span>转折 but/however</span><span>隔断后面才是老板想卖的花(考点)</span>
+<span>棚后墙</span><span>小结 in fact</span><span>作者态度</span>
+<span>花</span><span>具体信息点</span><span>题干给学名(抽象),棚里种俗名(例子)</span>
+<span>白名牌</span><span>人名 年份 数字</span><span>不会被改写,只圈这个</span>
+<span>鱼池</span><span>顺序题扎堆区</span><span>7 题分 3–4 个棚,每棚一池,沿水道排</span>
+<span>商店</span><span>结尾段</span><span>结论 · 展望 · 评价</span>
+</div></div>
+
+<div class="box"><b>顺序题 = 沿水道走,一棚一停</b>
+<div class="qt" style="margin-top:8px">
+<span>判断</span><span>一题一条鱼。鱼有颜色:时间 · 程度 · 比较 · 因果 · 主体。F = 颜色反了,NG = 池里没这种鱼。先问「是否」再看颜色</span>
+<span>填空 Summary</span><span>一个池里捞指定的鱼。词性是鱼的形状,先定形(n/adj/v)再捞</span>
+<span>单选</span><span>一条鱼换个说法。干扰项 = 隔壁池的鱼,或反色鱼</span>
+<span>多选</span><span>数一个池里同科的鱼几条。and / also / another 是鱼的间距</span>
+<span>句子配对</span><span>前半句定池子,后半句认鱼</span>
+</div>
+<div class="cn" style="margin-top:10px">4 种园林布局 = 4 种骨架:一排(发展史) · 中心辐射(现象→研究) · 漏斗(问题→方案) · 两排对峙(争论)。知道布局就知道哪科花在哪个棚:起源在第 1 棚,现状在最后,A 方 B 方各一排,作者在商店</div></div>
+
+<div class="box"><b>乱序题 = 读完每棚顺手收,不回头</b>
+<div class="qt" style="margin-top:8px">
+<span>Heading</span><span>不是找花,是给棚补门牌。看首句 + 隔断后的话。例子是花不是牌,别拿花当牌</span>
+<span>段落信息</span><span>找一朵指定的花。题干是学名(advantage / problem / era),棚里是俗名(具体例子)。先用门牌判这科该在哪棚,再进去认</span>
+<span>人名匹配</span><span>先把全园白名牌圈完,再看名牌旁那朵花。一人可对多题</span>
+</div>
+<div class="rule" style="margin-top:10px">最快路线:读标题猜布局 → 读全部门牌标科 → 顺序题沿水道一棚一停 → 每出一棚顺手收乱序题 → 走到商店收态度题</div>
+<div class="cn" style="margin-top:8px">比喻的边界:一棚不只一科,隔断前例子、隔断后观点 · 门牌偶尔骗人(首句是设问或例子时,真牌在第二句或隔断后) · 池不跨棚,鱼偶尔跨棚</div></div>
+</div></div>
 
 <!-- ===== 底:19 篇 ===== -->
 <div class="wide"><h2>Lexar 19 篇 · 题型组合表(圈 = 顺序题,无圈 = 随读随收)</h2>
